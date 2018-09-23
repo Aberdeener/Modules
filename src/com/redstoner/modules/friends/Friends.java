@@ -18,26 +18,21 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.nemez.cmdmgr.Command;
-import com.nemez.cmdmgr.CommandManager;
 import com.redstoner.annotations.AutoRegisterListener;
+import com.redstoner.annotations.Commands;
 import com.redstoner.annotations.Version;
 import com.redstoner.coremods.moduleLoader.ModuleLoader;
-import com.redstoner.misc.Main;
+import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Utils;
 import com.redstoner.modules.CoreModule;
 import com.redstoner.modules.Module;
 import com.redstoner.modules.datamanager.DataManager;
 
 @AutoRegisterListener
-@Version(major = 3, minor = 0, revision = 1, compatible = 3)
+@Commands(CommandHolderType.File)
+@Version(major = 4, minor = 0, revision = 0, compatible = 4)
 public class Friends implements CoreModule
-{
-	@Override
-	public void postEnable()
-	{
-		CommandManager.registerCommand(getClass().getResourceAsStream("Friends.cmd"), this, Main.plugin);
-	}
-	
+{	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(PlayerJoinEvent e)
 	{
@@ -48,14 +43,14 @@ public class Friends implements CoreModule
 			Player p = Bukkit.getPlayer(uuid);
 			if (p != null && p.canSee(e.getPlayer()))
 			{
-				Utils.sendMessage(p, null, "Your friend &e" + e.getPlayer().getDisplayName() + "&7 just joined!", '&');
+				getLogger().message(p, "Your friend &e" + e.getPlayer().getDisplayName() + "&7 just joined!");
 				p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 1, 1);
 			}
 		}
 		JSONArray notifications = (JSONArray) DataManager.getOrDefault(e.getPlayer(), "scheduled_notifications",
 				new JSONArray());
 		for (Object obj : notifications)
-			Utils.sendMessage(e.getPlayer(), null, (String) obj, '&');
+			getLogger().message(e.getPlayer(), (String) obj);
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -68,7 +63,7 @@ public class Friends implements CoreModule
 			Player p = Bukkit.getPlayer(uuid);
 			if (p != null && p.canSee(e.getPlayer()))
 			{
-				Utils.sendMessage(p, null, "Your friend &e" + e.getPlayer().getDisplayName() + "&7 just left!", '&');
+				getLogger().message(p, "Your friend &e" + e.getPlayer().getDisplayName() + "&7 just left!");
 				p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 1, 1);
 			}
 		}
@@ -80,7 +75,7 @@ public class Friends implements CoreModule
 	{
 		if (target.equalsIgnoreCase("CONSOLE"))
 		{
-			Utils.sendErrorMessage(sender, null, "You can't add console to your friends!");
+			getLogger().message(sender, true, "You can't add console to your friends!");
 			return true;
 		}
 		OfflinePlayer p = Bukkit.getPlayer(target);
@@ -88,13 +83,13 @@ public class Friends implements CoreModule
 			p = Bukkit.getOfflinePlayer(target);
 		if (p == null)
 		{
-			Utils.sendErrorMessage(sender, null, "That player couldn't be found!");
+			getLogger().message(sender, true, "That player couldn't be found!");
 			return true;
 		}
 		JSONArray friends = ((JSONArray) DataManager.getOrDefault(sender, "friends", new JSONArray()));
 		if (friends.contains(p.getUniqueId().toString()))
 		{
-			Utils.sendErrorMessage(sender, null, "You are already friends with this person!");
+			getLogger().message(sender, true, "You are already friends with this person!");
 			return true;
 		}
 		friends.add(p.getUniqueId().toString());
@@ -103,10 +98,10 @@ public class Friends implements CoreModule
 				new JSONArray()));
 		friended_by.add(getID(sender));
 		DataManager.save(p.getUniqueId().toString());
-		Utils.sendMessage(sender, null, "You are now friends with &e" + p.getName() + "&7!", '&');
+		getLogger().message(sender, "You are now friends with &e" + p.getName() + "&7!");
 		if (p instanceof Player)
 		{
-			Utils.sendMessage((Player) p, null, "&e" + Utils.getName(sender) + "&7 added you as a friend!", '&');
+			getLogger().message((Player) p, "&e" + Utils.getName(sender) + "&7 added you as a friend!");
 		}
 		else
 		{
@@ -125,7 +120,7 @@ public class Friends implements CoreModule
 	{
 		if (target.equalsIgnoreCase("CONSOLE"))
 		{
-			Utils.sendErrorMessage(sender, null, "You can't add console to your friends!");
+			getLogger().message(sender, true, "You can't add console to your friends!");
 			return true;
 		}
 		OfflinePlayer p = Bukkit.getPlayer(target);
@@ -133,22 +128,22 @@ public class Friends implements CoreModule
 			p = Bukkit.getOfflinePlayer(target);
 		if (p == null)
 		{
-			Utils.sendErrorMessage(sender, null, "That player couldn't be found!");
+			getLogger().message(sender, true, "That player couldn't be found!");
 			return true;
 		}
 		JSONArray friends = ((JSONArray) DataManager.getOrDefault(sender, "groups." + group, new JSONArray()));
 		if (friends.contains(p.getUniqueId().toString()))
 		{
-			Utils.sendErrorMessage(sender, null, "This person already is part of that friendsgroup!");
+			getLogger().message(sender, true, "This person already is part of that friendsgroup!");
 			return true;
 		}
 		friends.add(p.getUniqueId().toString());
 		DataManager.save(sender);
-		Utils.sendMessage(sender, null, "&e" + p.getName() + "&7 is now part of the group &e" + group + "&7!", '&');
+		getLogger().message(sender, "&e" + p.getName() + "&7 is now part of the group &e" + group + "&7!");
 		if (p instanceof Player)
 		{
-			Utils.sendMessage((Player) p, null,
-					"&e" + Utils.getName(sender) + " &7added you to their friendsgroup &e" + group + "&7!", '&');
+			getLogger().message((Player) p,
+					"&e" + Utils.getName(sender) + " &7added you to their friendsgroup &e" + group + "&7!");
 		}
 		else
 		{
@@ -168,7 +163,7 @@ public class Friends implements CoreModule
 	{
 		if (target.equalsIgnoreCase("CONSOLE"))
 		{
-			Utils.sendErrorMessage(sender, null, "You can't add console to your friends!");
+			getLogger().message(sender, true, "You can't add console to your friends!");
 			return true;
 		}
 		OfflinePlayer p = Bukkit.getPlayer(target);
@@ -176,13 +171,13 @@ public class Friends implements CoreModule
 			p = Bukkit.getOfflinePlayer(target);
 		if (p == null)
 		{
-			Utils.sendErrorMessage(sender, null, "That player couldn't be found!");
+			getLogger().message(sender, true, "That player couldn't be found!");
 			return true;
 		}
 		JSONArray friends = ((JSONArray) DataManager.getOrDefault(sender, "friends", new JSONArray()));
 		if (friends.contains(p.getUniqueId().toString()))
 		{
-			Utils.sendErrorMessage(sender, null, "You are already friends with this person!");
+			getLogger().message(sender, true, "You are already friends with this person!");
 			return true;
 		}
 		friends.remove(p.getUniqueId().toString());
@@ -191,10 +186,10 @@ public class Friends implements CoreModule
 				new JSONArray()));
 		friended_by.remove(getID(sender));
 		DataManager.save(p.getUniqueId().toString());
-		Utils.sendMessage(sender, null, "You are now friends with &e" + p.getName() + "&7!", '&');
+		getLogger().message(sender, "You are now friends with &e" + p.getName() + "&7!");
 		if (p instanceof Player)
 		{
-			Utils.sendMessage((Player) p, null, "&e" + Utils.getName(sender) + "&7 added you as a friend!", '&');
+			getLogger().message((Player) p, "&e" + Utils.getName(sender) + "&7 added you as a friend!");
 		}
 		else
 		{
@@ -213,7 +208,7 @@ public class Friends implements CoreModule
 	{
 		if (target.equalsIgnoreCase("CONSOLE"))
 		{
-			Utils.sendErrorMessage(sender, null, "You can't add console to your friends!");
+			getLogger().message(sender, true, "You can't add console to your friends!");
 			return true;
 		}
 		OfflinePlayer p = Bukkit.getPlayer(target);
@@ -221,22 +216,22 @@ public class Friends implements CoreModule
 			p = Bukkit.getOfflinePlayer(target);
 		if (p == null)
 		{
-			Utils.sendErrorMessage(sender, null, "That player couldn't be found!");
+			getLogger().message(sender, true, "That player couldn't be found!");
 			return true;
 		}
 		JSONArray friends = ((JSONArray) DataManager.getOrDefault(sender, "groups." + group, new JSONArray()));
 		if (friends.contains(p.getUniqueId().toString()))
 		{
-			Utils.sendErrorMessage(sender, null, "This person already is part of that friendsgroup!");
+			getLogger().message(sender, true, "This person already is part of that friendsgroup!");
 			return true;
 		}
 		friends.add(p.getUniqueId().toString());
 		DataManager.save(sender);
-		Utils.sendMessage(sender, null, "&e" + p.getName() + "&7 is now part of the group &e" + group + "&7!", '&');
+		getLogger().message(sender, "&e" + p.getName() + "&7 is now part of the group &e" + group + "&7!");
 		if (p instanceof Player)
 		{
-			Utils.sendMessage((Player) p, null,
-					"&e" + Utils.getName(sender) + " &7added you to their friendsgroup &e" + group + "&7!", '&');
+			getLogger().message((Player) p,
+					"&e" + Utils.getName(sender) + " &7added you to their friendsgroup &e" + group + "&7!");
 		}
 		else
 		{
@@ -257,12 +252,10 @@ public class Friends implements CoreModule
 		JSONArray friends = (JSONArray) DataManager.getOrDefault(sender, "friends", new JSONArray());
 		if (friends.size() == 0)
 		{
-			Utils.sendErrorMessage(sender, null, "You didn't add anyone to your friendslist yet.");
+			getLogger().message(sender, true, "You didn't add anyone to your friendslist yet.");
 		}
 		else
 		{
-			Utils.sendModuleHeader(sender);
-			Utils.sendMessage(sender, "", "You have a total of &e" + friends.size() + "&7 friends:", '&');
 			StringBuilder sb = new StringBuilder();
 			for (Object o : friends.toArray())
 			{
@@ -274,7 +267,7 @@ public class Friends implements CoreModule
 					sb.append("&9" + Bukkit.getOfflinePlayer(id).getName() + "&7, ");
 			}
 			String out = sb.toString().replaceAll(", $", "");
-			Utils.sendMessage(sender, "", out, '&');
+			getLogger().message(sender, "You have a total of &e" + friends.size() + "&7 friends:", out);
 		}
 		return true;
 	}
@@ -285,13 +278,10 @@ public class Friends implements CoreModule
 		JSONArray friends = (JSONArray) DataManager.getOrDefault(sender, "group." + group, new JSONArray());
 		if (friends.size() == 0)
 		{
-			Utils.sendErrorMessage(sender, null, "You didn't add anyone to this group yet.");
+			getLogger().message(sender, true, "You didn't add anyone to this group yet.");
 		}
 		else
 		{
-			Utils.sendModuleHeader(sender);
-			Utils.sendMessage(sender, "", "You have a total of &e" + friends.size() + "&7 friends added to this group:",
-					'&');
 			StringBuilder sb = new StringBuilder();
 			for (Object o : friends.toArray())
 			{
@@ -303,7 +293,7 @@ public class Friends implements CoreModule
 					sb.append("&9" + Bukkit.getOfflinePlayer(id).getName() + "&7, ");
 			}
 			String out = sb.toString().replaceAll(", $", "");
-			Utils.sendMessage(sender, "", out, '&');
+			getLogger().message(sender, "You have a total of &e" + friends.size() + "&7 friends added to this group:", out);
 		}
 		return true;
 	}
@@ -315,19 +305,18 @@ public class Friends implements CoreModule
 		Set<?> keys = raw.keySet();
 		if (keys.size() == 0 || (keys.contains("friends") && keys.size() == 1))
 		{
-			Utils.sendErrorMessage(sender, null, "You don't have any custom groups made yet.");
+			getLogger().message(sender, true, "You don't have any custom groups made yet.");
 			return true;
 		}
 		else
 		{
-			Utils.sendModuleHeader(sender);
 			StringBuilder sb = new StringBuilder();
 			for (Object o : keys)
 			{
 				sb.append("&e" + (String) o + "&7, ");
 			}
 			String out = sb.toString().replaceAll(", $", "");
-			Utils.sendMessage(sender, "", out, '&');
+			getLogger().message(sender, "", out);
 		}
 		return true;
 	}
