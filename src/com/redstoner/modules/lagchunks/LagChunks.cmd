@@ -1,4 +1,4 @@
-"command lc {
+command lc {
 	perm utils.lagchunks;
 	
 	list {

@@ -39,4 +39,4 @@ command bct {
 		perm utils.bc;
 		run bct;
 	}
-}";
+}
