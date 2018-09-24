@@ -30,7 +30,7 @@ import com.redstoner.modules.datamanager.DataManager;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 5, compatible = 5)
+@Version(major = 4, minor = 0, revision = 6, compatible = 5)
 public class AFK implements Module, Listener
 {
 	private CustomListener listener;
@@ -78,24 +78,27 @@ public class AFK implements Module, Listener
 	@Command(hook = "afk")
 	public boolean afk(CommandSender sender)
 	{
-		return afk(sender, "");
+		return afk(sender, false, "");
 	}
 	
-	@Command(hook = "afk2")
-	public boolean afk(CommandSender sender, String reason)
+	@Command(hook = "afks")
+	public boolean afk(CommandSender sender, boolean silent)
 	{
-		return afk(sender, reason, false);
+		return afk(sender, silent, "");
 	}
 	
-	public boolean afk(CommandSender sender, String reason, boolean silent)
+	@Command(hook = "afk2")	
+	public boolean afk(CommandSender sender, boolean silent, String reason)
 	{
 		if (isafk(sender))
 		{
-			unafk(sender);
+			unafk(sender, silent);
 		}
 		else
 		{
+			DataManager.setData(sender, "afk_time", System.currentTimeMillis());
 			DataManager.setData(sender, "afk_reason", reason);
+			DataManager.setState(sender, "afk_silent", silent);
 			DataManager.setState(sender, "afk", true);
 			if (!silent)
 				Utils.broadcast("§7 * ", Utils.getName(sender) + "§7 is now AFK", null);
@@ -103,10 +106,11 @@ public class AFK implements Module, Listener
 		return true;
 	}
 	
-	public void unafk(CommandSender sender)
+	public void unafk(CommandSender sender, boolean silent)
 	{
 		DataManager.setState(sender, "afk", false);
-		Utils.broadcast("§7 * ", Utils.getName(sender) + "§7 is no longer AFK", null);
+		if (!silent)
+			Utils.broadcast("§7 * ", Utils.getName(sender) + "§7 is no longer AFK", null);
 	}
 	
 	public boolean isafk(CommandSender sender)
@@ -200,12 +204,18 @@ class CustomListener implements Listener, EventExecutor
 	public void unafk(CommandSender sender)
 	{
 		DataManager.setState(sender, "afk", false);
-		Utils.broadcast("§7 * ", Utils.getName(sender) + "§7 is no longer AFK", null);
+		if ( !isSilent(sender) )
+			Utils.broadcast("§7 * ", Utils.getName(sender) + "§7 is no longer AFK", null);
 	}
 	
 	public boolean isafk(CommandSender sender)
 	{
 		return DataManager.getState(sender, "afk");
+	}
+	
+	public boolean isSilent(CommandSender sender)
+	{
+		return DataManager.getState(sender, "afk_silent");
 	}
 	
 	public boolean isVanished(Player player)
