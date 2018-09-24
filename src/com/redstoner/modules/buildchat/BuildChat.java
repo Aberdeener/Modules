@@ -26,9 +26,9 @@ import com.redstoner.modules.Module;
 /** BuildTeamChat module. Allows the build team to chat privately using /bc \<message\> as well as a one char prefix or a toggle.
  * 
  * @author Pepich */
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 1, compatible = 4)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class BuildChat implements Module, Listener
 {
 	private static final char defaultKey = ';';
@@ -48,55 +48,6 @@ public class BuildChat implements Module, Listener
 		bctoggled = new ArrayList<>();
 		return true;
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command bc {\n" + 
-				"	[string:message...] {\n" + 
-				"		help Sends a message in BuildTeam Chat;\n" + 
-				"		perm utils.bc;\n" + 
-				"		run bc_msg message;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"command bcn {\n" + 
-				"	[string:name] [string:message...] {\n" + 
-				"		help Sends a message in BuildTeam Chat;\n" + 
-				"		perm utils.bc;\n" + 
-				"		type console;\n" +
-				"		run bcn_msg name message;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"		\n" + 
-				"command bckey {\n" + 
-				"	[string:key] {\n" + 
-				"		help Sets your BuildTeam Chat key;\n" + 
-				"		perm utils.bc;\n" + 
-				"		type player;\n" + 
-				"		run setbckey key;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"command bct {\n" + 
-				"	on {\n" + 
-				"		help Turns on bct;\n" + 
-				"		perm utils.bc;\n" + 
-				"		run bct_on;\n" + 
-				"	}\n" + 
-				"	off {\n" + 
-				"		help Turns off bct;\n" + 
-				"		perm utils.bc;\n" + 
-				"		run bct_off;\n" + 
-				"	}\n" + 
-				"	[empty] {\n" + 
-				"		help toggles BuildTeam Chat;\n" + 
-				"		perm utils.bc;\n" + 
-				"		run bct;\n" + 
-				"	}\n" + 
-				"}";
-	}
-	// @format
 	
 	@Command(hook = "bc_msg")
 	public boolean bcSay(CommandSender sender, String message)

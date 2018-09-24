@@ -19,9 +19,9 @@ import com.redstoner.misc.JsonManager;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Abot implements Module, Listener
 {
 	private File answerFile = new File(Main.plugin.getDataFolder(), "abot.json");
@@ -65,18 +65,4 @@ public class Abot implements Module, Listener
 		loadAnswers(Bukkit.getConsoleSender());
 		return true;
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command abot {\n" +
-				"	reload {" +
-				"		help Reloads answers from the .json file.;\n" +
-				"		run abot_reload;\n" +
-				"		perm utils.abot.reload;" +
-				"	}\n" +
-				"}";
-	}
-	// format
 }

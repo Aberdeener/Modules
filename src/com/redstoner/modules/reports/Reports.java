@@ -25,8 +25,8 @@ import net.md_5.bungee.api.ChatColor;
 /** Report module. Allows reports to be created and handled by staff
  * 
  * @author Redempt */
-@Commands(CommandHolderType.String)
-@Version(major = 4, minor = 0, revision = 1, compatible = 4)
+@Commands(CommandHolderType.File)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Reports implements Module
 {
 	private int task = 0;
@@ -71,16 +71,6 @@ public class Reports implements Module
 		Bukkit.getScheduler().cancelTask(task);
 		JsonManager.save(reports, new File(Main.plugin.getDataFolder(), "reports.json"));
 		JsonManager.save(archived, new File(Main.plugin.getDataFolder(), "archived_reports.json"));
-	}
-	
-	@Override
-	public String getCommandString()
-	{
-		return "command report {" + "[string:message...] {" + "type player;" + "help Report a player or incident;"
-				+ "run report message;" + "}" + "}" + "command rp {" + "perm utils.report;" + "open {"
-				+ "help List all open reports;" + "run report_open;" + "}" + "close [int:id] {" + "help Close a report;"
-				+ "run report_close id;" + "}" + "tp [int:id] {" + "help Teleport to the location of a report;"
-				+ "run report_tp id;" + "type player;" + "}" + "}";
 	}
 	
 	@Command(hook = "report_tp")

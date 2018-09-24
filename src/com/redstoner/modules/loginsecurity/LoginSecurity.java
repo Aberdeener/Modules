@@ -34,9 +34,9 @@ import com.redstoner.misc.mysql.elements.MysqlTable;
 import com.redstoner.misc.mysql.types.text.VarChar;
 import com.redstoner.modules.Module;
 
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class LoginSecurity implements Module, Listener
 {
 	protected static Map<UUID, Location> loggingIn;
@@ -260,60 +260,4 @@ public class LoginSecurity implements Module, Listener
 		String toInsert = "$pbkdf2-sha256$200000$" + salt + "$" + hash;
 		return table.insert(player.getUniqueId().toString(), toInsert);
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command register {\n" + 
-				"	perm utils.loginsecurity;\n" + 
-				"	\n" + 
-				"	[string:password] {\n" + 
-				"		run register password;\n" + 
-				"		help Protects your account with a password;\n" + 
-				"		type player;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"command login {\n" + 
-				"	perm utils.loginsecurity;\n" + 
-				"	\n" + 
-				"	[string:password] {\n" + 
-				"		run login password;\n" + 
-				"		help Logs you in;\n" + 
-				"		type player;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"command cgpass {\n" + 
-				"	perm utils.loginsecurity;\n" + 
-				"	\n" + 
-				"	[string:oldPassword] [string:newPassword] {\n" + 
-				"		run cgpass oldPassword newPassword;\n" + 
-				"		help Changes your password to the specified one;\n" + 
-				"		type player;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"command rmpass {\n" + 
-				"	perm utils.loginsecurity;\n" + 
-				"	\n" + 
-				"	[string:oldPassword] {\n" + 
-				"		run rmpass oldPassword;\n" + 
-				"		help Removes the password of your account;\n" + 
-				"		type player;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"command rmotherpass {\n" + 
-				"	perm utils.loginsecurity.admin;\n" + 
-				"	\n" + 
-				"	[string:playerName] {\n" + 
-				"		run rmotherpass playerName;\n" + 
-				"		help removes the password of another player;\n" + 
-				"		perm utils.loginsecurity.admin;\n" + 
-				"	}\n" + 
-				"}";
-	}
-	// @format
 }

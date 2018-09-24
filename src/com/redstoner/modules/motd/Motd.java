@@ -14,9 +14,9 @@ import com.redstoner.annotations.Version;
 import com.redstoner.misc.CommandHolderType;
 import com.redstoner.modules.Module;
 
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Motd implements Module, Listener
 {
 	private String default_motd, motd;
@@ -56,25 +56,4 @@ public class Motd implements Module, Listener
 		motd = default_motd;
 		return true;
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command setmotd {\n" + 
-				"    [string:motd...] {\n" + 
-				"        help Sets the motd. Use --reset to reset to default;\n" + 
-				"        run setmotd motd;\n" + 
-				"    	perm utils.setmotd;" +
-				"    }\n" + 
-				"}\n" + 
-				"command getmotd {\n" + 
-				"    [empty] {\n" + 
-				"        help Returns the motd;\n" + 
-				"        run getmotd;\n" + 
-				"    	perm utils.getmotd;" +
-				"    }\n" + 
-				"}";
-	}
-	// @format
 }

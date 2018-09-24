@@ -9,7 +9,7 @@ import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Utils;
 import com.redstoner.modules.Module;
 
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @Version(major = 4, minor = 0, revision = 1, compatible = 4)
 public class Warn implements Module
 {
@@ -26,26 +26,4 @@ public class Warn implements Module
 		String name = Utils.getName(sender);
 		Utils.broadcast(null, "§2Possible lag incoming! - §9" + name, null);
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command warn {\n" + 
-				"	[empty] {\n" + 
-				"		run warn;\n" + 
-				"		help Warns other players about definite lag;\n" + 
-				"		perm utils.warn;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"command warnp {\n" + 
-				"	[empty] {\n" + 
-				"		run warnp;\n" + 
-				"		help Warns other players about possible lag;\n" + 
-				"		perm utils.warn;\n" + 
-				"	}\n" + 
-				"}";
-	}
-	//@format
 }

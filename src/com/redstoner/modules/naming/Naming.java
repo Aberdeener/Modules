@@ -19,8 +19,8 @@ import com.redstoner.modules.Module;
 
 import net.md_5.bungee.api.ChatColor;
 
-@Commands(CommandHolderType.String)
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Commands(CommandHolderType.File)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Naming implements Module
 {
 	@Command(hook = "anvil")
@@ -72,35 +72,4 @@ public class Naming implements Module
 		getLogger().message(sender, "Lore set to " + lore);
 		((Player) sender).updateInventory();
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command anvil {\n" + 
-		"	[empty] {\n" + 
-		"		run anvil;\n" + 
-		"		type player;\n" + 
-		"		help Opens anvil GUI.;\n" + 
-		"		perm utils.anvil;\n" + 
-		"	}\n" + 
-		"}\n" +
-		"command name {\n" + 
-		"	[string:name...] {\n" + 
-		"		run name name;\n" + 
-		"		type player;\n" + 
-		"		help Names item in hand.;\n" + 
-		"		perm utils.name;\n" + 
-		"	}\n" + 
-		"}\n" +
-		"command lore {\n" + 
-		"    [optional:-a] [string:lore...] {\n" + 
-		"		run lore -a lore;\n" + 
-		"		type player;\n" + 
-		"		help Adds lore to item in hand.;\n" + 
-		"		perm utils.lore;\n" + 
-		"	}\n" + 
-		"}";
-	}
-	// @format
 }

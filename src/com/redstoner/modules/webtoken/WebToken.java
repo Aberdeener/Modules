@@ -23,8 +23,8 @@ import com.redstoner.misc.mysql.elements.MysqlDatabase;
 import com.redstoner.misc.mysql.elements.MysqlTable;
 import com.redstoner.modules.Module;
 
-@Commands(CommandHolderType.String)
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Commands(CommandHolderType.File)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class WebToken implements Module
 {
 	private static final int TOKEN_LENGTH = 6;
@@ -222,32 +222,4 @@ public class WebToken implements Module
 			getLogger().message(player, true, "Hmm... That doesn't look like a valid email!");
 		}
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command token {\n" + 
-				"	perm utils.webtoken;\n" + 
-				"	\n" + 
-				"	[empty] {\n" + 
-				"		help Displays an already generated token;\n" + 
-				"		type player;\n" + 
-				"		perm utils.webtoken;\n" + 
-				"		run token;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"command gettoken {\n" + 
-				"	perm utils.webtoken;\n" + 
-				"	\n" + 
-				"	[string:email...] {\n" + 
-				"		help Generates a token used for website authentication;\n" + 
-				"		type player;\n" + 
-				"		perm utils.webtoken;\n" + 
-				"		run gettoken email;\n" + 
-				"	}\n" + 
-				"}";
-	}
-	// @format
 }

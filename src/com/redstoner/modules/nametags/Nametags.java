@@ -19,9 +19,9 @@ import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 2, compatible = 4)
+@Version(major = 4, minor = 1, revision = 2, compatible = 4)
 public class Nametags implements Module, Listener
 {
 	@EventHandler
@@ -127,22 +127,4 @@ public class Nametags implements Module, Listener
 		}
 		return (prefix - 1) + "_" + teams[teams.length - 1];
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command tab {\n" + 
-				"    sort {\n" + 
-				"        help Resorts the entirety of tab.;\n" + 
-				"        run sort;\n" + 
-				"    }\n" + 
-				"    sort [string:player] {\n" + 
-				"        help Resorts one player.;\n" + 
-				"        run sortspecific player;\n" + 
-				"    }\n" + 
-				"    perm utils.tab.admin;\n" + 
-				"}";
-	}
-	// @format
 }

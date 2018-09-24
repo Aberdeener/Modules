@@ -30,9 +30,9 @@ import com.redstoner.modules.Module;
 
 import net.nemez.chatapi.ChatAPI;
 
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 3, compatible = 4)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Chatalias implements Module, Listener
 {
 	private final String[] commands = new String[] {"e?r", "e?m .+?", "e?t", "e?w", "e?msg .+?", "e?message .+?",
@@ -314,27 +314,4 @@ public class Chatalias implements Module, Listener
 		temp.put("data", aliases.get(uuid.toString()));
 		JsonManager.save(temp, new File(Main.plugin.getDataFolder(), "aliases/" + uuid.toString() + ".json"));
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command alias {\n" + 
-				"    add [flag:-r] [string:keyword] [string:replacement...] {\n" + 
-				"        help Adds a new alias. Set -r to make it a regex-alias.;\n" + 
-				"        run addalias -r keyword replacement;\n" + 
-				"    }\n" + 
-				"    del [flag:-r] [string:keyword] {\n" + 
-				"        help Deletes an alias. -r indicates if it was a regex-alias.;\n" + 
-				"        run delalias -r keyword;\n" + 
-				"    }\n" + 
-				"    list {\n" + 
-				"        help Lists your aliases.;\n" + 
-				"        run listaliases;\n" + 
-				"    }\n" + 
-				"    perm utils.alias;\n" + 
-				"    type player;\n" + 
-				"}";
-	}
-	// @format
 }
