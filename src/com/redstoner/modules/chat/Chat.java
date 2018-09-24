@@ -28,7 +28,7 @@ import net.nemez.chatapi.ChatAPI;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 1, revision = 0, compatible = 4)
+@Version(major = 4, minor = 1, revision = 1, compatible = 4)
 public class Chat implements Module, Listener
 {
 	private final Map<String, String> defaults = new HashMap<>();
@@ -77,6 +77,13 @@ public class Chat implements Module, Listener
 	public boolean chat(CommandSender sender, String message)
 	{
 		broadcastFormatted("chat", sender, message);
+		return true;
+	}
+	
+	@Command(hook = "chatn")
+	public boolean chatn(CommandSender sender, String name, String message)
+	{
+		broadcastFormatted("chat", sender, message, name);
 		return true;
 	}
 	
