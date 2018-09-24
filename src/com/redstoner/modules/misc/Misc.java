@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -28,6 +29,8 @@ import com.redstoner.annotations.Version;
 import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Utils;
 import com.redstoner.modules.Module;
+import com.redstoner.modules.datamanager.DataManager;
+
 import net.nemez.chatapi.ChatAPI;
 import net.nemez.chatapi.click.Message;
 
@@ -277,5 +280,52 @@ public class Misc implements Module, Listener
 			player.addPotionEffect(nightvision, true);
 			getLogger().message(sender, "Night Vision Enabled.");
 		}
+	}
+	
+	@Command(hook = "minecart")
+	public void minecart(CommandSender sender) {
+		String type = (String) DataManager.getOrDefault(sender, "minecart_default", "normal");
+		minecartDefault(sender, type);
+	}
+	
+	@Command(hook = "minecart_type")
+	public void minecartType(CommandSender sender, String type) {
+		EntityType typeE = convertMinecartTypeString(type);
+		
+		if (typeE != null) {
+			Player p = (Player) sender;
+			p.getWorld().spawnEntity(p.getLocation(), typeE);
+			ChatAPI.sendActionBar(sender, "&aMinecart Spawned!");
+		}
+		else
+			ChatAPI.sendActionBar(sender, "&cThe type of Minecart you've requested does not exist.");
+	}
+	
+	@Command(hook = "minecart_default")
+	public void minecartDefault(CommandSender sender, String type) {
+		EntityType typeE = convertMinecartTypeString(type);
+		
+		if (typeE != null) {
+			DataManager.setData(sender, "minecart_default", type);
+			ChatAPI.sendActionBar(sender, "&aMinecart Spawned!");
+		}
+		else
+			ChatAPI.sendActionBar(sender, "&cThe type of Minecart you've requested does not exist.");
+	}
+	
+	public EntityType convertMinecartTypeString(String type) {
+		EntityType typeE = null;
+		
+		switch (type) {
+			case "normal": typeE = EntityType.MINECART;
+			case "chest": typeE = EntityType.MINECART_CHEST;
+			case "furnace": typeE = EntityType.MINECART_FURNACE;
+			case "hopper": typeE = EntityType.MINECART_HOPPER;
+			case "tnt": typeE = EntityType.MINECART_TNT;
+			case "command": typeE = EntityType.MINECART_COMMAND;
+			case "spawner": typeE = EntityType.MINECART_MOB_SPAWNER;
+		}
+		
+		return typeE;
 	}
 }

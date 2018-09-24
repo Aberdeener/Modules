@@ -48,3 +48,19 @@ alias nv;
 		perm utils.illuminate; 
 	} 
 }
+command minecart {
+   alias cart;
+   perm utils.spawncart;
+   help Spawn's a Minecart;
+   type player;
+   
+   deafult [string type] {
+      run minecart_default type;
+   }
+   [string type] {
+      run minecart_type type;
+   }
+   [empty] {
+      run minecart;
+   }   
+}
