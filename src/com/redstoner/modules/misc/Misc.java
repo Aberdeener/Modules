@@ -290,10 +290,15 @@ public class Misc implements Module, Listener
 	
 	@Command(hook = "minecart_type")
 	public void minecartType(CommandSender sender, String type) {
+		Player p = (Player) sender;
+		if (!canBuild(p, p.getLocation())) {
+			ChatAPI.sendActionBar(sender, "&cYou do not have permission to build here!");
+			return;
+		}
+			
 		EntityType typeE = convertMinecartTypeString(type);
 		
 		if (typeE != null) {
-			Player p = (Player) sender;
 			p.getWorld().spawnEntity(p.getLocation(), typeE);
 			ChatAPI.sendActionBar(sender, "&aMinecart Spawned!");
 		}
