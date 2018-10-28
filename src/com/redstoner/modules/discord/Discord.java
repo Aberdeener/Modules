@@ -1,4 +1,4 @@
-package com.redstoner.modules.external;
+package com.redstoner.modules.discord;
 
 import java.io.File;
 import java.security.SecureRandom;
@@ -19,7 +19,7 @@ import com.redstoner.misc.Main;
 
 @Commands(CommandHolderType.File)
 @Version(major = 4, minor = 0, revision = 0, compatible = 4)
-public class External implements Module { 
+public class Discord implements Module { 
 	
 	private final String FILENAME = "discordTokens.json";
 	private final String DNE_LINK = "dne://";
