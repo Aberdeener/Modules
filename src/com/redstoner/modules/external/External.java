@@ -21,31 +21,53 @@ import com.redstoner.misc.Main;
 @Version(major = 4, minor = 0, revision = 0, compatible = 4)
 public class External implements Module { 
 	
-	private static final String FILENAME = "discordTokens.json";
+	private final String FILENAME = "discordTokens.json";
+	private final String DNE_LINK = "dne://";
 	
 	private JSONObject discordTables;
 	private JSONObject byToken;
 	private JSONObject byUUID;
+	
+	private String joinLink;
 	private File savefile;
 	
-	private static final String tokenCharacters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	private static SecureRandom rnd = new SecureRandom();
+	private final String tokenCharacters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	private SecureRandom rnd = new SecureRandom();
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void postEnable() {
+	public boolean onEnable() {
 		savefile = new File(Main.plugin.getDataFolder(), FILENAME);
 		
 		discordTables = JsonManager.getObject(savefile);
 		
 		if (discordTables == null) {
 			discordTables = new JSONObject();
-			discordTables.put("ByToken", new JSONObject());
-			discordTables.put("ByUUID", new JSONObject());
+			discordTables.put("joinLink", DNE_LINK);
+			save();
 		}
 		
-		byToken = (JSONObject) discordTables.get("ByToken");
-		byUUID = (JSONObject) discordTables.get("ByUUID");
+		Object joinLinkObject = discordTables.get("joinLink");
+		
+		if (joinLinkObject == null || ((String) joinLinkObject).equals(DNE_LINK)) {
+			getLogger().error("Missing Join Link. Set: \"joinLink\" to \"_joinLink_\" in the discordTokens.json file.");
+			return false;
+		}
+		
+		joinLink = (String) joinLinkObject;
+		
+		Object byTokenObject = discordTables.get("byToken");
+		
+		if (byTokenObject == null) {
+			discordTables.put("byToken", new JSONObject());
+			discordTables.put("byUUID", new JSONObject());
+		}
+		
+		byToken = (JSONObject) discordTables.get("byToken");
+		byUUID = (JSONObject) discordTables.get("byUUID");
+		
+		return true;
+		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -71,11 +93,11 @@ public class External implements Module {
 			save();
 		}
 		
-		new Message(sender, null).appendText("&cRedstoner&7 has a &2Discord&7 Now! \nClick ")
-				                 .appendLinkHover("&ehttps://discord.gg/jma7Y2y", "https://discord.gg/jma7Y2y", "&aClick to Join")
+		new Message(sender, null).appendText("\n&cRedstoner&7 has a &2Discord&7 Now! \nClick ")
+				                 .appendLinkHover("&e" + joinLink, joinLink, "&aClick to Join")
 				                 .appendText("&7 to join. \n\nTo sync you rank, copy ")
 				                 .appendSuggestHover("&e" + token, token, "&aClick to Copy")
-				                 .appendText("&7 into &3#rank-sync&7.")
+				                 .appendText("&7 into &3#rank-sync&7.\n")
 				                 .send();
 	}
 	
@@ -89,8 +111,8 @@ public class External implements Module {
 	@SuppressWarnings("unchecked")
 	private void save() {
 		
-		discordTables.put("ByToken", byToken);
-		discordTables.put("ByUUID", byUUID);
+		discordTables.put("byToken", byToken);
+		discordTables.put("byUUID", byUUID);
 		JsonManager.save(discordTables, savefile);
 	}
 }
