@@ -28,9 +28,9 @@ import com.redstoner.modules.ignore.Ignore;
 
 import net.nemez.chatapi.click.Message;
 
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 3, compatible = 4)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Mentio implements Module, Listener
 {
 	private File mentioLocation = new File(Main.plugin.getDataFolder(), "mentio.json");
@@ -177,27 +177,4 @@ public class Mentio implements Module, Listener
 	{
 		JsonManager.save(mentios, mentioLocation);
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command mentio {\n" + 
-				"    add [string:trigger] {\n" + 
-				"        help Triggers you when the trigger gets said.;\n" + 
-				"        run addmentio trigger;\n" + 
-				"    }\n" + 
-				"    delete [string:trigger] {\n" + 
-				"        help Deletes a mentio.;\n" + 
-				"        run delmentio trigger;\n" + 
-				"    }\n" + 
-				"    list {\n" + 
-				"        help Lists your mentios.;\n" + 
-				"        run listmentios;\n" + 
-				"    }\n" + 
-				"    perm utils.mentio;\n" + 
-				"    type player;\n" + 
-				"}";
-	}
-	// @format
 }

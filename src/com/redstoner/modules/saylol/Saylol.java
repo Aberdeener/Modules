@@ -24,8 +24,8 @@ import net.nemez.chatapi.ChatAPI;
 import net.nemez.chatapi.click.ClickCallback;
 import net.nemez.chatapi.click.Message;
 
-@Commands(CommandHolderType.String)
-@Version(major = 4, minor = 0, revision = 1, compatible = 4)
+@Commands(CommandHolderType.File)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Saylol implements Module
 {
 	private long lastLol = 0;
@@ -297,58 +297,4 @@ public class Saylol implements Module
 		if (player.hasPermission("utils.lol.id"))
 			Bukkit.dispatchCommand(player, "lol id " + index);
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command lol {\n" + 
-				"    add [string:text...] {\n" + 
-				"        help Lols a text.;\n" + 
-				"        run addlol text;\n" + 
-				"        perm utils.lol.admin;\n" + 
-				"    }\n" + 
-				"    del [int:id] {\n" + 
-				"        help Unlols a lol.;\n" + 
-				"        run dellol id;\n" + 
-				"        perm utils.lol.admin;\n" + 
-				"    }\n" + 
-				"    set [int:id] [string:text...] {\n" + 
-				"        help Relols a lol.;\n" + 
-				"        run setlol id text;\n" + 
-				"        perm utils.lol.admin;\n" + 
-				"    }\n" + 
-				"    id [int:id] {\n" + 
-				"        help Lols specifically.;\n" + 
-				"        run lolid id;\n" + 
-				"        perm utils.lol.id;\n" + 
-				"    }\n" + 
-				"    list [int:page] {\n" + 
-				"        help Shows lols.;\n" + 
-				"        run listlols page;\n" + 
-				"        perm utils.lol.list;\n" + 
-				"    }\n" + 
-				"    list {\n" + 
-				"        help Shows lols.;\n" + 
-				"        run listlolsdef;\n" + 
-				"        perm utils.lol.list;\n" + 
-				"    }\n" + 
-				"    search [flag:-i] [string:text...] {\n" + 
-				"        help Search lols.;\n" + 
-				"        run searchlol -i text;\n" + 
-				"        perm utils.lol.search;\n" + 
-				"    }\n" + 
-				"    match [flag:-i] [string:regex...] {\n" + 
-				"        help Search lols. But better.;\n" + 
-				"        run matchlol -i regex;\n" + 
-				"        perm utils.lol.match;\n" + 
-				"    }\n" + 
-				"    [empty] {\n" + 
-				"        help Lols.;\n" + 
-				"        run saylol;\n" + 
-				"        perm utils.lol;\n" + 
-				"    }\n" + 
-				"}";
-	}
-	// @format
 }

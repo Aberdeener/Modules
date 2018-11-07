@@ -28,9 +28,9 @@ import net.nemez.chatapi.ChatAPI;
 /** AdminChat module. Allows staff to chat to other staff using /ac \<message\> as well as a one char prefix or a toggle.
  * 
  * @author Pepich */
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 1, compatible = 4)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Adminchat implements Module, Listener
 {
 	private static final char defaultKey = ',';
@@ -50,55 +50,6 @@ public class Adminchat implements Module, Listener
 		actoggled = new ArrayList<>();
 		return true;
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command ac {\n" + 
-				"	[string:message...] {\n" + 
-				"		help Sends a message in Admin Chat;\n" + 
-				"		perm utils.ac;\n" + 
-				"		run ac_msg message;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"command acn {\n" + 
-				"	[string:name] [string:message...] {\n" + 
-				"		help Sends a message in Admin Chat;\n" + 
-				"		perm utils.ac;\n" + 
-				"		type console;\n" +
-				"		run acn_msg name message;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"		\n" + 
-				"command ackey {\n" + 
-				"	[string:key] {\n" + 
-				"		help Sets your Admin Chat key;\n" + 
-				"		perm utils.ac;\n" + 
-				"		type player;\n" + 
-				"		run setackey key;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"command act {\n" + 
-				"	on {\n" + 
-				"		help Turns on act;\n" + 
-				"		perm utils.ac;\n" + 
-				"		run act_on;\n" + 
-				"	}\n" + 
-				"	off {\n" + 
-				"		help Turns off act;\n" + 
-				"		perm utils.ac;\n" + 
-				"		run act_off;\n" + 
-				"	}\n" + 
-				"	[empty] {\n" + 
-				"		help toggles Admin Chat;\n" + 
-				"		perm utils.ac;\n" + 
-				"		run act;\n" + 
-				"	}\n" + 
-				"}";
-	}
-	// @format
 	
 	@Command(hook = "ac_msg")
 	public boolean acSay(CommandSender sender, String message)

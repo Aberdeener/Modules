@@ -37,9 +37,9 @@ import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class DamnSpam implements Module, Listener
 {
 	File configFile = new File(Main.plugin.getDataFolder(), "DamnSpam.json");
@@ -346,26 +346,4 @@ public class DamnSpam implements Module, Listener
 			}
 		}
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command damnspam {\n" + 
-				"	perm utils.damnspam;\n" + 
-				"	\n" + 
-				"	[double:seconds] {\n" + 
-				"		run damnspamSingle seconds;\n" + 
-				"		help Set single input cooldown for button or lever.;\n" + 
-				"		type player;\n" + 
-				"	}\n" + 
-				"	\n" + 
-				"	[double:secondsOff] [double:secondsOn] {\n" + 
-				"		run damnspamDouble secondsOff secondsOn;\n" + 
-				"		help Set input cooldown after it's been turned off and turned on (for lever only).;\n" + 
-				"		type player;\n" + 
-				"	}\n" + 
-				"}";
-	}
-	// @format
 }

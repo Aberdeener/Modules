@@ -22,8 +22,10 @@ import org.json.simple.parser.JSONParser;
 import com.nemez.cmdmgr.Command;
 import com.nemez.cmdmgr.Command.AsyncType;
 import com.nemez.cmdmgr.CommandManager;
+import com.redstoner.annotations.Commands;
 import com.redstoner.annotations.Version;
 import com.redstoner.coremods.moduleLoader.ModuleLoader;
+import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Main;
 import com.redstoner.misc.mysql.JSONManager;
 import com.redstoner.misc.mysql.MysqlHandler;
@@ -35,7 +37,8 @@ import com.redstoner.modules.Module;
 
 import net.nemez.chatapi.click.Message;
 
-@Version(major = 4, minor = 0, revision = 3, compatible = 4)
+@Commands(CommandHolderType.File)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Check implements Module, Listener
 {
 	MysqlTable table;
@@ -241,19 +244,4 @@ public class Check implements Module, Listener
 			e.printStackTrace();
 		}
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command check {\n" + 
-				"	perm utils.check;\n" + 
-				"	\n" + 
-				"	[string:player] {\n" + 
-				"		run checkCommand player;\n" + 
-				"		help Get info on a player;\n" + 
-				"	}\n" + 
-				"}";
-	}
-	// @format
 }

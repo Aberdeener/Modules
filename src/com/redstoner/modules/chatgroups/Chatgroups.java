@@ -32,9 +32,9 @@ import net.nemez.chatapi.ChatAPI;
 /** The ChatGroups module. Allows people to have private sub-chats that can be accessed via a single char prefix or a toggle.
  * 
  * @author Pepich */
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 2, compatible = 4)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Chatgroups implements Module, Listener
 {
 	private static final char defaultKey = ':';
@@ -68,48 +68,6 @@ public class Chatgroups implements Module, Listener
 		saveKeys();
 		saveGroups();
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return  "command cgt {\n" +
-				"	[empty] {\n" +
-				"		help Toggles your cgtoggle status.;\n"+
-				"		type player;\n" +
-				"		run cgtoggle;\n" +
-				"	}\n" +
-				"}\n" +
-				"command cgkey {\n" +
-				"	[string:key] {\n" +
-				"		help Sets your chatgroup key.;\n" +
-				"		run setcgkey key;\n" +
-				"		type player;\n" +
-				"	}\n" +
-				"}\n" +
-				"command cgsay {\n" +
-				"	[string:message...] {\n" +
-				"		help Chats in your chatgroup.;\n"+
-				"		run cgsay message;\n" +
-				"	}\n" +
-				"}\n" +
-				"command cg {\n" +
-				"	join [string:group] {\n" +
-				"		help Joins a chatgroup.;\n" +
-				"		run cgjoin group;\n" +
-				"	}\n" +
-				"	leave {\n" +
-				"		help Leaves your chatgroup.;\n" +
-				"		run cgleave;\n" +
-				"	}\n" +
-				"	info {\n" +
-				"		help Displays info about your chatgroup.;\n" +
-				"		run cginfo;\n" +
-				"	}\n" +
-				
-				"}";
-	}
-	// @format
 	
 	/** Prints chatgroup info (like players in the group, groupname) to the sender.
 	 * 

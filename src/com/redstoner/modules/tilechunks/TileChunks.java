@@ -17,8 +17,8 @@ import com.redstoner.annotations.Version;
 import com.redstoner.misc.CommandHolderType;
 import com.redstoner.modules.Module;
 
-@Commands(CommandHolderType.String)
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Commands(CommandHolderType.File)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class TileChunks implements Module
 {
 	private List<LaggyTileChunk> laggyChunks = new ArrayList<>();
@@ -80,31 +80,4 @@ public class TileChunks implements Module
 			getLogger().message(sender, true, "§4Invalid chunk number! Use §e/lc list §4to show laggy chunks!");
 		}
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command lct {\n" + 
-				"	perm utils.tilechunks;\n" + 
-				"	\n" + 
-				"	list {\n" + 
-				"		run list_cmd;\n" + 
-				"		help re-lists already scanned chunks;\n" + 
-				"	}\n" + 
-				"		\n" + 
-				"	[int:amount] {\n" + 
-				"		run scan_cmd amount;\n" + 
-				"		help scans for laggy chunks;\n" + 
-				"	}\n" + 
-				"	\n" + 
-				"	tp [int:number] {\n" + 
-				"		run tp number;\n" + 
-				"		help teleports to the specified chunk;\n" + 
-				"		type player;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"	";
-	}
-	// @format
 }

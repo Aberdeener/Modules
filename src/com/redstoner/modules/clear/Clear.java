@@ -11,8 +11,8 @@ import com.redstoner.annotations.Version;
 import com.redstoner.misc.CommandHolderType;
 import com.redstoner.modules.Module;
 
-@Commands(CommandHolderType.String)
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Commands(CommandHolderType.File)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Clear implements Module
 {
 	@Command(hook = "clear")
@@ -41,24 +41,4 @@ public class Clear implements Module
 		}
 		return true;
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command clear{\n" + 
-				"    [empty] {\n" + 
-				"        help Clears your inventory;\n" + 
-				"        type player;\n" + 
-				"        perm utils.clear;\n" + 
-				"        run clear;\n" + 
-				"    }\n" + 
-				"    [string:player] {\n" + 
-				"        help Clears someone elses inventory;\n" + 
-				"        perm utils.admin.clear;\n" + 
-				"        run clearother player;\n" + 
-				"    }\n" + 
-				"}";
-	}
-	// @format
 }

@@ -19,8 +19,8 @@ import com.redstoner.misc.JsonManager;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 
-@Commands(CommandHolderType.String)
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Commands(CommandHolderType.File)
+@Version(major = 4, minor = 0, revision = 1, compatible = 4)
 public class Tag implements Module
 {
 	private File tagLocation = new File(Main.plugin.getDataFolder(), "tag.json");
@@ -144,27 +144,4 @@ public class Tag implements Module
 		JsonManager.save(tags, tagLocation);
 	}
 	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command tag {\n" + 
-				"    add [string:player] [string:tag...] {\n" + 
-				"        help Tags a player.;\n" + 
-				"        run addtag player tag;\n" + 
-				"        perm utils.tag;\n" + 
-				"    }\n" + 
-				"    del [string:player] [int:id] {\n" + 
-				"        help Removes a tag.;\n" + 
-				"        run deltag player id;\n" + 
-				"        perm utils.tag;\n" + 
-				"    }\n" + 
-				"    check [string:player] {\n" + 
-				"        help Lists all tags of a player.;\n" + 
-				"        run checktag player;\n" + 
-				"        perm utils.tag;\n" + 
-				"    }\n" + 
-				"}";
-	}
-	// @format
 }

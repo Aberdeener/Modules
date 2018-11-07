@@ -22,9 +22,9 @@ import com.redstoner.misc.JsonManager;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 
-@Commands(CommandHolderType.String)
+@Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class Cycle implements Module, Listener
 {
 	private File cycleFile = new File(Main.plugin.getDataFolder(), "cycle.json");
@@ -139,23 +139,4 @@ public class Cycle implements Module, Listener
 			result[i + offset] = items2[i];
 		return result;
 	}
-	
-	// @noformat
-	@Override
-	public String getCommandString()
-	{
-		return "command cycle {\n" + 
-				"    on {\n" + 
-				"        help Turns on cycle;\n" + 
-				"        type player;\n" + 
-				"        run cycle_on;\n" + 
-				"    }\n" + 
-				"    off {\n" + 
-				"        help Turns off cycle;\n" + 
-				"        type player;\n" + 
-				"        run cycle_off;\n" + 
-				"    }\n" + 
-				"}";
-	}
-	// format
 }
