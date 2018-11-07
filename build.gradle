@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+    implementation "com.github.RedstonerServer:ModuleLoader:gradle-SNAPSHOT"
     implementation "com.github.RedstonerServer:CommandManager:master-SNAPSHOT"
     implementation "com.github.RedstonerServer:ChatAPI:master-SNAPSHOT"
     implementation "com.github.RedstonerServer:ChestAPI:master-SNAPSHOT"
