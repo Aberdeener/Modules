@@ -1,118 +1,117 @@
 package com.redstoner.modules.discord;
 
-import java.io.File;
+import java.io.IOException;
 import java.security.SecureRandom;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.json.simple.JSONObject;
-
-import net.nemez.chatapi.click.Message;
 
 import com.nemez.cmdmgr.Command;
 import com.redstoner.annotations.Commands;
 import com.redstoner.annotations.Version;
 import com.redstoner.misc.CommandHolderType;
+import com.redstoner.misc.mysql.Config;
+import com.redstoner.misc.mysql.MysqlHandler;
+import com.redstoner.misc.mysql.elements.ConstraintOperator;
+import com.redstoner.misc.mysql.elements.MysqlConstraint;
+import com.redstoner.misc.mysql.elements.MysqlDatabase;
+import com.redstoner.misc.mysql.elements.MysqlField;
+import com.redstoner.misc.mysql.elements.MysqlTable;
+import com.redstoner.misc.mysql.types.text.VarChar;
 import com.redstoner.modules.Module;
-import com.redstoner.misc.JsonManager;
-import com.redstoner.misc.Main;
+
+import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
 @Version(major = 4, minor = 0, revision = 0, compatible = 4)
-public class Discord implements Module { 
-	
-	private final String FILENAME = "discordTokens.json";
-	private final String DNE_LINK = "dne://";
-	
-	private JSONObject discordTables;
-	private JSONObject byToken;
-	private JSONObject byUUID;
-	
-	private String joinLink;
-	private File savefile;
-	
+public class Discord implements Module {
+	private MysqlTable table;
+
+	private String inviteLink;
+
 	private final String tokenCharacters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	private SecureRandom rnd = new SecureRandom();
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
 	public boolean onEnable() {
-		savefile = new File(Main.plugin.getDataFolder(), FILENAME);
-		
-		discordTables = JsonManager.getObject(savefile);
-		
-		if (discordTables == null) {
-			discordTables = new JSONObject();
-			discordTables.put("joinLink", DNE_LINK);
-			save();
-		}
-		
-		Object joinLinkObject = discordTables.get("joinLink");
-		
-		if (joinLinkObject == null || ((String) joinLinkObject).equals(DNE_LINK)) {
-			getLogger().error("Missing Join Link. Set: \"joinLink\" to \"_joinLink_\" in the discordTokens.json file.");
+		Config config;
+		try {
+			config = Config.getConfig("Discord.json");
+		} catch (IOException | org.json.simple.parser.ParseException e1) {
+			e1.printStackTrace();
 			return false;
 		}
-		
-		joinLink = (String) joinLinkObject;
-		
-		Object byTokenObject = discordTables.get("byToken");
-		
-		if (byTokenObject == null) {
-			discordTables.put("byToken", new JSONObject());
-			discordTables.put("byUUID", new JSONObject());
+
+		if (config == null || !config.containsKey("database") || !config.containsKey("table")
+				|| !config.containsKey("inviteLink")) {
+			getLogger().error("Could not load the Discord config file, disabling!");
+			config.put("database", "redstoner");
+			config.put("table", "discord");
+			config.put("inviteLink", "https://discord.gg/example");
+			return false;
 		}
-		
-		byToken = (JSONObject) discordTables.get("byToken");
-		byUUID = (JSONObject) discordTables.get("byUUID");
-		
+
+		try {
+			MysqlDatabase database = MysqlHandler.INSTANCE.getDatabase(config.get("database") + "?autoReconnect=true");
+			MysqlField uuid = new MysqlField("uuid", new VarChar(36), false);
+			MysqlField pass = new MysqlField("token", new VarChar(8), false);
+			database.createTableIfNotExists((String) config.get("table"), uuid, pass);
+			table = database.getTable(config.get("table"));
+		} catch (NullPointerException e) {
+			getLogger().error("Could not use the Discord config, aborting!");
+			return false;
+		}
+
 		return true;
-		
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Command(hook = "discord")
 	public void discord(CommandSender sender) {
 		Player p = (Player) sender;
-		String pUUID = p.getUniqueId().toString();
-		
-		Object tokenObject = byUUID.get(pUUID);
-		String token = tokenObject == null? null : (String) tokenObject;
-		
-		if (token == null) {
-			
+		String pUUID = p.getUniqueId().toString().replaceAll("-", "");
+
+		String token = null;
+		int tries = 0;
+
+		while (token == null) {
 			token = randomToken(8);
-			Object UUIDObject = byToken.get(token);
-			
-			while (UUIDObject != null) {
-				token = randomToken(8);
-				UUIDObject = byToken.get(token);
+			Object[] results = table.get("token", new MysqlConstraint("token", ConstraintOperator.EQUAL, token));
+
+			if (results.length > 0) {
+				token = null;
+				tries++;
 			}
-			byUUID.put(pUUID, token);
-			byToken.put(token, pUUID);
-			save();
+
+			if (tries > 10)
+				break;
 		}
-		
+
+		if (token == null) {
+			// Someone please check my math and remove this comment lmao
+			new Message(sender, null).appendText(
+					"\n&4Could not find an unused token in 10 tries (a 1 in 2.462267087×10^143 chance)! Please try running this command again!")
+					.send();
+			return;
+		}
+
+		table.delete(new MysqlConstraint("uuid", ConstraintOperator.EQUAL, pUUID));
+		table.insert(pUUID, token);
+
 		new Message(sender, null).appendText("\n&cRedstoner&7 has a &2Discord&7 Now! \nClick ")
-				                 .appendLinkHover("&e" + joinLink, joinLink, "&aClick to Join")
-				                 .appendText("&7 to join. \n\nTo sync you rank, copy ")
-				                 .appendSuggestHover("&e" + token, token, "&aClick to Copy")
-				                 .appendText("&7 into &3#rank-sync&7.\n")
-				                 .send();
+				.appendLinkHover("&e" + inviteLink, inviteLink, "&aClick to Join")
+				.appendText("&7 to join. \n\nTo sync you rank, copy ")
+				.appendSuggestHover("&e" + token, token, "&aClick to Copy")
+				.appendText("&7 into &3#rank-sync&7.\n")
+				.send();
 	}
-	
-	private String randomToken(int length){
-	   StringBuilder sb = new StringBuilder( length );
-	   for( int i = 0; i < length; i++ ) 
-	      sb.append( tokenCharacters.charAt( rnd.nextInt(tokenCharacters.length()) ) );
-	   return sb.toString();
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void save() {
-		
-		discordTables.put("byToken", byToken);
-		discordTables.put("byUUID", byUUID);
-		JsonManager.save(discordTables, savefile);
+
+	private String randomToken(int length) {
+		StringBuilder sb = new StringBuilder(length);
+
+		for (int i = 0; i < length; i++) {
+			sb.append(tokenCharacters.charAt(rnd.nextInt(tokenCharacters.length())));
+		}
+
+		return sb.toString();
 	}
 }
