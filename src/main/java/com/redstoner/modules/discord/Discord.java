@@ -87,9 +87,8 @@ public class Discord implements Module {
 		}
 
 		if (token == null) {
-			// Someone please check my math and remove this comment lmao
 			new Message(sender, null).appendText(
-					"\n&4Could not find an unused token in 10 tries (a 1 in 2.462267087×10^143 chance)! Please try running this command again!")
+					"\n&4Could not find an unused token in 10 tries (a 1 in over 20 trillion chance)! Please take a screenshot and run the command again!")
 					.send();
 			return;
 		}
