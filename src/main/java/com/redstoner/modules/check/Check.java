@@ -231,7 +231,7 @@ public class Check implements Module, Listener
                            .appendText("\n&7Data provided by redstoner:")
                            .appendSuggestHover("\n&6> UUID: &e" + uuid, uuid, "Click to copy!")
                            .appendText("\n&6> First joined: &e" + firstJoin)
-                           .appendText("\n&6> First joined: &e" + firstJoin)
+                           .appendText("\n&6> Last Seen: &e" + lastseen)
                            .appendText("\n&6> Website account: &e").appendLink(websiteUrl, websiteUrl)
                            .appendText("\n&6> Email: &e" + (emailNotConfirmed ? "\n&6> &cEmail NOT Confirmed!" : ""))
                               .appendSuggestHover("&e" + email, email, "Click to copy!")
