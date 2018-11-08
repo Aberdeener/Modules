@@ -37,11 +37,9 @@ import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 
-import net.nemez.chatapi.ChatAPI;
-
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 1, revision = 1, compatible = 4)
+@Version(major = 4, minor = 1, revision = 0, compatible = 4)
 public class DamnSpam implements Module, Listener
 {
 	File configFile = new File(Main.plugin.getDataFolder(), "DamnSpam.json");
@@ -145,10 +143,10 @@ public class DamnSpam implements Module, Listener
 			destroyingInput = true;
 		else if (!isAcceptableTimeout(seconds))
 		{
-			ChatAPI.sendActionBar(sender, "&cThe timeout must be &e-1&c or within &e0&c and &e" + maxTimeout);
+			getLogger().message(sender, true, "The timeout must be -1 or within 0 and " + maxTimeout);
 			return;
 		}
-		ChatAPI.sendActionBar(sender, "&7Please click the input you would like to set.");
+		getLogger().message(sender, "Please click the input you would like to set.");
 		setPlayer((Player) sender, destroyingInput, seconds, seconds);
 	}
 	
@@ -164,10 +162,10 @@ public class DamnSpam implements Module, Listener
 		}
 		else if (!(isAcceptableTimeout(secondsOn) && isAcceptableTimeout(secondsOff)))
 		{
-			ChatAPI.sendActionBar(sender, "&cThe timeout must be &e-1&c or within &e0&c and &e" + maxTimeout);
+			getLogger().message(sender, true, "The timeout must be -1 or within 0 and " + maxTimeout);
 			return;
 		}
-		ChatAPI.sendActionBar(sender, "Please click the input you would like to set.");
+		getLogger().message(sender, "Please click the input you would like to set.");
 		setPlayer((Player) sender, destroyingInput, secondsOff, secondsOn);
 	}
 	
@@ -187,7 +185,7 @@ public class DamnSpam implements Module, Listener
 		{
 			if (!acceptedInputs.contains(block.getType()))
 			{
-				ChatAPI.sendActionBar(player, "&cThat block is not an acceptable input!");
+				getLogger().message(player, true, "That block is not an acceptable input!");
 				return true;
 			}
 			String typeStr = block.getType().toString().toLowerCase().replace("_", " ");
@@ -197,8 +195,8 @@ public class DamnSpam implements Module, Listener
 			changingInput = false;
 			if (!buildCheck)
 			{
-				ChatAPI.sendActionBar(player,
-						"&cSomething went wrong trying to change the timeout of the " + typeStr + "!");
+				getLogger().message(player, true,
+						"Something went wrong trying to change the timeout on this " + typeStr + "!");
 				event.setCancelled(true);
 				return true;
 			}
@@ -207,18 +205,18 @@ public class DamnSpam implements Module, Listener
 			{
 				if (!inputs.containsKey(locationStr))
 				{
-					ChatAPI.sendActionBar(player,
-							"&cSomething went wrong trying to change the timeout of the" + typeStr + "!");
+					getLogger().message(player, true,
+							"Something went wrong trying to change the timeout on this " + typeStr + "!");
 					event.setCancelled(true);
 					return true;
 				}
 				inputs.remove(locationStr);
-				ChatAPI.sendActionBar(player, "&7Successfully removed the timeout for the " + typeStr);
+				getLogger().message(player, "Successfully removed the timeout for this " + typeStr);
 			}
 			else
 			{
 				inputs.put(locationStr, players.get(player));
-				ChatAPI.sendActionBar(player, "&7Successfully removed the timeout for the " + typeStr);
+				getLogger().message(player, "Successfully set a timeout for this " + typeStr);
 			}
 			event.setCancelled(true);
 			players.remove(player);
@@ -242,7 +240,8 @@ public class DamnSpam implements Module, Listener
 				: "the " + typeStr + " attached to that block");
 		if (!sender.isSneaking())
 		{
-			ChatAPI.sendActionBar(sender, "&7To destroy " + inputStr + ", hold &esneak&7 while breaking it.");
+			getLogger().message(sender, true, "You cannot destroy " + inputStr);
+			getLogger().message(sender, true, "Sneak and break or set the timeout to 0 if you want to remove it.");
 			event.setCancelled(true);
 			return;
 		}
@@ -250,11 +249,11 @@ public class DamnSpam implements Module, Listener
 		{
 			inputs.remove(posStr);
 			saveInputs();
-			ChatAPI.sendActionBar(sender, "&7Succesfully destroyed the" + typeStr + ".");
+			getLogger().message(sender, "Succesfully removed " + inputStr);
 		}
 		else
 		{
-			ChatAPI.sendActionBar(sender, "You are not allowed to remove " + inputStr);
+			getLogger().message(sender, true, "You are not allowed to remove " + inputStr);
 			event.setCancelled(true);
 		}
 	}
@@ -331,13 +330,13 @@ public class DamnSpam implements Module, Listener
 				if (checktime == -1)
 				{
 					event.setCancelled(true);
-					ChatAPI.sendActionBar(sender, "&7This " + btype + " is locked permanently by /damnspam.");
+					getLogger().message(sender, "This " + btype + " is locked permanently by /damnspam.");
 				}
 				else if (timeLeft > 0)
 				{
 					event.setCancelled(true);
-					ChatAPI.sendActionBar(sender, "&7This " + btype + " has a damnspam timeout of &e" + checktime + "&7, with &e"
-							+ timeLeft + "&7 left.");
+					getLogger().message(sender, "This " + btype + " has a damnspam timeout of " + checktime + ", with "
+							+ timeLeft + " left.");
 				}
 				else
 				{
