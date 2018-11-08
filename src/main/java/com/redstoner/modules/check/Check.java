@@ -5,9 +5,7 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -66,6 +64,7 @@ public class Check implements Module, Listener
 		return true;
 	}
 	
+	
 	@Override
 	public void postEnable()
 	{
@@ -76,7 +75,6 @@ public class Check implements Module, Listener
 	@Command(hook = "checkCommand", async = AsyncType.ALWAYS)
 	public void checkCommand(final CommandSender sender, final String player)
 	{
-		getLogger().message(sender, "&7Please note that the data may not be fully accurate!");
 		OfflinePlayer oPlayer;
 		oPlayer = Bukkit.getPlayer(player);
 		if (oPlayer == null)
@@ -104,9 +102,11 @@ public class Check implements Module, Listener
 		return null;
 	}
 	
-	public JSONObject getIpInfo(OfflinePlayer player)
+	public String[] getIpInfo(OfflinePlayer player)
 	{
 		String ip = "";
+		String[] info = new String[5];
+		
 		if (player.isOnline())
 		{
 			ip = player.getPlayer().getAddress().getHostString();
@@ -125,12 +125,20 @@ public class Check implements Module, Listener
 		}
 		try
 		{
-			URL ipinfo = new URL("https://ipinfo.io/" + ip + "/json");
-			String rawJson = read(ipinfo);
-			return (JSONObject) new JSONParser().parse(rawJson);
+			URL ipinfo = new URL("https://ipapi.co/" + ip + "/json");
+			JSONObject json = (JSONObject) new JSONParser().parse( read(ipinfo) );
+			
+			info[0] = ip;
+			
+			info[1] = (String) json.get("country_name");
+			
+			info[2] = (String) json.get("region");
+			info[3] = (String) json.get("asn");
+			info[4] = (String) json.get("org");
+			return info;
 		}
 		catch (Exception e)
-		{}
+		{e.printStackTrace();}
 		return null;
 	}
 	
@@ -173,12 +181,8 @@ public class Check implements Module, Listener
 			catch (Exception e2)
 			{}
 			return new Object[] {null};
+			
 		}
-	}
-	
-	public String getCountry(JSONObject data)
-	{
-		return (String) data.get("country");
 	}
 	
 	public String getAllNames(OfflinePlayer player)
@@ -198,45 +202,60 @@ public class Check implements Module, Listener
 		}
 		catch (Exception e)
 		{}
-		return null;
+		return "None";
 	}
 	
 	public void sendData(CommandSender sender, OfflinePlayer player)
 	{
 		try
-		{
-			JSONObject ipInfo = getIpInfo(player);
+		{			
 			// data
+			String uuid = player.getUniqueId().toString();
 			String firstJoin = getFirstJoin(player);
 			String lastSeen = getLastSeen(player);
 			firstJoin = (firstJoin.equals("1970-01-01 01:00")) ? "&eNever" : "&7(yyyy-MM-dd hh:mm) &e" + firstJoin;
 			lastSeen = (lastSeen.equals("1970-1-1 01:00")) ? "&eNever" : "&7(yyyy-MM-dd hh:mm) &e" + lastSeen;
+			
 			Object[] websiteData = getWebsiteData(player);
 			String websiteUrl = (websiteData[0] == null) ? "None" : (String) websiteData[0];
 			String email = (websiteData[0] == null) ? "Unknown" : (String) websiteData[1];
 			boolean emailNotConfirmed = (websiteData[0] == null) ? false : !((boolean) websiteData[2]);
-			String country = (ipInfo == null) ? "Unknown" : getCountry(ipInfo);
+			
+			String[] ipInfo = getIpInfo(player);
+			
 			String namesUsed = getAllNames(player);
-			if (namesUsed == null)
-				namesUsed = "None";
-			// messages
-			List<Message> messages = new ArrayList<>();
-			messages.add(new Message(sender, null).appendText(getLogger().getHeader()));
-			messages.add(new Message(sender, null).appendText("&7Data provided by redstoner:"));
-			messages.add(new Message(sender, null).appendSuggestHover("&6> UUID: &e" + player.getUniqueId().toString(),
-					player.getUniqueId().toString(), "Click to copy into chatbox!"));
-			messages.add(new Message(sender, null).appendText("&6> First joined: &e" + firstJoin));
-			messages.add(new Message(sender, null).appendText("&6> Last seen: &e" + lastSeen));
-			messages.add(
-					new Message(sender, null).appendText("&6> Website account: &e").appendLink(websiteUrl, websiteUrl));
-			messages.add(new Message(sender, null).appendText("&6> Email: &e")
-					.appendText((emailNotConfirmed ? "&6> &4Email NOT Confirmed!&e" : "&e") + email));
-			messages.add(new Message(sender, null).appendText("&7Data provided by ipinfo:"));
-			messages.add(new Message(sender, null).appendText("&6> Country: &e" + country));
-			messages.add(new Message(sender, null).appendText("&7Data provided by mojang:"));
-			messages.add(new Message(sender, null).appendText("&6> All ingame names used so far: &e" + namesUsed));
-			for (Message m : messages)
-				m.send();
+			
+			// messages			
+			Message msg = new Message(sender, null)
+			               .appendText("\n" + getLogger().getHeader())
+                           .appendText("\n&7Data provided by redstoner:")
+                           .appendSuggestHover("\n&6> UUID: &e" + uuid, uuid, "Click to copy!")
+                           .appendText("\n&6> First joined: &e" + firstJoin)
+                           .appendText("\n&6> First joined: &e" + firstJoin)
+                           .appendText("\n&6> Website account: &e").appendLink(websiteUrl, websiteUrl)
+                           .appendText("\n&6> Email: &e" + (emailNotConfirmed ? "\n&6> &cEmail NOT Confirmed!" : ""))
+                              .appendSuggestHover("&e" + email, email, "Click to copy!")
+                           .appendText("\n\n&7Data provided by ipapi.co:");
+			
+			if (ipInfo == null)
+				msg.appendText("\n&6> &cData Unavailable");
+			else
+			{
+				String ip = ipInfo[0] == null? "Unknown" : ipInfo[0];
+				String region = "&e" + (ipInfo[1] == null? "Unknown" : ipInfo[1])
+						      + ", " + (ipInfo[2] == null? "Unknown" : ipInfo[2]);
+				String asn = ipInfo[3] == null? "Unknown" : ipInfo[3];
+				String org = ipInfo[4] == null? "Unknown" : ipInfo[4];
+				
+				msg.appendText("\n&6> IP: ").appendSuggestHover("&e" + ip, ip, "Click to copy!")
+				   .appendText("\n&6> Region: " + region)
+				   .appendText("\n&6> ASN: ").appendSuggestHover("&e" + asn, asn, "Click to copy!")
+				   .appendText("\n&6> Org: ").appendSuggestHover("&e" + org, org, "Click to copy!");
+			}
+			
+			msg.appendText("\n\n&7Data provided by mojang:")
+		   	   .appendText("\n&6> All ingame names used so far: &e" + namesUsed)
+		   	   .send();
 		}
 		catch (Exception e)
 		{
