@@ -51,16 +51,18 @@ alias nv;
 command minecart {
    alias cart;
    perm utils.spawncart;
-   help Spawn's a Minecart;
    type player;
    
-   deafult [string type] {
-      run minecart_default type;
+  default [string:variation] {
+      run minecart_default variation;
+      help Sets a default minecart variation.;
    }
-   [string type] {
-      run minecart_type type;
+   [string:variation] {
+      run minecart_variation variation;
+      help Spawns a certain minecart;
    }
    [empty] {
       run minecart;
+      help Spawns a minecart;
    }   
 }

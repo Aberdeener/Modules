@@ -285,50 +285,58 @@ public class Misc implements Module, Listener
 	@Command(hook = "minecart")
 	public void minecart(CommandSender sender) {
 		String type = (String) DataManager.getOrDefault(sender, "minecart_default", "normal");
-		minecartDefault(sender, type);
+		minecartType(sender, type);
 	}
 	
-	@Command(hook = "minecart_type")
-	public void minecartType(CommandSender sender, String type) {
+	@Command(hook = "minecart_variation")
+	public boolean minecartType(CommandSender sender, String type) {
+		if (type.equals("help") || type.equals("h") || type.equals("?"))
+			return false;
+		
 		Player p = (Player) sender;
 		if (!canBuild(p, p.getLocation())) {
-			ChatAPI.sendActionBar(sender, "&cYou do not have permission to build here!");
-			return;
+			getLogger().message(sender, true, "You do not have permission to build here!");
+			return true;
 		}
 			
 		EntityType typeE = convertMinecartTypeString(type);
 		
 		if (typeE != null) {
 			p.getWorld().spawnEntity(p.getLocation(), typeE);
-			ChatAPI.sendActionBar(sender, "&aMinecart Spawned!");
+			getLogger().message(sender, "Minecart Spawned!");
 		}
 		else
-			ChatAPI.sendActionBar(sender, "&cThe type of Minecart you've requested does not exist.");
+			getLogger().message(sender, true, "The type of Minecart you've requested does not exist.");
+		return false;
 	}
 	
 	@Command(hook = "minecart_default")
-	public void minecartDefault(CommandSender sender, String type) {
+	public boolean minecartDefault(CommandSender sender, String type) {
 		EntityType typeE = convertMinecartTypeString(type);
+		
+		if (type.equals("help") || type.equals("h") || type.equals("?"))
+			return false;
 		
 		if (typeE != null) {
 			DataManager.setData(sender, "minecart_default", type);
-			ChatAPI.sendActionBar(sender, "&aMinecart Spawned!");
+			getLogger().message(sender, "Minecart Spawned!");
 		}
 		else
-			ChatAPI.sendActionBar(sender, "&cThe type of Minecart you've requested does not exist.");
+			getLogger().message(sender, true, "The type of Minecart you've requested does not exist.");
+		return true;
 	}
 	
 	public EntityType convertMinecartTypeString(String type) {
 		EntityType typeE = null;
 		
 		switch (type) {
-			case "normal": typeE = EntityType.MINECART;
-			case "chest": typeE = EntityType.MINECART_CHEST;
-			case "furnace": typeE = EntityType.MINECART_FURNACE;
-			case "hopper": typeE = EntityType.MINECART_HOPPER;
-			case "tnt": typeE = EntityType.MINECART_TNT;
-			case "command": typeE = EntityType.MINECART_COMMAND;
-			case "spawner": typeE = EntityType.MINECART_MOB_SPAWNER;
+			case "normal": typeE = EntityType.MINECART; break;
+			case "chest": typeE = EntityType.MINECART_CHEST; break;
+			case "furnace": typeE = EntityType.MINECART_FURNACE; break;
+			case "hopper": typeE = EntityType.MINECART_HOPPER; break;
+			case "tnt": typeE = EntityType.MINECART_TNT; break;
+			case "command": typeE = EntityType.MINECART_COMMAND; break;
+			case "spawner": typeE = EntityType.MINECART_MOB_SPAWNER; break;
 		}
 		
 		return typeE;
