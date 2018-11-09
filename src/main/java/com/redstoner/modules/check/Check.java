@@ -105,7 +105,7 @@ public class Check implements Module, Listener
 	public String[] getIpInfo(OfflinePlayer player)
 	{
 		String ip = "";
-		String[] info = new String[5];
+		String[] info = new String[4];
 		
 		if (player.isOnline())
 		{
@@ -130,11 +130,19 @@ public class Check implements Module, Listener
 			
 			info[0] = ip;
 			
-			info[1] = (String) json.get("country_name");
+			Object o_country = json.get("country_name");
+			Object o_region = json.get("region");
+			Object o_asn = json.get("asn");
+			Object o_org = json.get("org");
 			
-			info[2] = (String) json.get("region");
-			info[3] = (String) json.get("asn");
-			info[4] = (String) json.get("org");
+			String country = o_country == null? "Unknown" : (String) o_country;
+			String region = o_region == null? "" : ", " + (String) o_region;
+			String asn = o_asn == null? "Unknown" : (String) o_asn;
+			String org = o_org == null? "Unknown" : (String) o_org;
+			
+			info[1] = country.equals("")? "Unknown" : country + (region.equals(", ")? "" : region);
+			info[3] = asn.equals("")? "Unknown" : asn;
+			info[4] = org.equals("")? "Unknown" : org;
 			return info;
 		}
 		catch (Exception e)
@@ -229,9 +237,9 @@ public class Check implements Module, Listener
 			Message msg = new Message(sender, null)
 			               .appendText("\n" + getLogger().getHeader())
                            .appendText("\n&7Data provided by redstoner:")
-                           .appendSuggestHover("\n&6> UUID: &e" + uuid, uuid, "Click to copy!")
+                           .appendText("\n&6> UUID: ").appendSuggestHover("&e" + uuid, uuid, "Click to copy!")
                            .appendText("\n&6> First joined: &e" + firstJoin)
-                           .appendText("\n&6> Last Seen: &e" + lastseen)
+                           .appendText("\n&6> Last Seen: &e" + lastSeen)
                            .appendText("\n&6> Website account: &e").appendLink(websiteUrl, websiteUrl)
                            .appendText("\n&6> Email: &e" + (emailNotConfirmed ? "\n&6> &cEmail NOT Confirmed!" : ""))
                               .appendSuggestHover("&e" + email, email, "Click to copy!")
@@ -241,11 +249,10 @@ public class Check implements Module, Listener
 				msg.appendText("\n&6> &cData Unavailable");
 			else
 			{
-				String ip = ipInfo[0] == null? "Unknown" : ipInfo[0];
-				String region = "&e" + (ipInfo[1] == null? "Unknown" : ipInfo[1])
-						      + ", " + (ipInfo[2] == null? "Unknown" : ipInfo[2]);
-				String asn = ipInfo[3] == null? "Unknown" : ipInfo[3];
-				String org = ipInfo[4] == null? "Unknown" : ipInfo[4];
+				String ip = ipInfo[0];
+				String region = ipInfo[1];
+				String asn = ipInfo[2];
+				String org = ipInfo[3];
 				
 				msg.appendText("\n&6> IP: ").appendSuggestHover("&e" + ip, ip, "Click to copy!")
 				   .appendText("\n&6> Region: " + region)
