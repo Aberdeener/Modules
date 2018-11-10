@@ -13,32 +13,30 @@ import com.redstoner.modules.Module;
 
 @Commands(CommandHolderType.File)
 @Version(major = 4, minor = 1, revision = 0, compatible = 4)
-public class Clear implements Module
-{
+public class Clear implements Module {
 	@Command(hook = "clear")
-	public boolean clearInventory(CommandSender sender)
-	{
+	public boolean clearInventory(CommandSender sender) {
 		Player player = (Player) sender;
+		
 		Inventory inv = player.getInventory();
-		for (int i = 0; i < 36; i++)
-			inv.clear(i);
+		for (int i = 0; i < 36; i++) inv.clear(i);
+		
 		getLogger().message(sender, "Cleared your inventory!");
 		return true;
 	}
-	
+
 	@Command(hook = "clearother")
-	public boolean clearOtherInventory(CommandSender sender, String name)
-	{
+	public boolean clearOtherInventory(CommandSender sender, String name) {
 		Player player = Bukkit.getPlayer(name);
-		if (player == null)
-			getLogger().message(sender, true, "That player couldn't be found!");
-		else
-		{
+		
+		if (player == null) getLogger().message(sender, true, "That player couldn't be found!");
+		else {
 			Inventory inv = player.getInventory();
-			for (int i = 0; i < 36; i++)
-				inv.clear(i);
+			for (int i = 0; i < 36; i++) inv.clear(i);
+			
 			getLogger().message(sender, "Cleared " + player.getDisplayName() + "&7's inventory!");
 		}
+		
 		return true;
 	}
 }

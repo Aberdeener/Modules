@@ -25,118 +25,108 @@ import com.redstoner.modules.Module;
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
 @Version(major = 4, minor = 1, revision = 0, compatible = 4)
-public class Cycle implements Module, Listener
-{
+public class Cycle implements Module, Listener {
 	private File cycleFile = new File(Main.plugin.getDataFolder(), "cycle.json");
 	private JSONArray no_cyclers;
-	
+
 	@Override
-	public boolean onEnable()
-	{
+	public boolean onEnable() {
 		no_cyclers = JsonManager.getArray(cycleFile);
-		if (no_cyclers == null)
-			no_cyclers = new JSONArray();
+		if (no_cyclers == null) no_cyclers = new JSONArray();
+
 		return true;
 	}
-	
+
 	@Override
-	public void onDisable()
-	{
+	public void onDisable() {
 		saveCyclers();
 	}
-	
-	private void saveCyclers()
-	{
+
+	private void saveCyclers() {
 		JsonManager.save(no_cyclers, cycleFile);
 	}
-	
+
 	@Command(hook = "cycle_on")
-	public boolean cycleOn(CommandSender sender)
-	{
+	public boolean cycleOn(CommandSender sender) {
 		UUID uid = ((Player) sender).getUniqueId();
-		if (no_cyclers.remove(uid.toString()))
-		{
+
+		if (no_cyclers.remove(uid.toString())) {
 			getLogger().message(sender, "Cycle enabled!");
 			saveCyclers();
-		}
-		else
-			getLogger().message(sender, "Cycle was already enabled!");
+		} else getLogger().message(sender, "Cycle was already enabled!");
+
 		return true;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Command(hook = "cycle_off")
-	public boolean cycleOff(CommandSender sender)
-	{
+	public boolean cycleOff(CommandSender sender) {
 		UUID uid = ((Player) sender).getUniqueId();
-		if (!no_cyclers.contains(uid.toString()))
-		{
+
+		if (!no_cyclers.contains(uid.toString())) {
 			getLogger().message(sender, "Cycle disabled!");
 			no_cyclers.add(uid.toString());
 			saveCyclers();
-		}
-		else
-			getLogger().message(sender, "Cycle was already disabled!");
+		} else getLogger().message(sender, "Cycle was already disabled!");
+
 		return true;
 	}
-	
+
 	@EventHandler
-	public void onInventoryCycle(PlayerItemHeldEvent event)
-	{
+	public void onInventoryCycle(PlayerItemHeldEvent event) {
 		Player player = event.getPlayer();
 		UUID uid = player.getUniqueId();
-		if (!player.getGameMode().equals(GameMode.CREATIVE) || player.isSneaking()
-				|| no_cyclers.contains(uid.toString()))
-			return;
+
+		if (!player.getGameMode().equals(GameMode.CREATIVE) || player.isSneaking() || no_cyclers.contains(uid.toString())) return;
+
 		int prev_slot = event.getPreviousSlot();
 		int new_slot = event.getNewSlot();
-		if (prev_slot == 0 && new_slot == 8)
-			shift(player, false);
-		else if (prev_slot == 8 && new_slot == 0)
-			shift(player, true);
+
+		if (prev_slot == 0 && new_slot == 8) shift(player, false);
+		else if (prev_slot == 8 && new_slot == 0) shift(player, true);
 	}
-	
-	private void shift(Player player, boolean down)
-	{
+
+	private void shift(Player player, boolean down) {
 		Inventory inv = player.getInventory();
 		ItemStack[] items = inv.getStorageContents();
+
 		int shift = down ? -9 : 9;
 		shift = (shift + items.length) % items.length;
-		for (int i = 0; i < 4; i++)
-		{
+
+		for (int i = 0; i < 4; i++) {
 			items = join(subset(items, shift, items.length), subset(items, 0, shift));
+
 			ItemStack[] hotbar = subset(items, 0, 9);
 			boolean found = false;
-			for (ItemStack item : hotbar)
-				if (item != null)
-				{
-					found = true;
-					break;
-				}
-			if (found)
+
+			for (ItemStack item : hotbar) if (item != null) {
+				found = true;
 				break;
+			}
+
+			if (found) break;
 		}
+
 		inv.setStorageContents(items);
 	}
-	
-	private ItemStack[] subset(ItemStack[] items, int start, int end)
-	{
+
+	private ItemStack[] subset(ItemStack[] items, int start, int end) {
 		ItemStack[] result = new ItemStack[end - start];
-		for (int i = start; i < end; i++)
-		{
+
+		for (int i = start; i < end; i++) {
 			result[i - start] = items[i];
 		}
+
 		return result;
 	}
-	
-	private ItemStack[] join(ItemStack[] items1, ItemStack[] items2)
-	{
+
+	private ItemStack[] join(ItemStack[] items1, ItemStack[] items2) {
 		ItemStack[] result = new ItemStack[items1.length + items2.length];
-		for (int i = 0; i < items1.length; i++)
-			result[i] = items1[i];
+
+		for (int i = 0; i < items1.length; i++) result[i] = items1[i];
 		int offset = items1.length;
-		for (int i = 0; i < items2.length; i++)
-			result[i + offset] = items2[i];
+		for (int i = 0; i < items2.length; i++) result[i + offset] = items2[i];
+
 		return result;
 	}
 }

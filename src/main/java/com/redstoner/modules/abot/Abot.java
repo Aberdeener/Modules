@@ -22,25 +22,21 @@ import com.redstoner.modules.Module;
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
 @Version(major = 4, minor = 1, revision = 0, compatible = 4)
-public class Abot implements Module, Listener
-{
+public class Abot implements Module, Listener {
 	private File answerFile = new File(Main.plugin.getDataFolder(), "abot.json");
 	JSONArray answers;
-	
+
 	@EventHandler
-	public void onPlayerChat(AsyncPlayerChatEvent event)
-	{
-		for (Object rawObject : answers)
-		{
+	public void onPlayerChat(AsyncPlayerChatEvent event) {
+		for (Object rawObject : answers) {
 			JSONObject entry = (JSONObject) rawObject;
 			JSONArray regexes = (JSONArray) entry.get("regex");
-			for (Object regex : regexes)
-			{
-				if (event.getMessage().toLowerCase().matches((String) regex))
-				{
+
+			for (Object regex : regexes) {
+				if (event.getMessage().toLowerCase().matches((String) regex)) {
 					Object hideperm = entry.get("hide-perm");
-					if (hideperm == null || !event.getPlayer().hasPermission((String) hideperm))
-					{
+
+					if (hideperm == null || !event.getPlayer().hasPermission((String) hideperm)) {
 						event.setCancelled(true);
 						getLogger().message(event.getPlayer(), (String) entry.get("message"));
 						return;
@@ -49,19 +45,17 @@ public class Abot implements Module, Listener
 			}
 		}
 	}
-	
+
 	@Command(hook = "abot_reload")
-	public void loadAnswers(CommandSender sender)
-	{
+	public void loadAnswers(CommandSender sender) {
 		answers = JsonManager.getArray(answerFile);
-		if (answers == null)
-			answers = new JSONArray();
+		if (answers == null) answers = new JSONArray();
+
 		getLogger().message(sender, "Loaded the abot.json file!");
 	}
-	
+
 	@Override
-	public boolean onEnable()
-	{
+	public boolean onEnable() {
 		loadAnswers(Bukkit.getConsoleSender());
 		return true;
 	}
