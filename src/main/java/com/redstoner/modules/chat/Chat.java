@@ -1,7 +1,10 @@
 package com.redstoner.modules.chat;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -11,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.nemez.cmdmgr.Command;
 import com.redstoner.annotations.AutoRegisterListener;
@@ -32,15 +36,17 @@ import net.nemez.chatapi.ChatAPI;
 public class Chat implements Module, Listener
 {
 	private final Map<String, String> defaults = new HashMap<>();
+	private Set<UUID> chatonly = new HashSet<>();
 	
 	public Chat()
 	{
-		defaults.put("chat", " %n §7→§r %m");
-		defaults.put("me", " §7- %n §7⇦ %m");
-		defaults.put("action", " §7- %n §7⇦ %m");
-		defaults.put("say", " §7[§9%n§7]:§r %m");
-		defaults.put("shrug", " %n §7→§r %m ¯\\_(ツ)_/¯");
+		defaults.put("chat", " %n§7%c →§r %m");
+		defaults.put("me", " §7- %n§7%c ⇦ %m");
+		defaults.put("action", " §7- %n§7%c ⇦ %m");
+		defaults.put("say", " §7[§9%n§7]%c:§r %m");
+		defaults.put("shrug", " %n§7%c →§r %m ¯\\_(ツ)_/¯");
 		defaults.put("print", "%m");
+		defaults.put("%c", "(c)");
 	}
 	
 	@Override
@@ -53,6 +59,7 @@ public class Chat implements Module, Listener
 		DataManager.setConfig("say", defaults.get("say"));
 		DataManager.setConfig("shrug", defaults.get("shrug"));
 		DataManager.setConfig("print", defaults.get("print"));
+		DataManager.setConfig("%c", defaults.get("%c"));
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -64,6 +71,12 @@ public class Chat implements Module, Listener
 		String message = event.getMessage();
 		event.setCancelled(true);
 		broadcastFormatted("chat", player, message, event);
+	}
+	
+	@EventHandler
+	public void onLeave(PlayerQuitEvent event)
+	{
+		chatonly.remove(event.getPlayer().getUniqueId());
 	}
 	
 	@Command(hook = "me")
@@ -164,6 +177,21 @@ public class Chat implements Module, Listener
 		return true;
 	}
 	
+	@Command(hook = "chatonly")
+	public void chatonly(CommandSender sender)
+	{
+		UUID uuid = ((Player) sender).getUniqueId();
+		
+		if (chatonly.contains(uuid)) {
+			chatonly.remove(uuid);
+			getLogger().message(sender, "You are no longer tagged with being only able to chat.");
+		}
+		else {
+			chatonly.add(uuid);
+			getLogger().message(sender, "You are now tagged with being only able to chat.");
+		}
+	}
+	
 	public boolean broadcastFormatted(String format, CommandSender sender, String message)
 	{
 		return broadcastFormatted(format, sender, message, Utils.getName(sender), null);
@@ -182,6 +210,7 @@ public class Chat implements Module, Listener
 	public boolean broadcastFormatted(String format, CommandSender sender, String message, String name,
 			AsyncPlayerChatEvent event)
 	{
+		boolean isChatOnly = sender instanceof Player && chatonly.contains(((Player)sender).getUniqueId());
 		if ((boolean) DataManager.getOrDefault(sender, "muted", false))
 		{
 			getLogger().message(sender, true, "You have been muted!");
@@ -190,7 +219,7 @@ public class Chat implements Module, Listener
 			return false;
 		}
 		String raw = (String) DataManager.getConfigOrDefault(format, defaults.get(format));
-		String formatted = raw.replace("%n", name).replace("%m", message);
+		String formatted = raw.replace("%n", name).replace("%m", message).replace("%c", isChatOnly? (String) DataManager.getConfigOrDefault("%c", defaults.get("%c")) : "");
 		Utils.broadcast("", ChatAPI.colorify(sender, formatted),
 				wrap(ModuleLoader.exists("Ignore") ? Ignore.getIgnoredBy(sender) : null, event));
 		return true;
@@ -206,7 +235,7 @@ public class Chat implements Module, Listener
 				@Override
 				public boolean sendTo(CommandSender recipient)
 				{
-					if (recipient instanceof ConsoleCommandSender)
+					if (recipient instanceof ConsoleCommandSender || filter == null)
 						return true;
 					return filter.sendTo(recipient) && event.getRecipients().contains(recipient);
 				}

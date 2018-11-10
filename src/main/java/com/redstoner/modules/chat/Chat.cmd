@@ -79,3 +79,12 @@ command unmute {
         help Unmutes a player.;
     }
 }
+
+command chatonly {
+    alias co;
+    [empty] {
+        run chatonly;
+        help Shows that you're onlu able to chat, nothing else.;
+        type player;
+    }
+}
