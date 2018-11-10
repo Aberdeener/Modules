@@ -1,7 +1,6 @@
 package com.redstoner.modules.chatalias;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -28,7 +27,9 @@ import com.redstoner.misc.JsonManager;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 
+import io.netty.util.internal.ThreadLocalRandom;
 import net.nemez.chatapi.ChatAPI;
+import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
@@ -36,7 +37,7 @@ import net.nemez.chatapi.ChatAPI;
 public class Chatalias implements Module, Listener
 {
 	private final String[] commands = new String[] {"e?r", "e?m .+?", "e?t", "e?w", "e?msg .+?", "e?message .+?",
-			"e?whisper .+?", "e?me", "cgsay", "ac", "bc", "say", "sayn .+?", "chat", "shrug", "action"};
+			"e?whisper .+?", "e?me", "cgsay", "ac", "bc", "say", "sayn .+?", "chat", "shrug", "action", "speak", "chatn", "speakn"};
 	private JSONObject aliases = new JSONObject();
 	
 	@Override
@@ -89,6 +90,18 @@ public class Chatalias implements Module, Listener
 		{
 			String keyword = (String) key;
 			String replacement = (String) playerAliases.get(key);
+			
+			if (keyword.startsWith("RND;")) {
+				keyword = keyword.replace("RND;", "");
+				String[] results = replacement.split(" \\|\\| ");
+				for (String str : results) {
+					System.out.println(str);
+				}
+				int rand = ThreadLocalRandom.current().nextInt(0, results.length);
+				replacement = results[rand];
+			}
+			
+			
 			if (keyword.startsWith("R: "))
 			{
 				keyword = keyword.replace("R: ", "");
@@ -154,6 +167,17 @@ public class Chatalias implements Module, Listener
 		{
 			String keyword = (String) key;
 			String replacement = (String) playerAliases.get(key);
+			
+			if (keyword.startsWith("RND;")) {
+				keyword = keyword.replace("RND;", "");
+				String[] results = replacement.split(" \\|\\| ");
+				for (String str : results) {
+					System.out.println(str);
+				}
+				int rand = ThreadLocalRandom.current().nextInt(0, results.length);
+				replacement = results[rand];
+			}
+			
 			if (keyword.startsWith("R: "))
 			{
 				keyword = keyword.replace("R: ", "");
@@ -186,7 +210,7 @@ public class Chatalias implements Module, Listener
 	
 	@SuppressWarnings("unchecked")
 	@Command(hook = "addalias")
-	public boolean addAlias(CommandSender sender, boolean regex, String keyword, String replacement)
+	public boolean addAlias(CommandSender sender, boolean regex, boolean random, String keyword, String replacement)
 	{
 		if (regex && keyword.equals(".*"))
 		{
@@ -196,7 +220,7 @@ public class Chatalias implements Module, Listener
 		Player player = (Player) sender;
 		UUID uuid = player.getUniqueId();
 		JSONObject data = (JSONObject) aliases.get(uuid.toString());
-		keyword = (regex ? "R: " : "N: ") + keyword;
+		keyword = (random ? "RND;" : "") + (regex ? "R: " : "N: ") + keyword;
 		if (!data.containsKey(keyword))
 		{
 			int maxAmount;
@@ -217,21 +241,21 @@ public class Chatalias implements Module, Listener
 		data.put(keyword, replacement);
 		if (sender.hasPermission("essentials.chat.color"))
 			getLogger().message(sender,
-					"Successfully created alias " + keyword.substring(3) + " §7-> " + replacement + " §7for you.");
+					"Successfully created alias " + keyword.substring(random? 7 : 3) + " §7-> " + replacement + " §7for you.");
 		else
 			getLogger().message(sender,
-					"Successfully created alias " + keyword.substring(3) + " §7-> " + replacement + " §7for you.");
+					"Successfully created alias " + keyword.substring(random? 7 : 3) + " §7-> " + replacement + " §7for you.");
 		saveAliases(uuid);
 		return true;
 	}
 	
 	@Command(hook = "delalias")
-	public boolean delAlias(CommandSender sender, boolean regex, String keyword)
+	public boolean delAlias(CommandSender sender, boolean regex, boolean random, String keyword)
 	{
 		Player player = (Player) sender;
 		UUID uuid = player.getUniqueId();
 		JSONObject data = (JSONObject) aliases.get(uuid.toString());
-		keyword = (regex ? "R: " : "N: ") + keyword;
+		keyword = (random ? "RND;" : "") + (regex ? "R: " : "N: ") + keyword;
 		if (data.remove(keyword) != null)
 		{
 			getLogger().message(sender, "Successfully removed the alias!");
@@ -248,13 +272,19 @@ public class Chatalias implements Module, Listener
 	@Command(hook = "listaliases")
 	public boolean listAliases(CommandSender sender)
 	{
-		ArrayList<String> message = new ArrayList<>();
+		Message m = new Message(sender, null).appendText(getLogger().getHeader());
 		Player player = (Player) sender;
 		UUID uuid = player.getUniqueId();
 		JSONObject data = (JSONObject) aliases.get(uuid.toString());
-		for (Object key : data.keySet())
-			message.add((String) key + " §7-> " + data.get(key));
-		getLogger().message(sender, message.toArray(new String[] {}));
+		for (Object key : data.keySet()) {
+			String d_key = (String) key;
+			System.out.println("1" + d_key);
+			d_key = d_key.replace("RND;N:", "RND:")
+			             .replace("RND;R:", "R-RND:");
+				
+			m.appendText("\n" + d_key + " §7-> " + data.get(key));
+		}
+		m.send();
 		return true;
 	}
 	
