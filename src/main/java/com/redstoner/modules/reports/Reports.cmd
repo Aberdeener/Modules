@@ -1,14 +1,19 @@
 command report {
    [string:message...] {
-      type player;
-      help Report a player or incident;
       run report message;
+      help Report a player or incident;
    }
+}
+command undoreport {
+	[empty] {
+	   run report_retract;
+       help Retracts the last report you sent.;
+    }
 }
 command rp {
    perm utils.report;
 
-   open {
+   list {
       help List all open reports;
       run report_open;
    }

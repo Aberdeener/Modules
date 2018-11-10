@@ -20,7 +20,7 @@ import com.redstoner.misc.JsonManager;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 
-import net.md_5.bungee.api.ChatColor;
+import net.nemez.chatapi.click.Message;
 
 /** Report module. Allows reports to be created and handled by staff
  * 
@@ -109,28 +109,25 @@ public class Reports implements Module
 		JSONObject report = (JSONObject) reports.get(id);
 		reports.remove(id);
 		archived.add(report);
-		sender.sendMessage(ChatColor.GREEN + "Report #" + id + " closed!");
+		getLogger().message(sender, "Report #" + id + " closed!");
 	}
 	
 	@Command(hook = "report_open")
 	public void listOpen(CommandSender sender)
 	{
 		int i = 0;
+		
+		Message msg = new Message(sender, null).appendText("\n" + getLogger().getHeader());
 		for (Object object : reports)
 		{
 			JSONObject report = (JSONObject) object;
-			String message = "";
-			message += ChatColor.DARK_GRAY + "[" + ChatColor.YELLOW + i + ChatColor.DARK_GRAY + "]";
-			message += "[" + ChatColor.YELLOW + report.get("time") + ChatColor.DARK_GRAY + "] ";
-			message += ChatColor.DARK_AQUA + "" + report.get("name");
-			message += ChatColor.WHITE + ": " + ChatColor.YELLOW + report.get("message");
-			sender.sendMessage(message);
+			msg.appendText("\n&8[&e" + i + "&8][&e" + report.get("time") + "&8]&3"
+				    	+ report.get("name") + "&f: &e" + report.get("message"));
 			i++;
 		}
 		if (i == 0)
-		{
-			sender.sendMessage(ChatColor.GREEN + "There are no open reports.");
-		}
+			msg.appendText("\n&cThere are no open reports.");
+		msg.send();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -143,12 +140,35 @@ public class Reports implements Module
 		report.put("name", player.getName());
 		report.put("time", dateFormat.format(new Date()));
 		report.put("message", message);
-		String loc = "";
-		// Location to string
-		loc += player.getLocation().getBlockX() + ";" + player.getLocation().getBlockY() + ";"
-				+ player.getLocation().getBlockZ() + ";" + player.getLocation().getWorld().getName();
+		String loc = player.getLocation().getBlockX() + ";" + player.getLocation().getBlockY() + ";"
+				   + player.getLocation().getBlockZ() + ";" + player.getLocation().getWorld().getName();
 		report.put("location", loc);
 		reports.add(report);
-		sender.sendMessage(ChatColor.GREEN + "Report created!");
+		getLogger().message(sender, "Report created!");
+	}
+
+	
+	@Command(hook = "report_retract")
+	public void retractReport(CommandSender sender)
+	{
+		String p_name = ((Player) sender).getName();
+		
+		JSONObject lastReport = null;
+		
+		for (Object o_report : reports) {
+			JSONObject report = (JSONObject) o_report;
+			
+			String r_name = (String) report.get("name");
+			if (r_name.equals(p_name))
+				lastReport = report;
+		}
+		
+		if (lastReport == null) {
+			getLogger().message(sender, true, "You haven't submitted a report");
+			return;
+		}
+		
+		reports.remove(lastReport);
+		getLogger().message(sender, "Successfully retracted your last report.");
 	}
 }
