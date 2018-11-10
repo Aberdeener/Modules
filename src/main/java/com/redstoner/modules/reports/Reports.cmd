@@ -5,6 +5,7 @@ command report {
    }
 }
 command undoreport {
+    alias retractreport;
 	[empty] {
 	   run report_retract;
        help Retracts the last report you sent.;

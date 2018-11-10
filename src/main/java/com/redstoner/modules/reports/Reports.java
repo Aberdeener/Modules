@@ -164,7 +164,7 @@ public class Reports implements Module
 		}
 		
 		if (lastReport == null) {
-			getLogger().message(sender, true, "You haven't submitted a report");
+			getLogger().message(sender, true, "You haven't submitted a report.");
 			return;
 		}
 		
