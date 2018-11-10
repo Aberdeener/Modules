@@ -2,6 +2,7 @@ command report {
    [string:message...] {
       run report message;
       help Report a player or incident;
+      type player;
    }
 }
 command undoreport {
