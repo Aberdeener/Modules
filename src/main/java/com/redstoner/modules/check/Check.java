@@ -36,7 +36,7 @@ import com.redstoner.modules.Module;
 import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 1, revision = 0, compatible = 4)
+@Version(major = 4, minor = 2, revision = 0, compatible = 4)
 public class Check implements Module, Listener
 {
 	MysqlTable table;

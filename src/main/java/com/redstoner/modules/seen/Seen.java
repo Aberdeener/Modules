@@ -35,7 +35,7 @@ import net.nemez.chatapi.click.Message;
 
 @AutoRegisterListener
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 0, revision = 10, compatible = 4)
+@Version(major = 4, minor = 0, revision = 11, compatible = 4)
 public class Seen implements Module, Listener
 {
 	HashMap<UUID, JSONArray> names = new HashMap<>();
