@@ -2,7 +2,6 @@ package com.redstoner.modules.seen;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
@@ -60,7 +59,7 @@ public class Seen implements Module, Listener
 	@Command(hook = "seen2", async = AsyncType.ALWAYS)
 	public boolean seen(CommandSender sender, String player, boolean show_ips)
 	{
-		ArrayList<String> message = new ArrayList<>();
+		Message m = new Message(sender, null);
 		OfflinePlayer p;
 		if (Utils.isUUID(player))
 			p = Bukkit.getOfflinePlayer(UUID.fromString(player));
@@ -93,22 +92,22 @@ public class Seen implements Module, Listener
 			timestamp = (long) DataManager.getOrDefault(p.getUniqueId().toString(), "lastquit", p.getLastPlayed());
 		}
 		String time = DateUtil.formatDateDiff(timestamp);
-		message.add("&e" + p.getName() + " &7has been " + state + " &7for &e" + time + "&7.");
+		m.appendText("&e" + p.getName() + " &7has been " + state + " &7for &e" + time + "&7.");
 		JSONArray _names;
 		if (online)
 		{
 			if (DataManager.getState((Player) p, "afk"))
 			{
-				message.add("They're currently &eAFK&7:");
+				m.appendText("\nThey're currently &eAFK&7:");
 				String reason = (String) DataManager.getOrDefault(p.getUniqueId().toString(), "AFK", "afk_reason", "");
 				Long timeAFK = (Long) DataManager.getOrDefault(p.getUniqueId().toString(), "AFK", "afk_time", 0L);
 				
-				message.add("  &7Duration: &e" +  DateUtil.formatDateDiff(timeAFK));
+				m.appendText("\n  &7Duration: &e" +  DateUtil.formatDateDiff(timeAFK));
 				if (reason.length() >= 1)
-					message.add("  &7Reason: &e" + reason);
+					m.appendText("\n  &7Reason: &e" + reason);
 			}
 			if (DataManager.getState((Player) p, "vanished"))
-				message.add("They're currently &evanished&7!");
+				m.appendText("\nThey're currently &evanished&7!");
 			_names = names.get(p.getUniqueId());
 		}
 		else
@@ -116,7 +115,7 @@ public class Seen implements Module, Listener
 			_names = loadNames(p.getUniqueId());
 		}
 		if (_names != null && _names.size() > 1)
-			message.add("They've also been known as: &e"
+			m.appendText("\nThey've also been known as: &e"
 					+ _names.toJSONString().replaceAll("[\"\\[\\]]", "").replace(",", "&7, &e"));
 		if (sender.hasPermission("utils.seen.ip"))
 		{
@@ -128,13 +127,13 @@ public class Seen implements Module, Listener
 				else
 					_ips = loadIPs(p.getUniqueId());
 				if (_ips != null && _ips.size() > 0)
-					message.add("They've joined with the following IPs: &e"
+					m.appendText("\nThey've joined with the following IPs: &e"
 							+ _ips.toJSONString().replaceAll("[\"\\[\\]]", "").replace(",", "&7, &e"));
 			}
-			message.add(
+			m.appendText("\n" +
 					"Their current IP is: &a" + DataManager.getOrDefault(p.getUniqueId().toString(), "ip", "unknown"));
 		}
-		getLogger().message(sender, message.toArray(new String[] {}));
+		m.send();
 		return true;
 	}
 	
@@ -258,28 +257,32 @@ public class Seen implements Module, Listener
 					+ "§7 couldn't be found! Hint: Currently, you can only check statistics of players that are online!");
 			return true;
 		}
+
 		int ticks_lived = player.getStatistic(Statistic.PLAY_ONE_TICK);
 		int days = ticks_lived / 1728000;
 		int hours = (ticks_lived % 1728000) / 72000;
 		int minutes = (ticks_lived % 72000) / 1200;
+		int seconds = ticks_lived % 1200;
+		
 		if (sender.getName().equals(name))
 		{
-			getLogger().message(sender,
-					"You have played for &b"
-							+ (days == 0 && hours == 0 && minutes == 0 ? "less than a minute."
-									: ("a total of: &e" + (days != 0 ? (days + "d ") : "")
-											+ ((hours != 0 || days != 0) ? (hours + "h ") : "")
-											+ ((minutes != 0 || hours != 0 || days != 0) ? (minutes + "m") : "")))
-							+ "&7.");
+			getLogger().message(sender, "You have played for &b"
+							      + (days == 0 && hours == 0 && minutes == 0 ? seconds
+								  : ("a total of: &e"
+							          + (days != 0 ? days + "d " : "")
+									  + (hours != 0 || days != 0 ? hours + "h " : "")
+									  + (minutes != 0 || hours != 0 || days != 0 ? minutes + "m" : "")))
+							      + "&7.");
 		}
 		else
 		{
-			getLogger().message(sender, "&3" + name + " &7has played for "
-					+ (days == 0 && hours == 0 && minutes == 0 ? "less than a minute."
-							: ("a total of: &e" + (days != 0 ? (days + "d ") : "")
-									+ ((hours != 0 || days != 0) ? (hours + "h ") : "")
-									+ ((minutes != 0 || hours != 0 || days != 0) ? (minutes + "m") : "")))
-					+ "&7.");
+			getLogger().message(sender, "&3" + Utils.getName(player) + " &7has played for "
+					             + (days == 0 && hours == 0 && minutes == 0 ? seconds
+							     : ("a total of: &e"
+						            + (days != 0 ? days + "d " : "")
+								    + (hours != 0 || days != 0 ? hours + "h " : "")
+								    + (minutes != 0 || hours != 0 || days != 0 ? minutes + "m" : "")))
+						         + "&7.");
 		}
 		return true;
 	}
