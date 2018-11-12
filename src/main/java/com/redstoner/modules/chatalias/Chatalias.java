@@ -29,11 +29,10 @@ import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 
 import net.nemez.chatapi.ChatAPI;
-import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 1, revision = 0, compatible = 4)
+@Version(major = 4, minor = 2, revision = 0, compatible = 4)
 public class Chatalias implements Module, Listener {
 	private final String[] commands = new String[] { "e?r", "e?m .+?", "e?t", "e?w", "e?msg .+?", "e?message .+?", "e?whisper .+?", "e?me", "cgsay", "ac", "bc",
 			"say", "sayn .+?", "chat", "shrug", "action", "speak", "chatn", "speakn" };
@@ -262,7 +261,7 @@ public class Chatalias implements Module, Listener {
 
 	@Command(hook = "listaliases")
 	public boolean listAliases(CommandSender sender) {
-		Message m = new Message(sender, null).appendText(getLogger().getHeader());
+		ChatAPI.createMessage(sender).appendText(getLogger().getHeader()).send();
 		
 		Player player = (Player) sender;
 		UUID uuid = player.getUniqueId();
@@ -270,13 +269,11 @@ public class Chatalias implements Module, Listener {
 
 		for (Object key : data.keySet()) {
 			String d_key = (String) key;
-			System.out.println("1" + d_key);
-
 			d_key = d_key.replace("RND;N:", "RND:").replace("RND;R:", "R-RND:");
-			m.appendText("\n" + d_key + " §7-> " + data.get(key));
+			
+			ChatAPI.createMessage(sender).appendText(d_key + " §7-> " + data.get(key)).send();
 		}
 
-		m.send();
 		return true;
 	}
 
@@ -290,7 +287,7 @@ public class Chatalias implements Module, Listener {
 	@SuppressWarnings("unchecked")
 	private void loadAliases(UUID uuid) {
 		JSONObject defaults = new JSONObject();
-		defaults.put("dataFormat", "v1");
+		defaults.put("dataFormat", "v2");
 
 		JSONObject data = new JSONObject();
 		data.put("N: ./", "/");
@@ -304,10 +301,10 @@ public class Chatalias implements Module, Listener {
 		}
 
 		String dataFormat = (String) playerAliases.get("dataFormat");
-
+		
 		if (dataFormat == null) {
 			JSONObject temp = new JSONObject();
-			temp.put("dataFormat", "v1");
+			temp.put("dataFormat", "v2");
 
 			JSONObject tempAliases = new JSONObject();
 
@@ -318,8 +315,11 @@ public class Chatalias implements Module, Listener {
 			temp.put("data", tempAliases);
 			aliases.put(uuid.toString(), temp.get("data"));
 
+		} else if (dataFormat.equals("v2")) {
+			aliases.put(uuid.toString(), playerAliases.get("data"));
 		} else if (dataFormat.equals("v1")) {
 			aliases.put(uuid.toString(), playerAliases.get("data"));
+			saveAliases(uuid);
 		} else {
 			getLogger().error("Unknown data format for alias set of player " + uuid.toString());
 			aliases.put(uuid.toString(), ((JSONObject) defaults.get("data")).clone());
@@ -331,7 +331,7 @@ public class Chatalias implements Module, Listener {
 	private void saveAliases(UUID uuid) {
 		JSONObject temp = new JSONObject();
 		
-		temp.put("dataFormat", "v1");
+		temp.put("dataFormat", "v2");
 		temp.put("data", aliases.get(uuid.toString()));
 		
 		JsonManager.save(temp, new File(Main.plugin.getDataFolder(), "aliases/" + uuid.toString() + ".json"));
