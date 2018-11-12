@@ -29,22 +29,24 @@ import com.redstoner.modules.datamanager.DataManager;
 import com.redstoner.modules.ignore.Ignore;
 
 import net.nemez.chatapi.ChatAPI;
+import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 1, revision = 1, compatible = 4)
+@Version(major = 4, minor = 2, revision = 0, compatible = 4)
 public class Chat implements Module, Listener {
 	private final Map<String, String> defaults = new HashMap<>();
 	private Set<UUID> chatonly = new HashSet<>();
 
 	public Chat() {
-		defaults.put("chat", " %n§7%c →§r %m");
-		defaults.put("me", " §7- %n§7%c ⇦ %m");
-		defaults.put("action", " §7- %n§7%c ⇦ %m");
-		defaults.put("say", " §7[§9%n§7]%c:§r %m");
-		defaults.put("shrug", " %n§7%c →§r %m ¯\\_(ツ)_/¯");
+		defaults.put("chat", " %n %c§7→§r %m");
+		defaults.put("me", " §7- %n %c§7⇦ %m");
+		defaults.put("action", " §7- %n %c§7⇦ %m");
+		defaults.put("say", " §7[§9%n§7]%c§7:§r %m");
+		defaults.put("shrug", " %n %c§7→§r %m ¯\\_(ツ)_/¯");
 		defaults.put("print", "%m");
-		defaults.put("%c", "(c)");
+		defaults.put("%c", "§c*");
+		defaults.put("%c-hover", "§cChat Only");
 	}
 
 	@Override
@@ -56,6 +58,7 @@ public class Chat implements Module, Listener {
 		DataManager.setConfig("shrug", defaults.get("shrug"));
 		DataManager.setConfig("print", defaults.get("print"));
 		DataManager.setConfig("%c", defaults.get("%c"));
+		DataManager.setConfig("%c-hover", defaults.get("%c-hover"));
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -200,9 +203,26 @@ public class Chat implements Module, Listener {
 		}
 		
 		String raw = (String) DataManager.getConfigOrDefault(format, defaults.get(format));
-		String formatted = raw.replace("%n", name).replace("%m", message).replace("%c", isChatOnly ? (String) DataManager.getConfigOrDefault("%c", defaults.get("%c")) : "");
-		Utils.broadcast("", ChatAPI.colorify(sender, formatted), wrap(ModuleLoader.exists("Ignore") ? Ignore.getIgnoredBy(sender) : null, event));
+		String formatted = raw.replace("%n", name).replace("%m", message);
+		BroadcastFilter filter = wrap(ModuleLoader.exists("Ignore") ? Ignore.getIgnoredBy(sender) : null, event);
 		
+		if (isChatOnly) {
+			
+			String part1 = formatted.substring(0, formatted.indexOf("%c"));
+			String part2 = formatted.substring(formatted.indexOf("%c") + 2);
+			String indicatior = (String) DataManager.getConfigOrDefault("%c", defaults.get("%c"));
+			String indicatiorHover = (String) DataManager.getConfigOrDefault("%c-hover", defaults.get("%c-hover"));
+			
+			Message msg = ChatAPI.createMessage(null)
+					             .appendText(part1)
+					             .appendTextHover(indicatior, indicatiorHover)
+					             .appendText(part2);
+			Utils.broadcast("", msg, filter);
+			return true;
+		}
+			
+		Utils.broadcast("", ChatAPI.colorify(sender, formatted.replace("%c", "")), filter);
+				
 		return true;
 	}
 
