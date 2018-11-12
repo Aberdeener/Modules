@@ -35,6 +35,7 @@ public class Discord implements Module {
 	@Override
 	public boolean onEnable() {
 		Config config;
+
 		try {
 			config = Config.getConfig("Discord.json");
 		} catch (IOException | org.json.simple.parser.ParseException e1) {
@@ -42,20 +43,26 @@ public class Discord implements Module {
 			return false;
 		}
 
-		if (config == null || !config.containsKey("database") || !config.containsKey("table")
-				|| !config.containsKey("inviteLink")) {
+		if (config == null || !config.containsKey("database") || !config.containsKey("table") || !config.containsKey("inviteLink")) {
 			getLogger().error("Could not load the Discord config file, disabling!");
+
 			config.put("database", "redstoner");
 			config.put("table", "discord");
 			config.put("inviteLink", "https://discord.gg/example");
+
 			return false;
 		}
 
+		inviteLink = config.get("inviteLink");
+
 		try {
 			MysqlDatabase database = MysqlHandler.INSTANCE.getDatabase(config.get("database") + "?autoReconnect=true");
+
 			MysqlField uuid = new MysqlField("uuid", new VarChar(36), false);
 			MysqlField pass = new MysqlField("token", new VarChar(8), false);
+
 			database.createTableIfNotExists((String) config.get("table"), uuid, pass);
+
 			table = database.getTable(config.get("table"));
 		} catch (NullPointerException e) {
 			getLogger().error("Could not use the Discord config, aborting!");
@@ -82,8 +89,7 @@ public class Discord implements Module {
 				tries++;
 			}
 
-			if (tries > 10)
-				break;
+			if (tries > 10) break;
 		}
 
 		if (token == null) {
@@ -97,11 +103,8 @@ public class Discord implements Module {
 		table.insert(pUUID, token);
 
 		new Message(sender, null).appendText("\n&cRedstoner&7 has a &2Discord&7 Now! \nClick ")
-				.appendLinkHover("&e" + inviteLink, inviteLink, "&aClick to Join")
-				.appendText("&7 to join. \n\nTo sync you rank, copy ")
-				.appendSuggestHover("&e" + token, token, "&aClick to Copy")
-				.appendText("&7 into &3#rank-sync&7.\n")
-				.send();
+				.appendLinkHover("&e" + inviteLink, inviteLink, "&aClick to Join").appendText("&7 to join. \n\nTo sync you rank, copy ")
+				.appendSuggestHover("&e" + token, token, "&aClick to Copy").appendText("&7 into &3#rank-sync&7.\n").send();
 	}
 
 	private String randomToken(int length) {
