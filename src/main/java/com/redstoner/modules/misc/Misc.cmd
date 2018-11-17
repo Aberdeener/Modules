@@ -9,13 +9,15 @@ command tempadd {
         run tempadd user group duration; 
     } 
 } 
-command echo { 
+command echo {
+    perm utils.misc.echo; 
     [string:text...] { 
         help Echoes back to you.; 
         run echo text; 
     } 
 } 
 command ping { 
+    perm utils.misc.ping
     [empty] { 
         help Pongs :D; 
         run ping; 
@@ -26,13 +28,14 @@ command ping {
     } 
 } 
 command sudo { 
-    perm utils.sudo; 
+    perm utils.misc.sudo; 
     [string:name] [string:command...] { 
         help Sudo'es another user (or console); 
         run sudo name command; 
     } 
 } 
 command hasperm {
+	perm utils.misc.hasperm;
     [flag:-f] [string:name] [string:node] { 
         perm utils.hasperm; 
         run hasperm -f name node;
@@ -40,7 +43,8 @@ command hasperm {
     } 
 }
 command nightvision {
-alias nv; 
+    alias nv; 
+    perm utils.misc.nightvision;
 	[empty] {
 		run illuminate; 
 		type player;
@@ -50,7 +54,7 @@ alias nv;
 }
 command minecart {
    alias cart;
-   perm utils.spawncart;
+   perm utils.misc.spawncart;
    type player;
    
   default [string:variation] {

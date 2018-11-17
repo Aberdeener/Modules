@@ -8,15 +8,15 @@ command teleport {
 }
 
 command team_add {
+    perm utils.buildteam.manage;
     [string:player] {
         run team_add player;
-        perm utils.buildteam.manage;
     }
 }
 
 command team_remove {
+    perm utils.buildteam.manage;
     [string:player] {
         run team_remove player;
-        perm utils.buildteam.manage;
     }
 }

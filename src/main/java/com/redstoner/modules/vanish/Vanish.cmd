@@ -20,14 +20,14 @@ command vanish {
     [string:name] { 
         help Toggles someone elses vanish; 
         run vanish_other name; 
-        perm utils.vanishother; 
+        perm utils.vanish.other; 
     } 
 }
 command imout { 
+    perm utils.vanish.imout;
 	[empty] { 
 		help Makes you magically disappear; 
 		type player; 
-		perm utils.imout; 
 		run imout; 
 	} 
 }

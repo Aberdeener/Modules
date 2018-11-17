@@ -9,6 +9,7 @@ command list {
     alias eplist;
     alias who;
     alias ewho;
+    perm utils.list;
     [empty] {
         run list;
         help Shows all online players sorted by rank.;
@@ -19,6 +20,7 @@ command list {
     }
 }
 command staff {
+    perm utils.list;
     [empty] {
         help Shows all online staff.;
         run staff;

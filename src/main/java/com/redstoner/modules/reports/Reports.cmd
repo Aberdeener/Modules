@@ -1,4 +1,5 @@
 command report {
+   perm utils.report;
    [string:message...] {
       run report message;
       help Report a player or incident;
@@ -7,13 +8,14 @@ command report {
 }
 command undoreport {
     alias retractreport;
+    perm utils.report;
 	[empty] {
 	   run report_retract;
        help Retracts the last report you sent.;
     }
 }
 command rp {
-   perm utils.report;
+   perm utils.report.admin;
 
    list {
       help List all open reports;

@@ -1,4 +1,5 @@
 command cgt {
+    perm utils.chatgroups;
 	[empty] {
 		help Toggles your cgtoggle status.;
 		type player;
@@ -6,6 +7,7 @@ command cgt {
 	}
 }
 command cgkey {
+    perm utils.chatgroups;
 	[string:key] {
 		help Sets your chatgroup key.;
 		run setcgkey key;
@@ -13,12 +15,14 @@ command cgkey {
 	}
 }
 command cgsay {
+    perm utils.chatgroups;
 	[string:message...] {
 		help Chats in your chatgroup.;
 		run cgsay message;
 	}
 }
 command cg {
+    perm utils.chatgroups;
 	join [string:group] {
 		help Joins a chatgroup.;
 		run cgjoin group;

@@ -1,4 +1,5 @@
 command tab {
+    perm utils.nametags;
     sort {
         help Resorts the entirety of tab.;
         run sort;
@@ -7,5 +8,4 @@ command tab {
         help Resorts one player.;
         run sortspecific player;
     }
-    perm utils.tab.admin;
 }

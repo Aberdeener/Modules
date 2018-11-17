@@ -1,4 +1,5 @@
 command mentio {
+    perm utils.mentio;
     add [string:trigger] {
         help Triggers you when the trigger gets said.;
         run addmentio trigger;
@@ -11,6 +12,5 @@ command mentio {
         help Lists your mentios.;
         run listmentios;
     }
-    perm utils.mentio;
     type player;
 }

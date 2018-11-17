@@ -7,7 +7,7 @@ command clear{
     }
     [string:player] {
         help Clears someone elses inventory;
-        perm utils.admin.clear;
+        perm utils.clear.other;
         run clearother player;
     }
 }

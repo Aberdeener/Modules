@@ -9,7 +9,7 @@ command config {
     alias configs;
     alias setting;
     alias settings;
-    perm datamanager.admin;
+    perm utils.datamanager.admin;
     list {
         run config_list;
         help Lists all modules that have at least one config setting.;

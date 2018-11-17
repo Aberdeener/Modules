@@ -1,12 +1,12 @@
 command me { 
-    perm utils.me; 
+    perm utils.chat.me; 
     [string:text...] { 
         help /me's in chat.; 
         run me text; 
     } 
 } 
 command action { 
-    perm utils.action; 
+    perm utils.chat.action; 
     [string:text...] { 
         help /action's in chat.; 
         run action text; 
@@ -14,42 +14,41 @@ command action {
 } 
 command chat {
     alias speak;
+    perm utils.chat;
     [string:message...] {
-        perm utils.chat;
         run chat message;
         help A way to speak in normal chat with normal formatting if you have ACT or CGT on.; 
     }
 }
 command chatn {
     alias speakn;
+    perm utils.chat.chatn;
     [string:name] [string:message...] {
-        perm utils.chatn;
         run chatn name message;
         help A way to speak in normal chat with normal formatting for console users.; 
     }
 }
 command shrug {
+    perm utils.chat.shrug;
     [string:message...] {
-        perm utils.shrug;
         run shrug message;
         help Appends the shrug emoticon to the end of your message.; 
     }
     [empty] {
-        perm utils.shrug;
         run shrugnoarg;
         help Just the shrug emoticon.; 
     }
 }
 command say {
-    [string:message...] { 
-        perm utils.say; 
+    perm utils.chat.say;
+    [string:message...] {  
         run say message;
         help A replacement for the default say command to make the format be more consistant.; 
     } 
 }
 command sayn {
+    perm utils.chat.sayn;
     [string:name] [string:message...] { 
-        perm utils.sayn;
         type console;
         run sayn name message;
         help A replacement for the default say command to make the format be more consistant.; 
@@ -57,24 +56,24 @@ command sayn {
 }
 
 command mute {
+        perm utils.chat.mute;
     [string:player] {
-        perm utils.chat.admin;
         run mute player;
         help Mutes a player.;
     }
 }
 
 command print {
+    perm utils.chat.print;
     [string:message...] { 
-        perm utils.print; 
         run print message;
         help A way to just print something in to chat with all the formatting things a user has.; 
     } 
 }
 
 command unmute {
+    perm utils.chat.mute;
     [string:player] {
-        perm utils.chat.admin;
         run unmute player;
         help Unmutes a player.;
     }
@@ -82,6 +81,7 @@ command unmute {
 
 command chatonly {
     alias co;
+    perm utilschat.chatonly;
     [empty] {
         run chatonly;
         help Shows that you're onlu able to chat, nothing else.;

@@ -1,4 +1,5 @@
 command socialspy {
+    perm utils.socialspy;
     format {
         run config_format_show;
         help Displays your current format;
@@ -59,14 +60,12 @@ command socialspy {
         run off;
         type player;
     }
-    [empty] {
-        run toggle;
-        type player;
-    }
-    perm utils.socialspy;
     migrate {
         run migrate;
         type console;
     }
-    type all;
+    [empty] {
+        run toggle;
+        type player;
+    }
 }

@@ -11,10 +11,10 @@ command message {
     alias ew;
     alias whisper;
     alias ewhisper;
+    perm utils.message;
     [string:player] [string:message...] {
         run message player message;
         help Sends a direct message to a player.;
-        perm utils.message;
     }
 }
 
@@ -22,14 +22,15 @@ command reply {
     alias r;
     alias er;
     alias ereply;
+    perm utils.message;
     [string:message...] {
         run reply message;
         help Sends a direct message to the last person you talked to.;
-        perm utils.message;
     }
 }
 
 command pmtoggle {
+    perm utils.message.toggle;
     [empty] {
         help Turns off your toggle.;
         type player;
