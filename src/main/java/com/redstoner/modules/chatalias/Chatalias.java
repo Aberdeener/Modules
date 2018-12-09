@@ -254,7 +254,7 @@ public class Chatalias implements Module, Listener {
 
 			return true;
 		} else {
-			getLogger().message(sender, true, "That alias doesn't exist! Hint: regex/no regex does matter for this.");
+			getLogger().message(sender, true, "That alias doesn't exist! Hint: regex/no regex and random/not random does matter for this.");
 			return true;
 		}
 	}
