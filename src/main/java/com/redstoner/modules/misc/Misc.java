@@ -6,7 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -58,7 +58,7 @@ public class Misc implements Module, Listener
 			getLogger().message(player, message);
 		}
 		Material spawnBlock = player.getLocation().getBlock().getType();
-		if (spawnBlock == Material.PORTAL || spawnBlock == Material.ENDER_PORTAL)
+		if (spawnBlock == Material.END_PORTAL || spawnBlock == Material.NETHER_PORTAL)
 		{
 			getLogger().message(player, "&4Looks like you spawned in a portal... Let me help you out");
 			getLogger().message(player, "&6You can use /back if you &nreally&6 want to go back");
@@ -87,9 +87,7 @@ public class Misc implements Module, Listener
 		{
 			case AIR:
 			case WATER:
-			case STATIONARY_WATER:
 			case LAVA:
-			case STATIONARY_LAVA:
 				return;
 			default:
 			{
