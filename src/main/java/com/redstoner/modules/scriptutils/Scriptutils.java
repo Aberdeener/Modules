@@ -11,7 +11,7 @@ import com.redstoner.misc.Utils;
 import com.redstoner.modules.Module;
 
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 1, revision = 0, compatible = 4)
+@Version(major = 4, minor = 2, revision = 0, compatible = 4)
 public class Scriptutils implements Module
 {
 	/** Prints Bukkit restart message
@@ -89,24 +89,6 @@ public class Scriptutils implements Module
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "save-on");
 	}
 	
-	/** Prints the world trimming started message and starts trimming */
-	@Command(hook = "script_trim")
-	public void print_backup_trim(CommandSender sender)
-	{
-		Utils.broadcast("", "§4 =§3 Deleting all chunks beyond border now.", null);
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "wb Creative trim 1000000 15");
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "wb trim confirm");
-	}
-	
-	/** Prints the trimming finished message
-	 * arg 0 size difference of world
-	 * arg 1: world border trim data */
-	@Command(hook = "script_trim_result")
-	public void print_backup_trim_res(CommandSender sender, String size, String data)
-	{
-		Utils.broadcast("", "§4 =§3 Chunk deletion saved " + data + " (§a" + size + "MB§3)", null);
-	}
-	
 	/** Prints the database backup started message and admin-chat warning */
 	@Command(hook = "script_backup_database_begin")
 	public void print_backup_db_begin(CommandSender sender)
@@ -144,25 +126,6 @@ public class Scriptutils implements Module
 	public void print_backup_db_abort(CommandSender sender)
 	{
 		Utils.broadcast("", "§6 =§2 Database backup aborted.", null);
-	}
-	
-	/** Prints the spigot update message */
-	@Command(hook = "script_spigot_update")
-	public void print_update(CommandSender sender)
-	{
-		Utils.broadcast("", "§9 =§2 A new Spigot version has been downloaded!", null);
-		Utils.broadcast("", "§9 =§2 Update will be applied after the next reboot.", null);
-	}
-	
-	/** Prints the admin-chat warning for disk is filled
-	 * arg 0 fill percentage */
-	@Command(hook = "script_disk_filled")
-	public void print_disk_filled(CommandSender sender, String percentage)
-	{
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-				"ac §4§lWARNING:§6 Disk is filled > 96% (" + percentage + "%);");
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "ac §4  Server will shut down at 98%!");
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "ac §4  Contact an admin §nimmediately§4!");
 	}
 	
 	/** Saves all worlds, kicks players and shuts down the server
