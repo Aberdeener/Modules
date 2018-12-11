@@ -1,4 +1,5 @@
 command lc {
+	alias lagchunks;
 	perm utils.lagchunks;
 	
 	list {
