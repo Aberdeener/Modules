@@ -109,7 +109,7 @@ public class Nametags implements Module, Listener
 	public void sortSpecific(Player player)
 	{
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-				"scoreboard teams join " + getTeam(player) + " " + player.getName());
+				"minecraft:team join " + getTeam(player) + " " + player.getName());
 	}
 	
 	private String getTeam(Player player)
