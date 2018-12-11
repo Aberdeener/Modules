@@ -144,7 +144,7 @@ public class Reports implements Module
 				   + player.getLocation().getBlockZ() + ";" + player.getLocation().getWorld().getName();
 		report.put("location", loc);
 		reports.add(report);
-		getLogger().message(sender, "Report created! Use &e/undoreport to retract the report.");
+		getLogger().message(sender, "Report created! Use &e/undoreport&7 to retract the report.");
 	}
 
 	
