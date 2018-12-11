@@ -131,7 +131,8 @@ public class Seen implements Module, Listener
 					message.add("They've joined with the following IPs: &e"
 							+ _ips.toJSONString().replaceAll("[\"\\[\\]]", "").replace(",", "&7, &e"));
 			}
-			message.add("Their current IP is: &a" + DataManager.getOrDefault(p.getUniqueId().toString(), "ip", "unknown"));
+			String ipStr = online? "Their current IP is: &a" : "Their last known IP is: &a";
+			message.add(ipStr + DataManager.getOrDefault(p.getUniqueId().toString(), "ip", "unknown"));
 		}
 		getLogger().message(sender, message.toArray(new String[] {}));
 		return true;
