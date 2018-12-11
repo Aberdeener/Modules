@@ -58,10 +58,10 @@ public class Discord implements Module {
 		try {
 			MysqlDatabase database = MysqlHandler.INSTANCE.getDatabase(config.get("database") + "?autoReconnect=true");
 
+			MysqlField token = new MysqlField("token", new VarChar(8), false);
 			MysqlField uuid = new MysqlField("uuid", new VarChar(36), false);
-			MysqlField pass = new MysqlField("token", new VarChar(8), false);
 
-			database.createTableIfNotExists((String) config.get("table"), uuid, pass);
+			database.createTableIfNotExists((String) config.get("table"), token, uuid);
 
 			table = database.getTable(config.get("table"));
 		} catch (NullPointerException e) {
