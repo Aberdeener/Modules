@@ -24,6 +24,7 @@ command vanish {
     } 
 }
 command imout { 
+    alias imin;
     perm utils.vanish.imout;
 	[empty] { 
 		help Makes you magically disappear; 
