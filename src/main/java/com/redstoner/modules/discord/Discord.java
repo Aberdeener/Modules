@@ -17,6 +17,7 @@ import com.redstoner.misc.mysql.elements.MysqlConstraint;
 import com.redstoner.misc.mysql.elements.MysqlDatabase;
 import com.redstoner.misc.mysql.elements.MysqlField;
 import com.redstoner.misc.mysql.elements.MysqlTable;
+import com.redstoner.misc.mysql.types.number.TinyInt;
 import com.redstoner.misc.mysql.types.text.VarChar;
 import com.redstoner.modules.Module;
 
@@ -60,6 +61,7 @@ public class Discord implements Module {
 
 			MysqlField token = new MysqlField("token", new VarChar(8), false);
 			MysqlField uuid = new MysqlField("uuid", new VarChar(36), false);
+			MysqlField used = new MysqlField("used", new TinyInt(1), false);
 
 			database.createTableIfNotExists((String) config.get("table"), token, uuid);
 
