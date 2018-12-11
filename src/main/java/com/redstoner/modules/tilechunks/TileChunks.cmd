@@ -1,4 +1,5 @@
 command lct {
+	alias tilechunks;
 	perm utils.tilechunks;
 	
 	list {
