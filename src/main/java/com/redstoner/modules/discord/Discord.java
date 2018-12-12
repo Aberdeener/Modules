@@ -63,7 +63,7 @@ public class Discord implements Module {
 			MysqlField uuid = new MysqlField("uuid", new VarChar(36), false);
 			MysqlField used = new MysqlField("used", new TinyInt(1), false);
 
-			database.createTableIfNotExists((String) config.get("table"), token, uuid);
+			database.createTableIfNotExists((String) config.get("table"), token, uuid, used);
 
 			table = database.getTable(config.get("table"));
 		} catch (NullPointerException e) {
