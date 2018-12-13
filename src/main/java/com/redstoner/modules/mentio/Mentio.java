@@ -56,12 +56,7 @@ public class Mentio implements Module, Listener
 		Player player = (Player) sender;
 		UUID uuid = player.getUniqueId();
 		JSONArray playerMentios = (JSONArray) mentios.get(uuid.toString());
-		if (playerMentios == null)
-		{
-			playerMentios = new JSONArray();
-			playerMentios.add(player.getName());
-			playerMentios.add(player.getDisplayName().split(" ")[0].replaceAll("§[0-9a-fk-o]", ""));
-		}
+		playerMentios = defaultMentio(playerMentios, player);
 		if (playerMentios.contains(trigger))
 			getLogger().message(sender, true, "You already had that as a mentio!");
 		else
@@ -81,12 +76,7 @@ public class Mentio implements Module, Listener
 		Player player = (Player) sender;
 		UUID uuid = player.getUniqueId();
 		JSONArray playerMentios = (JSONArray) mentios.get(uuid.toString());
-		if (playerMentios == null)
-		{
-			playerMentios = new JSONArray();
-			playerMentios.add(player.getName());
-			playerMentios.add(player.getDisplayName().split(" ")[0].replaceAll("§[0-9a-fk-o]", ""));
-		}
+		playerMentios = defaultMentio(playerMentios, player);
 		if (!playerMentios.remove(trigger))
 			getLogger().message(sender, true, "You didn't have that as a mentio!");
 		else
@@ -98,7 +88,6 @@ public class Mentio implements Module, Listener
 		return true;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Command(hook = "listmentios")
 	public boolean listMentios(CommandSender sender)
 	{
@@ -106,12 +95,7 @@ public class Mentio implements Module, Listener
 		Player player = (Player) sender;
 		UUID uuid = player.getUniqueId();
 		JSONArray playerMentios = (JSONArray) mentios.get(uuid.toString());
-		if (playerMentios == null)
-		{
-			playerMentios = new JSONArray();
-			playerMentios.add(player.getName());
-			playerMentios.add(player.getDisplayName().split(" ")[0].replaceAll("§[0-9a-fk-or]", ""));
-		}
+		playerMentios = defaultMentio(playerMentios, player);
 		for (Object raw : playerMentios)
 		{
 			String mentio = (String) raw;
@@ -122,6 +106,19 @@ public class Mentio implements Module, Listener
 	}
 	
 	@SuppressWarnings("unchecked")
+	private JSONArray defaultMentio(JSONArray mentios, Player player) {
+		if (mentios == null)
+		{
+			mentios = new JSONArray();
+			mentios.add(player.getName());
+			
+			String displayName = player.getDisplayName().split(" ")[0].replaceAll("§[0-9a-fk-or]", "");
+			if (!player.getName().equals(displayName))
+				mentios.add(displayName);
+		}
+		return mentios;
+	}
+	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerChat(AsyncPlayerChatEvent event)
 	{
@@ -133,12 +130,7 @@ public class Mentio implements Module, Listener
 				return;
 			UUID uuid = player.getUniqueId();
 			JSONArray playerMentios = (JSONArray) mentios.get(uuid.toString());
-			if (playerMentios == null)
-			{
-				playerMentios = new JSONArray();
-				playerMentios.add(player.getName());
-				playerMentios.add(player.getDisplayName().split(" ")[0].replaceAll("§[0-9a-fk-o]", ""));
-			}
+			playerMentios = defaultMentio(playerMentios, player);
 			for (Object raw : playerMentios)
 			{
 				String mentio = (String) raw;
