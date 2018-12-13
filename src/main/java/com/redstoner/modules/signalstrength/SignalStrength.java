@@ -32,8 +32,7 @@ import com.redstoner.modules.Module;
 public class SignalStrength implements Module
 {
 	
-	private static final String namePrefix = ChatColor.GREEN.toString() + ChatColor.RESET + ChatColor.DARK_PURPLE
-			+ "Signal Strength: " + ChatColor.RED + ChatColor.BOLD;
+	private static final String namePrefix = ChatColor.DARK_PURPLE + "Signal Strength: " + ChatColor.RED + ChatColor.BOLD;
 	
 	private static String nameForSignalStrength(int strength)
 	{
