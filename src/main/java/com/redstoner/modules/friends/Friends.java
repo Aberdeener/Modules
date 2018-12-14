@@ -140,6 +140,7 @@ public class Friends implements CoreModule {
 		}
 
 		friends.add(p.getUniqueId().toString());
+		DataManager.setData(sender, "groups." + group, friends);
 		DataManager.save(sender);
 
 		getLogger().message(sender, "&e" + p.getName() + "&7 is now part of the group &e" + group + "&7!");
@@ -176,23 +177,25 @@ public class Friends implements CoreModule {
 
 		JSONArray friends = ((JSONArray) DataManager.getOrDefault(sender, "friends", new JSONArray()));
 
-		if (friends.contains(p.getUniqueId().toString())) {
-			getLogger().message(sender, true, "You are already friends with this person!");
+		if (!friends.contains(p.getUniqueId().toString())) {
+			getLogger().message(sender, true, "You are not friends with that player!");
 			return true;
 		}
 
 		friends.remove(p.getUniqueId().toString());
+		DataManager.setData(sender, "friends", friends);
 		DataManager.save(sender);
 
 		JSONArray friended_by = ((JSONArray) DataManager.getOrDefault(p.getUniqueId().toString(), "friended_by", new JSONArray()));
+		DataManager.setData(p.getUniqueId().toString(), "friended_by", friended_by);
 		friended_by.remove(getID(sender));
 
 		DataManager.save(p.getUniqueId().toString());
 
-		getLogger().message(sender, "You are now friends with &e" + p.getName() + "&7!");
+		getLogger().message(sender, "You are no longer friends with &e" + p.getName() + "&7!");
 
 		if (p instanceof Player) {
-			getLogger().message((Player) p, "&e" + Utils.getName(sender) + "&7 added you as a friend!");
+			getLogger().message((Player) p, "&e" + Utils.getName(sender) + "&7 removed you as a friend!");
 		} else {
 			JSONArray notifications = (JSONArray) DataManager.getOrDefault(p.getUniqueId().toString(), "scheduled_notifications", new JSONArray());
 
@@ -223,18 +226,19 @@ public class Friends implements CoreModule {
 
 		JSONArray friends = ((JSONArray) DataManager.getOrDefault(sender, "groups." + group, new JSONArray()));
 
-		if (friends.contains(p.getUniqueId().toString())) {
-			getLogger().message(sender, true, "This person already is part of that friendsgroup!");
+		if (!friends.contains(p.getUniqueId().toString())) {
+			getLogger().message(sender, true, "This person isn't a part of that friendsgroup!");
 			return true;
 		}
 
 		friends.add(p.getUniqueId().toString());
+		DataManager.setData(sender, "groups." + group, friends);
 		DataManager.save(sender);
 
-		getLogger().message(sender, "&e" + p.getName() + "&7 is now part of the group &e" + group + "&7!");
+		getLogger().message(sender, "&e" + p.getName() + "&7 is no longer a part of the group &e" + group + "&7!");
 
 		if (p instanceof Player) {
-			getLogger().message((Player) p, "&e" + Utils.getName(sender) + " &7added you to their friendsgroup &e" + group + "&7!");
+			getLogger().message((Player) p, "&e" + Utils.getName(sender) + " &7removed you from their friendsgroup &e" + group + "&7!");
 		} else {
 			JSONArray notifications = (JSONArray) DataManager.getOrDefault(p.getUniqueId().toString(), "scheduled_notifications", new JSONArray());
 
@@ -252,7 +256,7 @@ public class Friends implements CoreModule {
 		JSONArray friends = (JSONArray) DataManager.getOrDefault(sender, "friends", new JSONArray());
 
 		if (friends.size() == 0) {
-			getLogger().message(sender, true, "You didn't add anyone to your friendslist yet.");
+			getLogger().message(sender, true, "You didn't add anyone to your friends list yet.");
 		} else {
 			StringBuilder sb = new StringBuilder();
 
@@ -307,7 +311,7 @@ public class Friends implements CoreModule {
 			StringBuilder sb = new StringBuilder();
 
 			for (Object o : keys) {
-				sb.append("&e" + (String) o + "&7, ");
+				sb.append("&e" + ((String) o).substring(6) + "&7, ");
 			}
 
 			String out = sb.toString().replaceAll(", $", "");
