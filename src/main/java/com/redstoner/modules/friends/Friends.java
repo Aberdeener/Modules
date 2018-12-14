@@ -91,11 +91,13 @@ public class Friends implements CoreModule {
 		}
 
 		friends.add(p.getUniqueId().toString());
+		DataManager.setData(sender, "friends", friends);
 		DataManager.save(sender);
 
 		JSONArray friended_by = ((JSONArray) DataManager.getOrDefault(p.getUniqueId().toString(), "friended_by", new JSONArray()));
 		friended_by.add(getID(sender));
-
+		DataManager.setData(p.getUniqueId().toString(), "friended_by", friended_by);
+		
 		DataManager.save(p.getUniqueId().toString());
 
 		getLogger().message(sender, "You are now friends with &e" + p.getName() + "&7!");
