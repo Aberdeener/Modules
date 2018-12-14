@@ -39,22 +39,24 @@ import net.nemez.chatapi.click.Message;
 @Version(major = 4, minor = 2, revision = 0, compatible = 4)
 public class Check implements Module, Listener {
 	MysqlTable table;
+	String noTableReason;
 
 	@Override
 	public boolean onEnable() {
 		Map<Serializable, Serializable> config = JSONManager.getConfiguration("check.json");
 
 		if (config == null || !config.containsKey("database") || !config.containsKey("table")) {
-			getLogger().error("Could not load the Check config file, disabling!");
-			return false;
+			getLogger().warn("Could not load the Check config file, ip info for offline users and website data is unavaliable!");
+			noTableReason = "Could not load the config file";
 		}
-
-		try {
-			MysqlDatabase database = MysqlHandler.INSTANCE.getDatabase((String) config.get("database") + "?autoReconnect=true");
-			table = database.getTable((String) config.get("table"));
-		} catch (NullPointerException e) {
-			getLogger().error("Could not use the Check config, disabling!");
-			return false;
+			else {
+			try {
+				MysqlDatabase database = MysqlHandler.INSTANCE.getDatabase((String) config.get("database") + "?autoReconnect=true");
+				table = database.getTable((String) config.get("table"));
+			} catch (NullPointerException e) {
+				getLogger().warn("Could not use the Check config file, ip info for offline users and website data is unavaliable!");
+				noTableReason = "Could not use the config file";
+			}
 		}
 
 		return true;
@@ -99,12 +101,14 @@ public class Check implements Module, Listener {
 
 		if (player.isOnline()) {
 			ip = player.getPlayer().getAddress().getHostString();
-		} else {
+		} else if (table != null) {
 			try {
 				ip = (String) table.get("last_ip", new MysqlConstraint("uuid", ConstraintOperator.EQUAL, player.getUniqueId().toString().replace("-", "")))[0];
 			} catch (Exception e) {
 				return null;
 			}
+		} else {
+			return null;
 		}
 
 		try {
@@ -124,8 +128,8 @@ public class Check implements Module, Listener {
 			String org = o_org == null ? "Unknown" : (String) o_org;
 
 			info[1] = country.equals("") ? "Unknown" : country + (region.equals(", ") ? "" : region);
-			info[3] = asn.equals("") ? "Unknown" : asn;
-			info[4] = org.equals("") ? "Unknown" : org;
+			info[2] = asn.equals("") ? "Unknown" : asn;
+			info[3] = org.equals("") ? "Unknown" : org;
 
 			return info;
 		} catch (Exception e) {
@@ -152,6 +156,9 @@ public class Check implements Module, Listener {
 	}
 
 	public Object[] getWebsiteData(OfflinePlayer player) {
+		if (table == null)
+			return null;
+		
 		MysqlConstraint constraint = new MysqlConstraint("uuid", ConstraintOperator.EQUAL, player.getUniqueId().toString().replace("-", ""));
 
 		try {
@@ -203,9 +210,7 @@ public class Check implements Module, Listener {
 			lastSeen = (lastSeen.equals("1970-1-1 01:00")) ? "&eNever" : "&7(yyyy-MM-dd hh:mm) &e" + lastSeen;
 
 			Object[] websiteData = getWebsiteData(player);
-			String websiteUrl = (websiteData[0] == null) ? "None" : (String) websiteData[0];
-			String email = (websiteData[0] == null) ? "Unknown" : (String) websiteData[1];
-			boolean emailNotConfirmed = (websiteData[0] == null) ? false : !((boolean) websiteData[2]);
+			
 
 			String[] ipInfo = getIpInfo(player);
 
@@ -219,11 +224,24 @@ public class Check implements Module, Listener {
 			msg.appendText("\n&6> UUID: ").appendSuggestHover("&e" + uuid, uuid, "Click to copy!");
 			msg.appendText("\n&6> First joined: &e" + firstJoin);
 			msg.appendText("\n&6> Last Seen: &e" + lastSeen);
-			msg.appendText("\n&6> Website account: &e").appendLink(websiteUrl, websiteUrl);
-			msg.appendText("\n&6> Email: &e" + (emailNotConfirmed ? "\n&6> &cEmail NOT Confirmed!" : "")).appendSuggestHover("&e" + email, email, "Click to copy!");
+			
+			if (websiteData != null) {
+				String websiteUrl = (websiteData[0] == null) ? "None" : (String) websiteData[0];
+				String email = (websiteData[0] == null) ? "Unknown" : (String) websiteData[1];
+				boolean emailNotConfirmed = (websiteData[0] == null) ? false : !((boolean) websiteData[2]);
+				
+				msg.appendText("\n&6> Website account: &e").appendLink(websiteUrl, websiteUrl);
+				msg.appendText("\n&6> Email: &e" + (emailNotConfirmed ? "\n&6> &cEmail NOT Confirmed!" : "")).appendSuggestHover("&e" + email, email, "Click to copy!");
+			}
+			else {
+				msg.appendTextHover("\n&6> Website account: &cData Unavailable", "&c" + noTableReason);
+				msg.appendTextHover("\n&6> Email: &cData Unavailable", "&c" + noTableReason);
+			}
 			msg.appendText("\n\n&7Data provided by ipapi.co:");
 
-			if (ipInfo == null) {
+			if (ipInfo == null && table == null) {
+				msg.appendTextHover("\n&6> &cData Unavailable", "&c" + noTableReason);
+			} else if (ipInfo == null) {
 				msg.appendText("\n&6> &cData Unavailable");
 			} else {
 				String ip = ipInfo[0];
@@ -232,7 +250,7 @@ public class Check implements Module, Listener {
 				String org = ipInfo[3];
 
 				msg.appendText("\n&6> IP: ").appendSuggestHover("&e" + ip, ip, "Click to copy!");
-				msg.appendText("\n&6> Region: " + region);
+				msg.appendText("\n&6> Region: ").appendSuggestHover("&e" + region, region, "Click to copy!");
 				msg.appendText("\n&6> ASN: ").appendSuggestHover("&e" + asn, asn, "Click to copy!");
 				msg.appendText("\n&6> Org: ").appendSuggestHover("&e" + org, org, "Click to copy!");
 			}
