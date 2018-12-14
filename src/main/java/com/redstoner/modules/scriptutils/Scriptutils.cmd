@@ -47,20 +47,6 @@ command script_backup_error {
         run script_backup_error;
     }
 }
-command script_trim {
-    [empty] {
-        help Prints the world trimming started message and starts trimming;
-        type console;
-        run script_trim;
-    }
-}
-command script_trim_result {
-    [string:size] [string:data...] {
-        help Prints the trimming finished message;
-        type console;
-        run script_trim_result size data;
-    }
-}
 command script_backup_database_begin {
     [empty] {
         help Prints the database backup started message and admin-chat warning;
@@ -94,20 +80,6 @@ command script_backup_database_abort {
         help Prints the database backup abort message;
         type console;
         run script_backup_database_abort;
-    }
-}
-command script_spigot_update {
-    [empty] {
-        help Prints the spigot update message;
-        type console;
-        run script_spigot_update;
-    }
-}
-command script_disk_filled {
-    [string:percentage] {
-        help Prints the admin-chat warning for disk is filled;
-        type console;
-        run script_disk_filled percentage;
     }
 }
 command script_shutdown {
