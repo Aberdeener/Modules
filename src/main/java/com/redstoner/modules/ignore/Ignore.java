@@ -119,14 +119,16 @@ public class Ignore implements Module {
 			public boolean sendTo(CommandSender recipient) {
 				if (sUUID.equals("CONSOLE")) return true;
 
-				if ((recipient instanceof Player)) return true;
+				if ((recipient instanceof Player)) {
 
-				Player player = (Player) recipient;
+					Player player = (Player) recipient;
 
-				if (sender.hasPermission("utils.ignore.override")) return true;
+					if (sender.hasPermission("utils.ignore.override")) return true;
 
-				JSONArray ignores = (JSONArray) DataManager.getOrDefault(recipient, "ignores", new JSONArray());
-				return !ignores.contains(sUUID);
+					JSONArray ignores = (JSONArray) DataManager.getOrDefault(recipient, "ignores", new JSONArray());
+					return !ignores.contains(sUUID);
+				}
+				return true;
 
 			}
 		};
