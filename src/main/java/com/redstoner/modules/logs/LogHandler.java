@@ -56,7 +56,8 @@ public class LogHandler extends Thread
 		long starttime = System.currentTimeMillis();
 		int matches = 0;
 		Logs.logger.message(sender, "Starting log search for &e" + regex + "&7 in &e" + fileName
-				+ " &7now. &cPlease do not query any other searches until this one completes.");
+				+ " &7now.");
+		Logs.logger.message(sender, "&cDon't run another query until this one is done!");
 		try
 		{
 			if (!regex.startsWith("^"))
@@ -72,6 +73,7 @@ public class LogHandler extends Thread
 			catch (PatternSyntaxException e)
 			{
 				Logs.logger.message(sender, true, "An error occured trying to compile the filename pattern!");
+				Logs.logger.message(sender, true, "&2Reason: &7" + e.getDescription());
 				stillSearching.remove(sender);
 				return;
 			}
@@ -83,7 +85,7 @@ public class LogHandler extends Thread
 					return fileNamePattern.matcher(name).matches();
 				}
 			});
-			totalFiles = files.length;
+			totalFiles = files == null? 0 : files.length;
 			if (totalFiles == 0)
 			{
 				Logs.logger.message(sender, true, "No files found!");
@@ -102,6 +104,7 @@ public class LogHandler extends Thread
 			catch (PatternSyntaxException e)
 			{
 				Logs.logger.message(sender, true, "An error occured trying to compile the search pattern!");
+				Logs.logger.message(sender, true, "&2Reason: " + e.getDescription());
 				stillSearching.remove(sender);
 				return;
 			}
