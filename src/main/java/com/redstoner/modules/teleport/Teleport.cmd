@@ -8,11 +8,11 @@ command teleport {
     alias etpo;
     alias tp2p;
     alias etp2p;
-    [player:string] {
+    [string:player] {
         run tp player;
         perm utils.teleport.tp;
     }
-    [player:string] [player2:string] {
+    [string:player] [string:player2] {
         run tp2 player player2;
         perm utils.teleport.tp.other;
     }
@@ -25,8 +25,8 @@ command teleporthere {
     alias tpohere;
     alias etpohere;
     perm utils.teleport.tp;
-    [player:string] {
-        run tph player;
+    [string:player] {
+        run tphere player;
         perm utils.teleport.tp.here;
     }
 }
@@ -40,7 +40,7 @@ command teleportask {
     alias tpask;
     alias etpask;
     perm utils.teleport.tpa;
-    [player:string] {
+    [string:player] {
         run tpa player;
     }
 }
@@ -54,8 +54,8 @@ command teleportaskhere {
     alias tpaskhere;
     alias etpaskhere;
     perm utils.teleport.tpa;
-    [player:string] {
-        run tpah player;
+    [string:player] {
+        run tpahere player;
         help ask another player to teleport to you.;
     }
 }
@@ -67,7 +67,7 @@ command tpall {
         run tpall;
         help Teleports everyone to you.;
     }
-    [player] {
+    [string:player] {
         run tpall2 player;
         help Teleports everyone to the specified player.;
     }
@@ -80,7 +80,7 @@ command tpaall {
         run tpaall;
         help Sends a tpa request to every player.;
     }
-    [player:string] {
+    [string:player] {
         run tpaall2 player;
         help Sends a tpa request to every player.;
     }
@@ -95,7 +95,7 @@ command tpaccept {
         run tpaccept;
         help Accepts the latest pending tpa request.;
     }
-    [index:int] {
+    [int:index] {
         run tpaccept2 index;
         help Accepts the specified pending tpa request.;
     }
@@ -118,7 +118,7 @@ command tpdeny {
     [empty] {
         run tpdeny;
     }
-    [index:int] {
+    [int:index] {
         run tpdeny2 index;
     }
 }
@@ -129,18 +129,18 @@ command tplist {
     alias etpl;
     perm utils.teleport.request;
     [empty] {
-        run tpl;
+        run tplist;
     }
 }
 
 command tptoggle {
     alias etptoggle;
     perm utils.teleport.toggle;
-    [status:string] {
+    [string:status] {
         run tptoggle status;
         help sets your tpa status;
     }
-    [command:string] [status:string] {
+    [string:command] [string:status] {
         run tptoggle2 command status;
         help sets your tpa status for only one command (e.g. tpa/tpahere).;
     } 

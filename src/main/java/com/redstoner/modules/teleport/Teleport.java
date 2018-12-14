@@ -63,6 +63,12 @@ public class Teleport implements Module
 		return true;
 	}
 	
+	@Command(hook = "tphere")
+	public boolean tphere(CommandSender sender, String player)
+	{
+		return true;
+	}
+	
 	@Command(hook = "tpa")
 	public boolean tpa(CommandSender sender, String player)
 	{
@@ -75,10 +81,81 @@ public class Teleport implements Module
 		return true;
 	}
 	
+	@Command(hook = "tpall")
+	public boolean tpall(CommandSender sender)
+	{
+		return true;
+	}
+	
+	@Command(hook = "tpall2")
+	public boolean tpall2(CommandSender sender, String player)
+	{
+		return true;
+	}
+	
+	@Command(hook = "tpaall")
+	public boolean tpaall(CommandSender sender)
+	{
+		return true;
+	}
+	
+	@Command(hook = "tpaall2")
+	public boolean tpaall2(CommandSender sender, String player)
+	{
+		return true;
+	}
+	
+	@Command(hook = "tpaccept")
+	public boolean tpaccept(CommandSender sender)
+	{
+		return true;
+	}
+	
+	@Command(hook = "tpaccept2")
+	public boolean tpaccept2(CommandSender sender, int index)
+	{
+		return true;
+	}
+	
+	@Command(hook = "tpdeny")
+	public boolean tpdeny(CommandSender sender)
+	{
+		return true;
+	}
+	
+	@Command(hook = "tpdeny2")
+	public boolean tpdeny2(CommandSender sender, int index)
+	{
+		return true;
+	}
+	
+	@Command(hook = "tpacancel")
+	public boolean tpacancel(CommandSender sender)
+	{
+		return true;
+	}
+	
+	@Command(hook = "tplist")
+	public boolean tplist(CommandSender sender)
+	{
+		return true;
+	}
+	
+	@Command(hook = "tptoggle")
+	public boolean tptoggle(CommandSender sender, String status)
+	{
+		return true;
+	}
+	
+	@Command(hook = "tptoggle2")
+	public boolean tptoggle2(CommandSender sender, String command, String status)
+	{
+		return true;
+	}
+	
 	@Command(hook = "tpmenu")
 	public boolean tpinventory(CommandSender sender)
 	{
-		
 		return true;
 	}
 	
