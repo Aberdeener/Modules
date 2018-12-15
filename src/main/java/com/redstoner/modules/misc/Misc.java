@@ -1,12 +1,12 @@
 package com.redstoner.modules.misc;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -135,7 +135,12 @@ public class Misc implements Module, Listener
 		if (sender instanceof Player)
 		{
 			int ping = getPing((Player) sender);
-			getLogger().message(sender, "Your ping is " + ping + "ms.");
+
+			if (ping == -1) {
+				getLogger().message(sender, "An error occured while getting your ping! Please message a staff member.");
+			} else {
+				getLogger().message(sender, "Your ping is " + ping + "ms.");
+			}
 		}
 		else
 		{
@@ -151,11 +156,16 @@ public class Misc implements Module, Listener
 			if (sender instanceof Player)
 			{
 				int ping = getPing((Player) sender);
-				getLogger().message(sender, new String[] {"Your ping is " + ping + "ms.", ping < 20
+
+				if (ping == -1) {
+					getLogger().message(sender, "An error occured while getting your ping! Please message a staff member.");
+				} else {
+					getLogger().message(sender, new String[] {"Your ping is " + ping + "ms.", ping < 20
 						? "&aThat's gr8 m8 r8 8/8"
 						: (ping < 50 ? "F&eair enough you cunt!"
 								: (ping < 100 ? "&eShite, but not shite enough."
 										: "&cLooks like the server is about two months ahead of you. GET A NEW FRIGGIN' ISP ALREADY"))});
+				}
 			}
 			else
 				getLogger().message(sender, true,
@@ -167,7 +177,15 @@ public class Misc implements Module, Listener
 	
 	public int getPing(Player player)
 	{
-		return ((CraftPlayer) player).getHandle().ping;
+		try {
+			Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
+			int ping = (int) entityPlayer.getClass().getField("ping").get(entityPlayer);
+			return ping;
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | NoSuchFieldException e) {
+			e.printStackTrace();
+		}
+
+		return -1;
 	}
 	
 	@Command(hook = "sudo")
