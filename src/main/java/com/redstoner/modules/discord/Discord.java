@@ -3,6 +3,7 @@ package com.redstoner.modules.discord;
 import java.io.IOException;
 import java.security.SecureRandom;
 
+import com.redstoner.exceptions.NonSaveableConfigException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -50,6 +51,10 @@ public class Discord implements Module {
 			config.put("database", "redstoner");
 			config.put("table", "discord");
 			config.put("inviteLink", "https://discord.gg/example");
+
+			try {
+                config.save();
+            } catch (IOException | NonSaveableConfigException e) {}
 
 			return false;
 		}
