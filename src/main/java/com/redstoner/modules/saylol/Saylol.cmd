@@ -1,4 +1,6 @@
 command lol {
+    alias kek;
+
     add [string:text...] {
         help Lols a text.;
         run addlol text;
