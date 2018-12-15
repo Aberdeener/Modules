@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -19,6 +20,7 @@ import org.json.simple.parser.ParseException;
 public class ItemProperties
 {
 	private int id = 0;
+	private Material type;
 	private byte data = 0;
 	private int amount = 1;
 	private Map<Enchantment, Integer> enchantments;
@@ -34,7 +36,8 @@ public class ItemProperties
 	{
 		if (item == null)
 			return;
-		id = item.getTypeId();
+		id = item.getType().getId();
+		type = item.getType();
 		data = item.getData().getData();
 		amount = item.getAmount();
 		enchantments = new HashMap<>();
@@ -59,7 +62,7 @@ public class ItemProperties
 	@SuppressWarnings("deprecation")
 	public ItemStack toItemStack()
 	{
-		ItemStack result = new ItemStack(id, amount, data);
+		ItemStack result = new ItemStack(type, amount, data);
 		ItemMeta meta = result.getItemMeta();
 		if (meta == null)
 			return result;
