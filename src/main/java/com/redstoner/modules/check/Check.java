@@ -53,24 +53,27 @@ public class Check implements Module, Listener {
 		}
 
 		if (config == null || !config.containsKey("database") || !config.containsKey("table")) {
-			getLogger().error("Could not load the Check config file, disabling, trying to write defaults!");
-
+			getLogger().warn("Could not load the Check config file, ip info for offline users and website data is unavaliable!");
+			noTableReason = "Could not load the config file";
+			
 			config.put("database", "redstoner");
 			config.put("table", "users");
 
 			try {
 				config.save();
-			} catch (IOException | NonSaveableConfigException e) {}
+				getLogger().info("A default config file has been created for you.");
+			} catch (IOException | NonSaveableConfigException e) {
+				getLogger().error("A default config file was unable to be created.");
+			}
 
-			noTableReason = "Could not load the config file";
-
-			return false;
+			return true;
 		}
 
 		try {
+			getLogger().info("Attempting to load the database and the table, this might take a few seconds.");
 			MysqlDatabase database = MysqlHandler.INSTANCE.getDatabase(config.get("database") + "?autoReconnect=true");
 			table = database.getTable(config.get("table"));
-		} catch (NullPointerException e) {
+		} catch (Exception e) {
 			getLogger().warn("Could not use the Check config file, ip info for offline users and website data is unavaliable!");
 			noTableReason = "Could not use the config file";
 		}
