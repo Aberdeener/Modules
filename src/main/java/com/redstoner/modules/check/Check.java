@@ -2,11 +2,9 @@ package com.redstoner.modules.check;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
@@ -16,7 +14,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -29,7 +26,6 @@ import com.redstoner.annotations.Version;
 import com.redstoner.coremods.moduleLoader.ModuleLoader;
 import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Main;
-import com.redstoner.misc.mysql.JSONManager;
 import com.redstoner.misc.mysql.MysqlHandler;
 import com.redstoner.misc.mysql.elements.ConstraintOperator;
 import com.redstoner.misc.mysql.elements.MysqlConstraint;
@@ -106,6 +102,28 @@ public class Check implements Module, Listener {
 			}
 		}
 	}
+	
+	@Command(hook = "ipinfo", async = AsyncType.ALWAYS)
+	public void ipinfo(final CommandSender sender, final String ip) {
+		String[] info = getIpInfo(ip);
+		
+		Message msg = new Message(sender, null);
+		
+		if (info == null) {
+			msg.appendText("\n&6> &cData Unavailable");
+		} else {
+			String region = info[1];
+			String asn = info[2];
+			String org = info[3];
+
+			msg.appendText("\n&6> IP: ").appendSuggestHover("&e" + ip, ip, "Click to copy!");
+			msg.appendText("\n&6> Region: ").appendSuggestHover("&e" + region, region, "Click to copy!");
+			msg.appendText("\n&6> ASN: ").appendSuggestHover("&e" + asn, asn, "Click to copy!");
+			msg.appendText("\n&6> Org: ").appendSuggestHover("&e" + org, org, "Click to copy!");
+		} 
+		
+		msg.send();
+	}
 
 	public String read(URL url) {
 		String data = "";
@@ -126,8 +144,7 @@ public class Check implements Module, Listener {
 
 	public String[] getIpInfo(OfflinePlayer player) {
 		String ip = "";
-		String[] info = new String[4];
-
+		
 		if (player.isOnline()) {
 			ip = player.getPlayer().getAddress().getHostString();
 		} else if (table != null) {
@@ -139,6 +156,11 @@ public class Check implements Module, Listener {
 		} else {
 			return null;
 		}
+		return getIpInfo(ip);
+	}
+	
+	public String[] getIpInfo(String ip) {
+		String[] info = new String[4];
 
 		try {
 			URL ipinfo = new URL("https://ipapi.co/" + ip + "/json");
