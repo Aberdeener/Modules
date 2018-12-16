@@ -53,7 +53,7 @@ public class Check implements Module, Listener {
 		}
 
 		if (config == null || !config.containsKey("database") || !config.containsKey("table")) {
-			getLogger().warn("Could not load the Check config file, ip info for offline users and website data is unavaliable!");
+			getLogger().warn("Could not load the Check config file, ip info for offline users and website data will be unavaliable!");
 			noTableReason = "Could not load the config file";
 			
 			config.put("database", "redstoner");
@@ -74,7 +74,7 @@ public class Check implements Module, Listener {
 			MysqlDatabase database = MysqlHandler.INSTANCE.getDatabase(config.get("database") + "?autoReconnect=true");
 			table = database.getTable(config.get("table"));
 		} catch (Exception e) {
-			getLogger().warn("Could not use the Check config file, ip info for offline users and website data is unavaliable!");
+			getLogger().warn("Could not use the Check config file, ip info for offline users and website data will be unavaliable!");
 			noTableReason = "Could not use the config file";
 		}
 
