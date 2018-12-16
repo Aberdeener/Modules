@@ -8,11 +8,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 
+import com.redstoner.exceptions.NonSaveableConfigException;
+import com.redstoner.misc.mysql.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -43,20 +47,36 @@ public class Check implements Module, Listener {
 
 	@Override
 	public boolean onEnable() {
-		Map<Serializable, Serializable> config = JSONManager.getConfiguration("check.json");
+		Config config;
+
+		try {
+			config = Config.getConfig("check.json");
+		} catch (IOException | org.json.simple.parser.ParseException e1) {
+			e1.printStackTrace();
+			return false;
+		}
 
 		if (config == null || !config.containsKey("database") || !config.containsKey("table")) {
-			getLogger().warn("Could not load the Check config file, ip info for offline users and website data is unavaliable!");
-			noTableReason = "Could not load the config file";
-		}
-			else {
+			getLogger().error("Could not load the Check config file, disabling, trying to write defaults!");
+
+			config.put("database", "redstoner");
+			config.put("table", "users");
+
 			try {
-				MysqlDatabase database = MysqlHandler.INSTANCE.getDatabase((String) config.get("database") + "?autoReconnect=true");
-				table = database.getTable((String) config.get("table"));
-			} catch (NullPointerException e) {
-				getLogger().warn("Could not use the Check config file, ip info for offline users and website data is unavaliable!");
-				noTableReason = "Could not use the config file";
-			}
+				config.save();
+			} catch (IOException | NonSaveableConfigException e) {}
+
+			noTableReason = "Could not load the config file";
+
+			return false;
+		}
+
+		try {
+			MysqlDatabase database = MysqlHandler.INSTANCE.getDatabase(config.get("database") + "?autoReconnect=true");
+			table = database.getTable(config.get("table"));
+		} catch (NullPointerException e) {
+			getLogger().warn("Could not use the Check config file, ip info for offline users and website data is unavaliable!");
+			noTableReason = "Could not use the config file";
 		}
 
 		return true;
@@ -75,7 +95,16 @@ public class Check implements Module, Listener {
 
 		sendData(sender, oPlayer);
 
-		if (ModuleLoader.exists("Tag")) Bukkit.dispatchCommand(sender, "tag check " + player);
+		if (ModuleLoader.exists("Tag")) {
+			try {
+				Bukkit.getScheduler().callSyncMethod(ModuleLoader.getPlugin(), () -> Bukkit.dispatchCommand(sender, "tag check " + player)).get();
+			} catch (ExecutionException | InterruptedException e) {
+				Message msg = new Message(sender, null);
+				msg.appendText("&4Running /tag check failed! Please inform a dev about this incident!");
+
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public String read(URL url) {
@@ -158,7 +187,7 @@ public class Check implements Module, Listener {
 	public Object[] getWebsiteData(OfflinePlayer player) {
 		if (table == null)
 			return null;
-		
+
 		MysqlConstraint constraint = new MysqlConstraint("uuid", ConstraintOperator.EQUAL, player.getUniqueId().toString().replace("-", ""));
 
 		try {
@@ -210,7 +239,7 @@ public class Check implements Module, Listener {
 			lastSeen = (lastSeen.equals("1970-1-1 01:00")) ? "&eNever" : "&7(yyyy-MM-dd hh:mm) &e" + lastSeen;
 
 			Object[] websiteData = getWebsiteData(player);
-			
+
 
 			String[] ipInfo = getIpInfo(player);
 
@@ -224,12 +253,12 @@ public class Check implements Module, Listener {
 			msg.appendText("\n&6> UUID: ").appendSuggestHover("&e" + uuid, uuid, "Click to copy!");
 			msg.appendText("\n&6> First joined: &e" + firstJoin);
 			msg.appendText("\n&6> Last Seen: &e" + lastSeen);
-			
+
 			if (websiteData != null) {
 				String websiteUrl = (websiteData[0] == null) ? "None" : (String) websiteData[0];
 				String email = (websiteData[0] == null) ? "Unknown" : (String) websiteData[1];
 				boolean emailNotConfirmed = (websiteData[0] == null) ? false : !((boolean) websiteData[2]);
-				
+
 				msg.appendText("\n&6> Website account: &e").appendLink(websiteUrl, websiteUrl);
 				msg.appendText("\n&6> Email: &e" + (emailNotConfirmed ? "\n&6> &cEmail NOT Confirmed!" : "")).appendSuggestHover("&e" + email, email, "Click to copy!");
 			}
