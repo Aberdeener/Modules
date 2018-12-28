@@ -26,13 +26,6 @@ public class Logs implements Module
 	protected static ModuleLogger logger;
 	
 	@Override
-	public void firstLoad()
-	{
-		Module.super.firstLoad();
-		DataManager.setConfig("logs.root", "/etc/minecraft/redstoner/logs");
-	}
-	
-	@Override
 	public boolean onEnable()
 	{
 		Module.super.onEnable();
@@ -42,7 +35,7 @@ public class Logs implements Module
 	
 	public static File getLogsDir()
 	{
-		return new File((String) DataManager.getConfigOrDefault("logs.root", "../logs"));
+		return new File((String) DataManager.getConfigOrDefault("logs.root", "logs"));
 	}
 	
 	@Command(hook = "search_logs")

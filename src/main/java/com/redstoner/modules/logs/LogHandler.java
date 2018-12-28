@@ -77,6 +77,7 @@ public class LogHandler extends Thread
 				stillSearching.remove(sender);
 				return;
 			}
+
 			File[] files = logFolder.listFiles(new FilenameFilter()
 			{
 				@Override
