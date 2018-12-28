@@ -25,7 +25,7 @@ import net.nemez.chatapi.click.ClickCallback;
 import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 1, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class Saylol implements Module
 {
 	private long lastLol = 0;

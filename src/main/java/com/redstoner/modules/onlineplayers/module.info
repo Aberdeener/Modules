@@ -1,0 +1,3 @@
+displayName: OnlinePlayers
+category: External
+description: Provides a list of all players online with data in a .json file used for Redstoner's "Who's online feature"

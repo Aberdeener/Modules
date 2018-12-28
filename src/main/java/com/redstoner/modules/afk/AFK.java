@@ -15,7 +15,7 @@ import org.bukkit.event.HandlerList;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 6, compatible = 5)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class AFK implements Module {
 	private AFKListener listener;
 

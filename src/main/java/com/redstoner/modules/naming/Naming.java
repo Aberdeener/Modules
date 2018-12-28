@@ -20,7 +20,7 @@ import com.redstoner.modules.Module;
 import net.md_5.bungee.api.ChatColor;
 
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 1, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class Naming implements Module
 {
 	@Command(hook = "anvil")

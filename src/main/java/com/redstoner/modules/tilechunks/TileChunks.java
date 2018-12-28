@@ -18,7 +18,7 @@ import com.redstoner.misc.CommandHolderType;
 import com.redstoner.modules.Module;
 
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 1, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class TileChunks implements Module
 {
 	private List<LaggyTileChunk> laggyChunks = new ArrayList<>();

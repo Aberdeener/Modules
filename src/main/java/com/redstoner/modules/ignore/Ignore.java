@@ -25,7 +25,7 @@ import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class Ignore implements Module {
 	@Command(hook = "unignore", async = AsyncType.ALWAYS)
 	public boolean unignore(CommandSender sender, String player) {

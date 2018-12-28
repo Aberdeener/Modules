@@ -18,7 +18,7 @@ import com.redstoner.modules.datamanager.DataManager;
 import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 0, revision = 5, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class List implements Module
 {
 	private HashMap<String, Integer> onConsole;

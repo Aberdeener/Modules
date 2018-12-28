@@ -14,7 +14,7 @@ import com.redstoner.misc.CommandHolderType;
 import com.redstoner.modules.Module;
 
 @Commands(CommandHolderType.None)
-@Version(major = 4, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 @AutoRegisterListener
 public class SkullClick implements Module, Listener
 {

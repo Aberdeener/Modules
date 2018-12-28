@@ -12,7 +12,7 @@ import com.redstoner.misc.CommandHolderType;
 import com.redstoner.modules.Module;
 
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 1, revision = 0, compatible = 4)
+@Version(major = 4, minor = 0, revision = 0, compatible = 4)
 public class Clear implements Module {
 	@Command(hook = "clear")
 	public boolean clearInventory(CommandSender sender) {

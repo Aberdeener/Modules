@@ -11,7 +11,7 @@ import com.redstoner.misc.Utils;
 import com.redstoner.modules.Module;
 
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 2, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class Scriptutils implements Module
 {
 	/** Prints Bukkit restart message

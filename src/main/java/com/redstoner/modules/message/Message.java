@@ -27,7 +27,7 @@ import com.redstoner.modules.socialspy.Socialspy;
 import net.nemez.chatapi.ChatAPI;
 
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 0, revision = 4, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class Message implements Module
 {
 	HashMap<CommandSender, CommandSender> replyTargets = new HashMap<>();

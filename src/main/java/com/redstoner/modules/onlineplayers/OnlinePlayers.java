@@ -20,7 +20,7 @@ import com.redstoner.modules.Module;
 import com.redstoner.modules.datamanager.DataManager;
 
 @AutoRegisterListener
-@Version(major = 4, minor = 0, revision = 3, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 @SuppressWarnings("unchecked")
 public class OnlinePlayers implements Module, Listener
 {

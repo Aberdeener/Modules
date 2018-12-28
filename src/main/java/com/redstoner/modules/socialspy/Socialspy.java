@@ -25,7 +25,7 @@ import com.redstoner.modules.datamanager.DataManager;
 import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 0, revision = 3, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class Socialspy implements CoreModule
 {
 	@Command(hook = "config_prefix_default")

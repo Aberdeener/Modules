@@ -33,7 +33,7 @@ import net.nemez.chatapi.ChatAPI;
  */
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 1, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class Adminchat implements Module, Listener {
 	private static final char defaultKey = ',';
 	private static final File keysLocation = new File(Main.plugin.getDataFolder(), "adminchat_keys.json");

@@ -24,7 +24,7 @@ import com.redstoner.misc.mysql.elements.MysqlTable;
 import com.redstoner.modules.Module;
 
 @Commands(CommandHolderType.File)
-@Version(major = 4, minor = 1, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class WebToken implements Module
 {
 	private static final int TOKEN_LENGTH = 6;

@@ -16,7 +16,7 @@ import com.redstoner.modules.Module;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 1, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 0, compatible = 4)
 public class Motd implements Module, Listener
 {
 	private String default_motd, motd;
