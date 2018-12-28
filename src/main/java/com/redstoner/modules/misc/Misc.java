@@ -49,7 +49,7 @@ public class Misc implements Module, Listener {
 	private static final String[] WELCOME_MSG = new String[] {
 			"&4  Welcome to the Redstoner Server!\n",
 			"&6  Before you ask us things, take a quick look at &a&nredstoner.com/info\n",
-			"&6  Thank you and happy playing ;)\n\n"
+			"&6  Thank you and happy playing!)\n\n"
 	};
 
 	private static final PotionEffect NIGHT_VISION = new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false);
