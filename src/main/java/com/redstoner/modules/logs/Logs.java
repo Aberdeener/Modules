@@ -46,6 +46,13 @@ public class Logs implements Module
 		return true;
 	}
 	
+	@Command(hook = "terminate_search")
+	public boolean terminate_search(CommandSender sender)
+	{
+		LogHandler.cancel(sender);
+		return true;
+	}
+	
 	// FORMATTING
 	@Command(hook = "show_format")
 	public boolean show_format(CommandSender sender)

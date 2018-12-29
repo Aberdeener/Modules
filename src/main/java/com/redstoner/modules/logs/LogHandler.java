@@ -7,7 +7,8 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.zip.GZIPInputStream;
@@ -22,11 +23,12 @@ public class LogHandler extends Thread
 {
 	private CommandSender sender;
 	private String regex, fileName;
-	private static ArrayList<CommandSender> stillSearching = new ArrayList<>();
+	private static Map<String, LogHandler> activeSearches = new TreeMap<>();
 	public int totalFiles = 0;
 	public int filesSearched = 0;
 	public int totalLines = 0;
 	public int currentLine = 0;
+	private boolean isCanceled = false;
 	
 	protected LogHandler(CommandSender sender, String regex, String fileName)
 	{
@@ -37,13 +39,22 @@ public class LogHandler extends Thread
 	
 	public void doSearch()
 	{
-		if (stillSearching.contains(sender))
+		String id = Utils.getID(sender);
+		if (activeSearches.containsKey(id))
 		{
 			Logs.logger.message(sender, true, "§4 DO NOT EVER TRY TO QUERY TWO SEARCHES AT ONCE. Go die...!");
 			return;
 		}
-		stillSearching.add(sender);
+		activeSearches.put(Utils.getID(sender), this);
 		this.start();
+	}
+	
+	public static void cancel(CommandSender sender) {
+		LogHandler handler = activeSearches.remove(Utils.getID(sender));
+		if (handler == null)
+			Logs.logger.message(sender, true, "You aren't running a search.");
+		else
+			handler.isCanceled = true;
 	}
 	
 	/** Searches the logs for a certain regex and forwards any matches to the sender.
@@ -55,6 +66,7 @@ public class LogHandler extends Thread
 	{
 		long starttime = System.currentTimeMillis();
 		int matches = 0;
+		String id = Utils.getID(sender);
 		Logs.logger.message(sender, "Starting log search for &e" + regex + "&7 in &e" + fileName
 				+ " &7now.");
 		Logs.logger.message(sender, "&cDon't run another query until this one is done!");
@@ -74,7 +86,7 @@ public class LogHandler extends Thread
 			{
 				Logs.logger.message(sender, true, "An error occured trying to compile the filename pattern!");
 				Logs.logger.message(sender, true, "&2Reason: &7" + e.getDescription());
-				stillSearching.remove(sender);
+				activeSearches.remove(id);
 				return;
 			}
 
@@ -90,7 +102,7 @@ public class LogHandler extends Thread
 			if (totalFiles == 0)
 			{
 				Logs.logger.message(sender, true, "No files found!");
-				stillSearching.remove(sender);
+				activeSearches.remove(id);
 				return;
 			}
 			else
@@ -106,7 +118,7 @@ public class LogHandler extends Thread
 			{
 				Logs.logger.message(sender, true, "An error occured trying to compile the search pattern!");
 				Logs.logger.message(sender, true, "&2Reason: " + e.getDescription());
-				stillSearching.remove(sender);
+				activeSearches.remove(id);
 				return;
 			}
 			for (File file : files)
@@ -118,12 +130,16 @@ public class LogHandler extends Thread
 							new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
 					matches += searchStream(inputReader, searchPattern, sender, file.getName());
 					inputReader.close();
+					if (isCanceled)
+						break;
 				}
 				else
 				{
 					BufferedReader inputReader = new BufferedReader(new FileReader(file));
 					matches += searchStream(inputReader, searchPattern, sender, file.getName());
 					inputReader.close();
+					if (isCanceled)
+						break;
 				}
 				filesSearched++;
 				if (progress)
@@ -137,14 +153,15 @@ public class LogHandler extends Thread
 		{
 			Logs.logger.message(sender, true,
 					"An unexpected error occured, please check your search parameters and try again!");
-			stillSearching.remove(sender);
+			activeSearches.remove(id);
 			return;
 		}
-		stillSearching.remove(sender);
+		activeSearches.remove(id);
+		
 		if ((boolean) DataManager.getOrDefault(Utils.getID(sender), "Logs", "summary", true))
 		{
 			String[] message = new String[2];
-			message[0] = "§aYour search completed after " + (System.currentTimeMillis() - starttime) + "ms!";
+			message[0] = (isCanceled? "§aYou search was §cterminated§a after " : "§aYour search completed after ") + (System.currentTimeMillis() - starttime) + "ms!";
 			message[1] = "§7In total: §e" + filesSearched + "§7 File(s) and §e" + totalLines
 					+ "§7 Line(s) were searched, §a" + matches + "§7 Match(es) were found!";
 			Logs.logger.message(sender, message);
@@ -174,13 +191,15 @@ public class LogHandler extends Thread
 		currentLine = 0;
 		while ((line = inputReader.readLine()) != null)
 		{
+			if (isCanceled)
+				break;
 			totalLines++;
 			currentLine++;
 			if (searchPattern.matcher(line).matches())
 			{
 				if (((p != null) && (!p.isOnline())))
 				{
-					stillSearching.remove(sender);
+					activeSearches.remove(Utils.getID(sender));
 					throw new IOException("The player has left during the search. Aborting now.");
 				}
 				LogEntry entry = new LogEntry(filename, line, currentLine, totalLines);
