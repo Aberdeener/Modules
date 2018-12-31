@@ -527,6 +527,8 @@ public class Mail implements Module, Listener
 	}
 	
 	private int getNextID() {
+		if (lastID > 99999999)
+			getLogger().warn("IDs have exceeded 8 digits, reload suggested.");
 		return lastID++;
 	}
 	
