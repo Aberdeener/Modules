@@ -145,7 +145,6 @@ public class WorldBorder implements Module, Listener {
 	
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
-		getLogger().info("PlayerMoveEvent");
 		
 		Player p = event.getPlayer();
 		
@@ -159,7 +158,6 @@ public class WorldBorder implements Module, Listener {
 	
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
-		getLogger().info("PlayerTeleportEvent");
 		Location loc = getFinalLocation(event.getPlayer(), event.getFrom(),
 				                        event.getTo(), "&cYou've Teleported to an Invalid Location, returning!");
 		if (loc == null)
@@ -170,7 +168,6 @@ public class WorldBorder implements Module, Listener {
 	
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerPortal(PlayerPortalEvent event) {
-		getLogger().info("PlayerPortalEvent");
 		Location loc = getFinalLocation(event.getPlayer(), event.getFrom(),
                 event.getTo(), "&cYou've Reached an Invalid Location, returning!");
 		if (loc == null)
