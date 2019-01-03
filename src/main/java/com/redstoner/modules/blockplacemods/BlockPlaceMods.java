@@ -1,17 +1,5 @@
 package com.redstoner.modules.blockplacemods;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
-
 import com.nemez.cmdmgr.Command;
 import com.redstoner.annotations.AutoRegisterListener;
 import com.redstoner.annotations.Commands;
@@ -19,188 +7,268 @@ import com.redstoner.annotations.Version;
 import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
-import com.redstoner.modules.blockplacemods.mods.Mod;
-import com.redstoner.modules.blockplacemods.mods.ModAbstract;
-import com.redstoner.modules.blockplacemods.mods.ModToggledAbstract;
-import com.redstoner.utils.CommandException;
-import com.redstoner.utils.CommandMap;
+import com.redstoner.modules.blockplacemods.mods.ModBetterDirectional;
+import com.redstoner.modules.blockplacemods.mods.ModCauldron;
+import com.redstoner.modules.blockplacemods.mods.ModSlab;
+import com.redstoner.modules.datamanager.DataManager;
+import net.nemez.chatapi.click.Message;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 
-@Commands(CommandHolderType.None)
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Commands (CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 4, minor = 1, revision = 1, compatible = 4)
-public final class BlockPlaceMods implements Module, Listener
-{
+@Version (major = 4, minor = 1, revision = 1, compatible = 4)
+public class BlockPlaceMods implements Module, Listener {
+	private static final Map<String, BlockPlaceMod> mods        = new HashMap<>();
+	private static final List<BlockPlaceMod>        enabledMods = new ArrayList<>();
+
+	private final BlockPlaceMod[] modsToRegister = {
+			new ModCauldron(),
+			new ModSlab(),
+			new ModBetterDirectional("Observer", Material.OBSERVER, "observers", false),
+			new ModBetterDirectional("Piston", Material.PISTON, "pistons", false),
+			};
+
 	@Override
-	public boolean onEnable()
-	{
-		ModAbstract.registerAll(getLogger());
-		for (Mod mod : new ArrayList<>(ModAbstract.getMods().values()))
-		{
-			mod.registerListeners();
-		}
-		try
-		{
-			Map<String, org.bukkit.command.Command> commandMap = CommandMap.getCommandMap();
-			org.bukkit.command.Command command = new BlockPlaceModsCommand();
-			for (String alias : getCommandAliases())
-			{
-				commandMap.put(alias, command);
+	public boolean onEnable() {
+		for (BlockPlaceMod mod : modsToRegister) {
+			mods.put(mod.name.toLowerCase(), mod);
+
+			for (String alias : mod.aliases) {
+				mods.put(alias.toLowerCase(), mod);
+			}
+
+			if (mod.onEnable()) {
+				enabledMods.add(mod);
+				Bukkit.getPluginManager().registerEvents(mod, Main.plugin);
+			} else {
+				getLogger().warn("Block place mod failed to enable, see any errors above!");
 			}
 		}
-		catch (ReflectiveOperationException ex)
-		{
-			ex.printStackTrace();
-			return false;
-		}
+
 		return true;
 	}
-	
+
 	@Override
-	public void postEnable()
-	{
-		setPrefix("BPM");
-	}
-	
-	@Override
-	public void onDisable()
-	{
-		for (Mod mod : ModAbstract.getMods().values())
-		{
-			mod.unregisterListeners();
+	public void onDisable() {
+		for (BlockPlaceMod mod : enabledMods) {
+			mod.onDisable();
+			HandlerList.unregisterAll(mod);
 		}
-		try
-		{
-			Map<String, org.bukkit.command.Command> commandMap = CommandMap.getCommandMap();
-			for (String alias : getCommandAliases())
-			{
-				org.bukkit.command.Command command = commandMap.get(alias);
-				if (command != null && command.getClass() == BlockPlaceModsCommand.class)
-				{
-					commandMap.remove(alias);
-				}
-			}
-		}
-		catch (Exception ignored)
-		{}
+
+		enabledMods.clear();
+		mods.clear();
 	}
-	
-	private static String[] getCommandAliases()
-	{
-		String pluginName = Main.plugin.getName().toLowerCase();
-		// @noformat
-		return new String[]{"mod", 		pluginName + ":mod",
-				"set", 		pluginName + ":set",
-				"toggle",	pluginName + ":toggle"
-		};
-		// @format
-	}
-	
-	@Command(hook = "mod_empty")
-	public void onModEmptyCommand(CommandSender sender)
-	{
-		onModCommand(sender, "");
-	}
-	
-	@Command(hook = "mod")
-	public void onModCommand(CommandSender sender, String input)
-	{
-		String[] args = new ArrayList<>(Arrays.asList(input.split(" "))).stream()
-				.filter(x -> x != null && !x.trim().isEmpty()).toArray(String[]::new);
-		String prefix = "";
-		String message;
-		try
-		{
-			if (args.length > 0)
-			{
-				Mod target = ModAbstract.getMod(args[0].toLowerCase());
-				if (target != null)
-				{
-					prefix += "&7[&2" + capitalize(target.getName()) + "&7]:&a ";
-					if (!(sender instanceof Player))
-					{
-						message = "&cYou must be a player to use any block place mod";
+
+	@Command (async = Command.AsyncType.ALWAYS, hook = "list_mods")
+	public void listMods(CommandSender sender) {
+		Player player = (Player) sender;
+		String uuid   = player.getUniqueId().toString();
+
+		Message msg = new Message(sender, sender);
+
+		msg.appendText(ChatColor.DARK_GREEN + "--==[BlockPlaceMods]==--\n");
+		msg.appendText(ChatColor.GRAY + "TIP: Hover over the following messages to see a description :)\n\n");
+
+		for (BlockPlaceMod mod : modsToRegister) {
+
+			msg.appendTextHover(
+					ChatColor.DARK_PURPLE + "["
+					+ ChatColor.DARK_BLUE + mod.name
+					+ ChatColor.DARK_PURPLE + "]",
+
+					ChatColor.GREEN + mod.description
+			);
+
+			msg.appendText(" ");
+
+			boolean enabled = (boolean) DataManager.getOrDefault(uuid, "BlockPlaceMods", mod.name, mod.enabledByDefault);
+
+			msg.appendTextHover(
+					enabledMods.contains(mod) ? ChatColor.GREEN + "Loaded" : ChatColor.DARK_RED + "Not loaded",
+					ChatColor.GRAY + (enabledMods.contains(mod) ? "The mod is working fine." : "Something is wrong!")
+			);
+
+			msg.appendText(ChatColor.RESET + ", ");
+			msg.appendTextHover(
+					enabled ? ChatColor.GREEN + "Enabled" : ChatColor.DARK_RED + "Disabled",
+					ChatColor.GRAY + (enabled ? "You have this mod enabled." : "You have disabled this mod!")
+			);
+
+			if (mod.type != ModType.STATELESS) {
+				Object state = DataManager.getOrDefault(uuid, "BlockPlaceMods", mod.name + "_state", null);
+
+				if (state != null) {
+					msg.appendText(ChatColor.AQUA + " -> ");
+
+					switch (mod.type) {
+						case STRING:
+							msg.appendTextHover(ChatColor.GOLD + state.toString(), "String value - " + mod.typeDescription);
+							break;
+						case INTEGER:
+						case UNSIGNED_INTEGER:
+							msg.appendTextHover(ChatColor.DARK_GREEN + state.toString(), "Integer value - " + mod.typeDescription);
+							break;
+						case REDSTONE_LEVEL:
+							msg.appendTextHover(ChatColor.RED + state.toString(), "Redstone level - " + mod.typeDescription);
 					}
-					else
-					{
-						message = target.runCommand((Player) sender, Arrays.copyOfRange(args, 1, args.length));
+
+					msg.appendTextHover(
+							enabled ? ChatColor.GREEN + "Enabled" : ChatColor.DARK_RED + "Disabled",
+							ChatColor.GRAY + (enabled ? "You have this mod enabled." : "You have disabled this mod!")
+					);
+				}
+			}
+		}
+
+		msg.send();
+	}
+
+	@Command (async = Command.AsyncType.ALWAYS, hook = "reset_mod")
+	public void resetMod(CommandSender sender, String mod) {
+		BlockPlaceMod bpm = mods.get(mod.toLowerCase());
+		Message       msg = new Message(sender, sender);
+
+		msg.appendText(ChatColor.DARK_GREEN + "[BlockPlaceMods] ");
+
+		if (bpm == null) {
+			msg.appendText(ChatColor.DARK_RED + "That mod does not exist!");
+		} else {
+			Player player = (Player) sender;
+			DataManager.removeData(player.getUniqueId().toString(), "BlockPlaceMods", bpm.name);
+			DataManager.removeData(player.getUniqueId().toString(), "BlockPlaceMods", bpm.name + "_state");
+
+			msg.appendText(ChatColor.GREEN + "Successfully reset the settings for: " + ChatColor.DARK_PURPLE + bpm.name);
+		}
+
+		msg.send();
+	}
+
+	@Command (async = Command.AsyncType.ALWAYS, hook = "toggle_mod")
+	public void toggleMod(CommandSender sender, String mod) {
+		BlockPlaceMod bpm = mods.get(mod.toLowerCase());
+		Message       msg = new Message(sender, sender);
+
+		msg.appendText(ChatColor.DARK_GREEN + "[BlockPlaceMods] ");
+
+		if (bpm == null) {
+			msg.appendText(ChatColor.DARK_RED + "That mod does not exist!");
+		} else {
+			Player player = (Player) sender;
+			String uuid   = player.getUniqueId().toString();
+
+			boolean current = (boolean) DataManager.getOrDefault(uuid, "BlockPlaceMods", bpm.name, bpm.enabledByDefault);
+			DataManager.setData(uuid, "BlockPlaceMods", bpm.name, !current);
+
+			msg.appendText(
+					ChatColor.GREEN + "The " + ChatColor.DARK_PURPLE + bpm.name
+					+ ChatColor.GREEN + " mod has been "
+					+ (current ? ChatColor.RED + "Disabled!" : ChatColor.GREEN + "Enabled!")
+			);
+		}
+
+		msg.send();
+	}
+
+	@Command (async = Command.AsyncType.ALWAYS, hook = "set_mod_value")
+	public void setModValue(CommandSender sender, String mod, String value) {
+		BlockPlaceMod bpm = mods.get(mod.toLowerCase());
+		Message       msg = new Message(sender, sender);
+
+		msg.appendText(ChatColor.DARK_GREEN + "[BlockPlaceMods] ");
+
+		if (bpm == null) {
+			msg.appendText(ChatColor.DARK_RED + "That mod does not exist!");
+		} else {
+			Player player = (Player) sender;
+			String uuid   = player.getUniqueId().toString();
+
+			switch (bpm.type) {
+				case STATELESS:
+					msg.appendText(ChatColor.DARK_RED + "You cannot change the value of a stateless mod!");
+					break;
+				case STRING:
+					DataManager.setData(uuid, "BlockPlaceMods", bpm.name + "_state", value);
+
+					msg.appendText(
+							ChatColor.GREEN + "Changed the value of "
+							+ ChatColor.DARK_PURPLE + bpm.name + ChatColor.GREEN
+							+ " to: " + ChatColor.GRAY + value
+					);
+
+					break;
+				case INTEGER:
+					try {
+						DataManager.setData(uuid, "BlockPlaceMods", bpm.name + "_state", Integer.parseInt(value));
+					} catch (NumberFormatException e) {
+						msg.appendText(ChatColor.RED + "The specified value must be an integer!");
+						break;
 					}
-				}
-				else if (args[0].equalsIgnoreCase("help"))
-				{
-					message = commandHelp(sender, args);
-				}
-				else
-				{
-					message = "&cThat argument could not be recognized";
-				}
+
+					msg.appendText(
+							ChatColor.GREEN + "Changed the value of "
+							+ ChatColor.DARK_PURPLE + bpm.name + ChatColor.GREEN
+							+ " to: " + ChatColor.GRAY + value
+					);
+
+					break;
+				case UNSIGNED_INTEGER:
+					try {
+						int val = Integer.parseInt(value);
+
+						if (val < 0) {
+							msg.appendText(ChatColor.RED + "The specified value must be a positive integer!");
+							break;
+						}
+
+						DataManager.setData(uuid, "BlockPlaceMods", bpm.name + "_state", val);
+					} catch (NumberFormatException e) {
+						msg.appendText(ChatColor.RED + "The specified value must be a positive integer!");
+						break;
+					}
+
+					msg.appendText(
+							ChatColor.GREEN + "Changed the value of "
+							+ ChatColor.DARK_PURPLE + bpm.name + ChatColor.GREEN
+							+ " to: " + ChatColor.GRAY + value
+					);
+
+					break;
+				case REDSTONE_LEVEL:
+					try {
+						int val = Integer.parseInt(value);
+
+						if (val < 1 || val > 15) {
+							msg.appendText(ChatColor.RED + "The specified value must be an integer between 0 (exclusive) and 15 (inclusive)!");
+							break;
+						}
+
+						DataManager.setData(uuid, "BlockPlaceMods", bpm.name + "_state", val);
+					} catch (NumberFormatException e) {
+						msg.appendText(ChatColor.RED + "The specified value must be an integer between 0 (exclusive) and 15 (inclusive)!");
+						break;
+					}
+
+					msg.appendText(
+							ChatColor.GREEN + "Changed the value of "
+							+ ChatColor.DARK_PURPLE + bpm.name + ChatColor.GREEN
+							+ " to: " + ChatColor.GRAY + value
+					);
+
+					break;
 			}
-			else
-			{
-				message = commandHelp(sender, args);
-			}
 		}
-		catch (CommandException ex)
-		{
-			message = " &c" + ex.getMessage();
-		}
-		catch (Throwable t)
-		{
-			message = " &cAn unexpected error occurred while executing this command.";
-			t.printStackTrace();
-		}
-		getLogger().message(sender, prefix + message);
-	}
-	
-	private String commandHelp(CommandSender sender, String[] args)
-	{
-		StringBuilder result = new StringBuilder("§7BlockPlaceMods adds some redstone-centric utilities");
-		result.append("\n").append(ChatColor.GRAY.toString()).append("Available mods:");
-		List<Mod> mods = new ArrayList<>(new HashSet<>(ModAbstract.getMods().values()));
-		mods.sort(Comparator.<Mod> comparingInt(m -> ModToggledAbstract.class.isInstance(m) ? 1 : -1)
-				.thenComparing(Mod::getName));
-		for (Mod mod : mods)
-		{
-			result.append("\n").append(ChatColor.AQUA.toString()).append("/mod ").append(ChatColor.ITALIC.toString())
-					.append(mod.getName());
-			for (String alias : mod.getAliases())
-			{
-				result.append('|').append(alias);
-			}
-			result.append(ChatColor.GRAY.toString()).append(" - ").append(mod.getDescription());
-		}
-		return result.toString();
-	}
-	
-	private static String capitalize(String modName)
-	{
-		if (modName.isEmpty())
-		{
-			return modName;
-		}
-		char first = modName.charAt(0);
-		if (first != (first = Character.toUpperCase(first)))
-		{
-			char[] result = modName.toCharArray();
-			result[0] = first;
-			return String.valueOf(result);
-		}
-		return modName;
-	}
-	
-	private class BlockPlaceModsCommand extends org.bukkit.command.Command
-	{
-		public BlockPlaceModsCommand()
-		{
-			super("mod");
-			String[] aliases = getCommandAliases();
-			setAliases(Arrays.asList(Arrays.copyOfRange(aliases, 1, aliases.length)));
-		}
-		
-		@Override
-		public boolean execute(CommandSender sender, String label, String[] args)
-		{
-			onModCommand(sender, String.join(" ", args));
-			return true;
-		}
+
+		msg.send();
 	}
 }
