@@ -90,7 +90,7 @@ public class ItemProperties
 		return result;
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public JSONObject toJSONObject()
 	{
 		JSONObject object = new JSONObject();
@@ -128,7 +128,7 @@ public class ItemProperties
 		return toJSONObject().toString();
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public ItemProperties loadFrom(JSONObject object)
 	{
 		for (Object obj : object.entrySet())

@@ -70,6 +70,7 @@ public class BlockPlaceMods implements Module, Listener {
 		mods.clear();
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	@Command (async = Command.AsyncType.ALWAYS, hook = "list_mods")
 	public void listMods(CommandSender sender) {
 		Player player = (Player) sender;

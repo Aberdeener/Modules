@@ -1,6 +1,5 @@
 package com.redstoner.modules.afk;
 
-import com.redstoner.coremods.moduleLoader.ModuleLoader;
 import com.redstoner.misc.Utils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -43,6 +42,7 @@ public class AFKListener implements Listener {
 	}
 
 	@EventHandler
+	@SuppressWarnings("deprecation")
 	public void onChat(PlayerChatEvent event) {
 		if (chat) AFKUtil.checkedUnAfk(event.getPlayer());
 	}

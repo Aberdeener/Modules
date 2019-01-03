@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 
+@SuppressWarnings("deprecation")
 public class CancelledEventsHandler implements Listener {
 	private LoginSecurity mainClass;
 	
