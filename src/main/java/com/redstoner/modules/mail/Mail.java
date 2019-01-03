@@ -114,10 +114,6 @@ public class Mail implements Module, Listener
 			return;
 		}
 		
-		System.out.println(playerToMsg);
-		System.out.println(idToMsg);
-		System.out.println(archives);
-		
 		String themeStr = (String) DataManager.getData(sender, "theme");
 		String actions = (String) DataManager.getData(sender, "actions");
 		String names = (String) DataManager.getData(sender, "names");
@@ -589,7 +585,6 @@ public class Mail implements Module, Listener
 			.appendSendChatHover("&e/mail", "/mail", "Click to read your messages")
 			.appendText("&7 to read them.")
 			.send();
-		System.out.println("Loaded " + p.getName());
 	}
 	
 	@SuppressWarnings("unchecked")
