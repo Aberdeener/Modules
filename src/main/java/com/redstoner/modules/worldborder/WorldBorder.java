@@ -112,7 +112,7 @@ public class WorldBorder implements Module, Listener {
 			String world = (String) o;
 			WorldBorderInfo info = WorldBorderInfo.fromJSONObject((JSONObject) j.get(world));
 			borderInfos.put(world, info);
-			getLogger().info("Loaded world, " + world + ", with the boarder " + info.getMessage());
+			getLogger().info("Loaded world, &e" + world + "&7, with the boarder " + info.getMessage());
 		}
 	}
 	
