@@ -1,0 +1,27 @@
+apply plugin: "java"
+
+repositories {
+    jcenter()
+    maven { url "https://jitpack.io" }
+
+    maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+}
+
+dependencies {
+    implementation "com.github.RedstonerServer:ModuleLoader:gradle-SNAPSHOT"
+    implementation "com.github.RedstonerServer:CommandManager:master-SNAPSHOT"
+    implementation "com.github.RedstonerServer:ChatAPI:master-SNAPSHOT"
+    implementation "com.github.RedstonerServer:ChestAPI:master-SNAPSHOT"
+
+    compileOnly 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDir 'src/main/java'
+            include '**/*.cmd'
+        }
+    }
+}

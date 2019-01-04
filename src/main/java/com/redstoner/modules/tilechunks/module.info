@@ -1,0 +1,3 @@
+displayName: TileChunk
+category: Staff
+description: Collects information about tile entities across the map and displays chunk info
