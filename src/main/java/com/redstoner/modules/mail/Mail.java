@@ -544,7 +544,8 @@ public class Mail implements Module, Listener
 					list.add(m);
 					idToMsg.put(m.getID(), m);
 				}
-				playerToMsg.put(uuid, list);
+				if (!list.isEmpty())
+					playerToMsg.put(uuid, list);
 			}
 		}
 		
