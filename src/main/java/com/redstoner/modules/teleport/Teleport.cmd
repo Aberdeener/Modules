@@ -4,21 +4,25 @@ command tp {
     
     [string:player] {
         run tp player;
+        help Teleports you to a player.;
         perm utils.teleport.tpa;
         type player;
     }
     [string:player] [string:player2] {
         run tp2 player player2;
+        help Teleports the first player to the second.;
         perm utils.teleport.tpa;
     }
     [int:x] [int:y] [int:z] {
     	run tploc x y z;
+    	help Teleports you to specific coords.;
     	perm utils.teleport.tploc;
     	type player;
     }
     
     [string:player] [int:x] [int:y] [int:z] {
     	run tploc2 player x y z;
+    	help Teleports a player to specific coords.;
     	perm utils.teleport.tploc.other;
     }
 }
@@ -31,6 +35,7 @@ command tphere {
     
     [string:player] {
         run tphere player;
+        help Teleports the player to you.;
         perm utils.teleport.tp.here;
     }
 }
@@ -44,6 +49,7 @@ command tpa {
     
     [string:player] {
         run tpa player;
+        help Request to teleport to a player.;
     }
 }
 
@@ -57,6 +63,7 @@ command tpahere {
 	
     [string:player] {
         run tpahere player;
+        help Request a player to teleport to you,;
         help ask another player to teleport to you.;
     }
 }
@@ -112,9 +119,11 @@ command tpdeny {
     
     [empty] {
         run tpdeny;
+        help Denies the latest pending tpa request.;
     }
     [string:player] {
         run tpdeny2 player;
+        help Denies the specified pending tpa request.;
     }
 }
 
@@ -127,6 +136,7 @@ command tplist {
     
     [empty] {
         run tplist;
+        help Shows you a list of all the incoming tpa requests.;
     }
 }
 
