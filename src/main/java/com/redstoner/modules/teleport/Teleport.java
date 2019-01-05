@@ -8,9 +8,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import com.nemez.cmdmgr.Command;
+import com.redstoner.annotations.AutoRegisterListener;
 import com.redstoner.annotations.Commands;
 import com.redstoner.annotations.Version;
 import com.redstoner.misc.CommandHolderType;
@@ -20,8 +24,9 @@ import com.redstoner.modules.datamanager.DataManager;
 import net.nemez.chatapi.ChatAPI;
 
 @Commands(CommandHolderType.File)
+@AutoRegisterListener
 @Version(major = 5, minor = 0, revision = 0, compatible = 4)
-public class Teleport implements Module
+public class Teleport implements Module, Listener
 {
 	public static final String PERMISSION_TELEPORT = "utils.teleport.tp";
 	public static final String PERMISSION_TELEPORT_OTHER = "utils.teleport.tp.other";	
@@ -446,6 +451,40 @@ public class Teleport implements Module
 			pending_requests.remove(from);
 		else
 			pending_requests.put(from, m);				
+	}
+	
+	@EventHandler
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		Player p = event.getPlayer();
+		
+		pending_requests.remove(p);
+		last_request.remove(p);
+		last_request_got.remove(p);
+		
+		for (Player fl : pending_requests.keySet()) {
+			Map<Player, TPAType> m = pending_requests.get(fl);
+			m.remove(p);
+			if (m.isEmpty())
+				pending_requests.remove(fl);
+			else
+				pending_requests.put(fl, m);
+		}
+		for (Player fl : last_request.keySet()) {
+			Stack<Player> s = last_request.get(fl);
+			s.remove(p);
+			if (s.isEmpty())
+				last_request.remove(fl);
+			else
+				last_request.put(fl, s);
+		}
+		for (Player fl : last_request_got.keySet()) {
+			Stack<Player> s = last_request_got.get(fl);
+			s.remove(p);
+			if (s.isEmpty())
+				last_request_got.remove(fl);
+			else
+				last_request_got.put(fl, s);
+		}
 	}
 }
 
