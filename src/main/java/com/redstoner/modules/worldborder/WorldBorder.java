@@ -183,11 +183,14 @@ public class WorldBorder implements Module, Listener {
 		if (info == null || info.isCordanateWithinBounds(to.getBlockX(), to.getBlockZ()))
 			return to;
 		else {
-			System.out.println(p.isInsideVehicle());
 			if (p.isInsideVehicle())
 				p.getVehicle().remove();
 			ChatAPI.sendActionBar(p, message);
-			return from;
+			
+			if (info.isCordanateWithinBounds(from.getBlockX(), from.getBlockZ()))
+				return from;
+			else
+				return new Location(to.getWorld(), info.getCX(), 80, info.getCZ());
 		}
 	}
 }
