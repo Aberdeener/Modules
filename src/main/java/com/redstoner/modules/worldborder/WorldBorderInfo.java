@@ -23,6 +23,14 @@ public class WorldBorderInfo {
 		return x > minX && x < maxX && z > minZ && z < maxZ;
 	}
 	
+	public int getCX() {
+		return cx;
+	}
+	
+	public int getCZ() {
+		return cz;
+	}
+	
 	public String getMessage() {
 		return message;
 	}
@@ -41,6 +49,5 @@ public class WorldBorderInfo {
 	public static WorldBorderInfo fromJSONObject(JSONObject j) {
 		return new WorldBorderInfo(((Long)j.get("cx")).intValue(),
 				                   ((Long)j.get("cz")).intValue(), ((Long)j.get("r")).intValue());
-	}
-	
+	}	
 }
