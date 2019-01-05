@@ -1,59 +1,60 @@
-command teleport {
-    alias eteleport;
-    alias tp;
-    alias etp;
+command tp {
+    alias teleport;
     alias to;
-    alias eto;
-    alias tpo;
-    alias etpo;
-    alias tp2p;
-    alias etp2p;
+    
     [string:player] {
         run tp player;
-        perm utils.teleport.tp;
+        perm utils.teleport.tpa;
+        type player;
     }
     [string:player] [string:player2] {
         run tp2 player player2;
-        perm utils.teleport.tp.other;
+        perm utils.teleport.tpa;
+    }
+    [int:x] [int:y] [int:z] {
+    	run tploc x y z;
+    	perm utils.teleport.tploc;
+    	type player;
+    }
+    
+    [string:player] [int:x] [int:y] [int:z] {
+    	run tploc2 player x y z;
+    	perm utils.teleport.tploc.other;
     }
 }
 
-command teleporthere {
-    alias eteleporthere;
-    alias tphere;
-    alias etphere;
-    alias tpohere;
-    alias etpohere;
+command tphere {
+    alias tph;
+    alias teleoprthere;
     perm utils.teleport.tp;
+    type player;
+    
     [string:player] {
         run tphere player;
         perm utils.teleport.tp.here;
     }
 }
 
-command teleportask {
-    alias eteleportask;
-    alias tpa;
-    alias etpa;
+command tpa {
     alias tpr;
-    alias etpr;
     alias tpask;
-    alias etpask;
+    alias teleportask;
     perm utils.teleport.tpa;
+    type player;
+    
     [string:player] {
         run tpa player;
     }
 }
 
-command teleportaskhere {
-    alias eteleportaskhere;
-    alias tpahere,
-    alias etpahere;
+command tpahere {
+    alias tpah;
     alias tprhere;
-    alias etrphere;
     alias tpaskhere;
-    alias etpaskhere;
+    alias teleportaskhere;
     perm utils.teleport.tpa;
+	type player;
+	
     [string:player] {
         run tpahere player;
         help ask another player to teleport to you.;
@@ -61,11 +62,12 @@ command teleportaskhere {
 }
 
 command tpall {
-    alias etpall;
     perm utils.teleport.tpall;
+    
     [empty] {
         run tpall;
         help Teleports everyone to you.;
+        type player;
     }
     [string:player] {
         run tpall2 player;
@@ -73,53 +75,46 @@ command tpall {
     }
 }
 
-command tpaall {
-    alias etpall;
-    perm utils.teleport.tpaall;
-    [empty] {
-        run tpaall;
-        help Sends a tpa request to every player.;
-    }
-    [string:player] {
-        run tpaall2 player;
-        help Sends a tpa request to every player.;
-    }
-}
-
 command tpaccept {
-    alias etpaccept;
     alias tpyes;
-    alias etpyes;
     perm utils.teleport.request;
+    type player;
+    
     [empty] {
         run tpaccept;
         help Accepts the latest pending tpa request.;
     }
-    [int:index] {
-        run tpaccept2 index;
+    [string:player] {
+        run tpaccept2 player;
         help Accepts the specified pending tpa request.;
     }
 }
 
-command tpacancel {
-    alias etpacencel;
+command tpcancel {
+    alias tpastop;
     perm utils.teleport.request;
+    type player;
+    
     [empty] {
         run tpacancel;
-        help Cancels an outgoing pending tpa request.;
+        help Cancels the latest outgoing pending tpa request.;
+    }
+    [string:player] {
+        run tpacancel2 player;
+        help Cancels the specific outgoing pending tpa request.;
     }
 }
 
 command tpdeny {
-    alias etpdeny;
     alias tpno;
-    alias etpno;
     perm utils.teleport.request;
+    type player;
+    
     [empty] {
         run tpdeny;
     }
-    [int:index] {
-        run tpdeny2 index;
+    [string:player] {
+        run tpdeny2 player;
     }
 }
 
@@ -128,20 +123,19 @@ command tplist {
     alias tpl;
     alias etpl;
     perm utils.teleport.request;
+    type player;
+    
     [empty] {
         run tplist;
     }
 }
 
 command tptoggle {
-    alias etptoggle;
     perm utils.teleport.toggle;
+    type player;
+    
     [string:status] {
         run tptoggle status;
-        help sets your tpa status;
+        help sets your tpa status (All, ToMe, ToThem, None);
     }
-    [string:command] [string:status] {
-        run tptoggle2 command status;
-        help sets your tpa status for only one command (e.g. tpa/tpahere).;
-    } 
 }
