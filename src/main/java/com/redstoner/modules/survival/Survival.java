@@ -43,7 +43,7 @@ public class Survival implements Module, Listener {
 	boolean suspendEvents = false;
 	
 	public void checkSleep(World world) {
-		if (suspendEvents || !canSleep(world.getTime(), world.isThundering()))
+		if (suspendEvents || !canSleep(world.getTime(), world.isThundering()) || world.getPlayers().size() == 0)
 			return;
 		
 		int sleepingPlayers = 0;
