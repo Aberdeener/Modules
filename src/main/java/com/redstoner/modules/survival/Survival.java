@@ -43,7 +43,7 @@ public class Survival implements Module, Listener {
 	boolean suspendEvents = false;
 	
 	public void checkSleep(World world) {
-		if (suspendEvents || isDay(world.getTime()))
+		if (suspendEvents || !canSleep(world.getTime(), world.isThundering()))
 			return;
 		
 		int sleepingPlayers = 0;
@@ -72,8 +72,8 @@ public class Survival implements Module, Listener {
 		return true;
 	}
 	
-	public boolean isDay(long time) {
-		return time < 12300 || time > 23850;
+	public boolean canSleep(long time, boolean thundering) {
+		return !(time < 12300 || time > 23850) || thundering;
 	}
 	
 	public void notifyPlayers(List<Player> players, String msg) {
