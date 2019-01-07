@@ -3,6 +3,7 @@ package com.redstoner.modules.survival;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,7 +23,7 @@ import net.nemez.chatapi.ChatAPI;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 1, compatible = 4)
 public class Survival implements Module, Listener {
 	
 	@EventHandler
@@ -47,11 +48,20 @@ public class Survival implements Module, Listener {
 			return;
 		
 		int sleepingPlayers = 0;
+		int totalPlayers = 0;
+		
 		for (Player p : world.getPlayers()) 
 			if (p.isSleeping())
 				sleepingPlayers++;
 		
-		int perSleeping = 100 * sleepingPlayers / world.getPlayers().size();
+		for (Player p : world.getPlayers()) 
+			if (p.getGameMode() == GameMode.SURVIVAL)
+				totalPlayers++;		
+		
+		if (totalPlayers == 0)
+			return;
+		
+		int perSleeping = 100 * sleepingPlayers / totalPlayers;
 		int perNeeded = (Integer) DataManager.getConfigOrDefault("perNeededToSleep", 51);
 		
 		if (perSleeping >= perNeeded) {
