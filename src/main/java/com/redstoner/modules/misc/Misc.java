@@ -13,6 +13,9 @@ import net.nemez.chatapi.click.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -86,19 +89,26 @@ public class Misc implements Module, Listener {
 		}
 	}
 
+	private static final Material[] LIQUID_FLOW_EXCEPTIONS = {
+			Material.AIR,
+			Material.CAVE_AIR,
+			Material.VOID_AIR
+	};
+
 	// Disables water and lava breaking stuff
 	@EventHandler
 	public void onLiquidFlow(BlockFromToEvent event) {
-		Material m = event.getToBlock().getType();
+		Block    toBlock = event.getToBlock();
+		Material m       = toBlock.getType();
 
-		switch (m) {
-			case AIR:
-			case WATER:
-			case LAVA:
-				return;
-			default: {
-				event.setCancelled(true);
-			}
+		for (Material exception : LIQUID_FLOW_EXCEPTIONS) {
+			if (m == exception) return;
+		}
+
+		BlockData data = toBlock.getBlockData();
+
+		if (!(data instanceof Waterlogged)) {
+			event.setCancelled(true);
 		}
 	}
 
