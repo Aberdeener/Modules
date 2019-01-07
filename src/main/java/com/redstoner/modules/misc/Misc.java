@@ -24,6 +24,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.potion.PotionEffect;
@@ -33,7 +34,7 @@ import java.util.UUID;
 
 @Commands (CommandHolderType.File)
 @AutoRegisterListener
-@Version (major = 5, minor = 0, revision = 0, compatible = 4)
+@Version (major = 5, minor = 1, revision = 0, compatible = 4)
 public class Misc implements Module, Listener {
 	private static final String[] SUDO_BLACKLIST = new String[] {
 			"(.*:)?e?sudo",
@@ -75,6 +76,13 @@ public class Misc implements Module, Listener {
 
 			player.teleport(player.getWorld().getSpawnLocation());
 		}
+		
+		event.setJoinMessage(null);
+	}
+	
+	@EventHandler
+	public void onQuit(PlayerQuitEvent event) {
+		event.setQuitMessage(null);
 	}
 
 	// Disables spectator teleportation
