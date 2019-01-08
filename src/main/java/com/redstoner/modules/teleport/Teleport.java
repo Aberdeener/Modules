@@ -1,6 +1,7 @@
 package com.redstoner.modules.teleport;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
@@ -461,27 +462,35 @@ public class Teleport implements Module, Listener
 		last_request.remove(p);
 		last_request_got.remove(p);
 		
-		for (Player fl : pending_requests.keySet()) {
+		Iterator<Player> pr_iterator = pending_requests.keySet().iterator();
+		while (pr_iterator.hasNext()) {
+			Player fl = pr_iterator.next();
 			Map<Player, TPAType> m = pending_requests.get(fl);
 			m.remove(p);
 			if (m.isEmpty())
-				pending_requests.remove(fl);
+				pr_iterator.remove();
 			else
 				pending_requests.put(fl, m);
 		}
-		for (Player fl : last_request.keySet()) {
+		
+		Iterator<Player> lr_iterator = last_request.keySet().iterator();
+		while (lr_iterator.hasNext()) {
+			Player fl = lr_iterator.next();
 			Stack<Player> s = last_request.get(fl);
 			s.remove(p);
 			if (s.isEmpty())
-				last_request.remove(fl);
+				lr_iterator.remove();
 			else
 				last_request.put(fl, s);
 		}
-		for (Player fl : last_request_got.keySet()) {
+		
+		Iterator<Player> lrg_iterator = last_request_got.keySet().iterator();
+		while (lrg_iterator.hasNext()) {
+			Player fl = lrg_iterator.next();
 			Stack<Player> s = last_request_got.get(fl);
 			s.remove(p);
 			if (s.isEmpty())
-				last_request_got.remove(fl);
+				lrg_iterator.remove();
 			else
 				last_request_got.put(fl, s);
 		}
