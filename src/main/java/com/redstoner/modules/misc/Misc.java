@@ -34,7 +34,7 @@ import java.util.UUID;
 
 @Commands (CommandHolderType.File)
 @AutoRegisterListener
-@Version (major = 5, minor = 1, revision = 0, compatible = 4)
+@Version (major = 5, minor = 1, revision = 1, compatible = 4)
 public class Misc implements Module, Listener {
 	private static final String[] SUDO_BLACKLIST = new String[] {
 			"(.*:)?e?sudo",

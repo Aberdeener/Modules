@@ -26,7 +26,7 @@ import net.nemez.chatapi.ChatAPI;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 1, compatible = 4)
 public class Teleport implements Module, Listener
 {
 	public static final String PERMISSION_TELEPORT = "utils.teleport.tp";
