@@ -34,7 +34,7 @@ import java.util.UUID;
 
 @Commands (CommandHolderType.File)
 @AutoRegisterListener
-@Version (major = 5, minor = 1, revision = 1, compatible = 4)
+@Version (major = 5, minor = 2, revision = 0, compatible = 4)
 public class Misc implements Module, Listener {
 	private static final String[] SUDO_BLACKLIST = new String[] {
 			"(.*:)?e?sudo",
@@ -104,22 +104,53 @@ public class Misc implements Module, Listener {
 			Material.WATER,
 			Material.LAVA
 	};
+	
+	private static final Material[] PROTECTED_REDSTONE_BLOCKS = {
+			Material.REDSTONE_WIRE,	Material.REDSTONE_TORCH, Material.REDSTONE_WALL_TORCH,
+			Material.COMPARATOR, Material.REPEATER,	Material.RAIL, Material.ACTIVATOR_RAIL,
+			Material.DETECTOR_RAIL, Material.TRIPWIRE, Material.TRIPWIRE_HOOK,
+			Material.ACACIA_BUTTON,Material.BIRCH_BUTTON, Material.DARK_OAK_BUTTON,
+			Material.JUNGLE_BUTTON, Material.OAK_BUTTON, Material.SPRUCE_BUTTON,
+			Material.STONE_BUTTON, Material.LEVER, Material.ACACIA_PRESSURE_PLATE,
+			Material.BIRCH_PRESSURE_PLATE, Material.DARK_OAK_PRESSURE_PLATE,
+			Material.HEAVY_WEIGHTED_PRESSURE_PLATE, Material.JUNGLE_PRESSURE_PLATE,
+			Material.LIGHT_WEIGHTED_PRESSURE_PLATE, Material.OAK_PRESSURE_PLATE,
+			Material.SPRUCE_PRESSURE_PLATE, Material.STONE_PRESSURE_PLATE
+	};
 
 	// Disables water and lava breaking stuff
 	@EventHandler
 	public void onLiquidFlow(BlockFromToEvent event) {
 		Block    toBlock = event.getToBlock();
 		Material m       = toBlock.getType();
-
-		for (Material exception : LIQUID_FLOW_EXCEPTIONS) {
+		String world 	 = toBlock.getWorld().getName();
+		String protectionLevel = (String) DataManager.getConfigOrDefault(world, "rs-only");
+		
+		for (Material exception : LIQUID_FLOW_EXCEPTIONS) 
 			if (m == exception) return;
+
+		if (protectionLevel.equals("rs-only")) {
+			for (Material rs : PROTECTED_REDSTONE_BLOCKS)
+				if (m == rs) {
+					event.setCancelled(true);
+					return;
+				}
+			return;
 		}
+		else if (!protectionLevel.equals("all")){
+			DataManager.setConfig(world, "rs-only");
+			getLogger().warn("Invalid config option for Water in the world, &e" + world + "&7. Setting to default.");
+			onLiquidFlow(event);
+		}
+		
 
 		BlockData data = toBlock.getBlockData();
 
 		if (!(data instanceof Waterlogged)) {
 			event.setCancelled(true);
 		}
+		
+		
 	}
 
 	@Command (hook = "tempadddef")
