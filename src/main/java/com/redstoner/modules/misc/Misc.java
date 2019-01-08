@@ -100,7 +100,9 @@ public class Misc implements Module, Listener {
 	private static final Material[] LIQUID_FLOW_EXCEPTIONS = {
 			Material.AIR,
 			Material.CAVE_AIR,
-			Material.VOID_AIR
+			Material.VOID_AIR,
+			Material.WATER,
+			Material.LAVA
 	};
 
 	// Disables water and lava breaking stuff
