@@ -400,7 +400,7 @@ public class Mail implements Module, Listener
 		String uuid = ((Player)sender).getUniqueId().toString();
 		Map<Integer,Msg> list = archives.get(uuid);
 		
-		if (id < 0 || id >= list.size()) {
+		if (id < 0 || list == null || !list.containsKey(id)) {
 			getLogger().message(sender, true, "You have no archived messages with that ID.");
 			return;
 		}
