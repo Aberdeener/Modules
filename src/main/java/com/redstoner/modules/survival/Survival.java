@@ -47,43 +47,36 @@ public class Survival implements Module, Listener {
 		if (suspendEvents || !canSleep(world.getTime(), world.isThundering()) || world.getPlayers().size() == 0)
 			return;
 		
-		System.out.println("A");
-		
 		if (!((String)DataManager.getConfigOrDefault(world.getName() + ".enabled", "true")).equals("true"))
 			return;
-		System.out.println("B");
+		
 		int sleepingPlayers = 0;
 		int totalPlayers = 0;
-		System.out.println("C");
+
 		for (Player p : world.getPlayers()) 
 			if (p.isSleeping())
 				sleepingPlayers++;
-		System.out.println("D");
+
 		for (Player p : world.getPlayers()) 
 			if (p.getGameMode() == GameMode.SURVIVAL)
 				totalPlayers++;		
-		System.out.println("E");
+
 		if (totalPlayers == 0)
 			return;
-		System.out.println("F");
+	
 		int perSleeping = 100 * sleepingPlayers / totalPlayers;
 		int perNeeded = (Integer) DataManager.getConfigOrDefault(world.getName() + ".perNeededToSleep", 51);
 		
-		System.out.println("1");
 		
 		if (perSleeping >= perNeeded) {
-			System.out.println("2");
 			notifyPlayers(world.getPlayers(), "&e" + perSleeping + "%&0 were sleeping. The &6sun&0 is rising!");
-			System.out.println("3");
 			world.setTime(23450);
 			world.setStorm(false);
 			world.setThundering(false);
 			suspendEvents = true;
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Main.plugin, () -> resumeEvents(), 20);
-			System.out.println("4");
 		}
 		else {
-			System.out.println("5");
 			notifyPlayers(world.getPlayers(), "&e" + perSleeping + "%&0 are sleeping. &e" + perNeeded + "%&0 needed");
 		}
 		
@@ -99,7 +92,6 @@ public class Survival implements Module, Listener {
 	}
 	
 	public void notifyPlayers(List<Player> players, String msg) {
-		System.out.println("I made It!");
 		for (Player p : players)
 			ChatAPI.sendActionBar(p, "&0[&2Sleep&0] " + msg);
 	}
