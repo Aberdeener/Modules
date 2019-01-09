@@ -19,6 +19,8 @@ import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 import com.redstoner.modules.datamanager.DataManager;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.nemez.chatapi.ChatAPI;
 
 @Commands(CommandHolderType.File)
@@ -93,6 +95,6 @@ public class Survival implements Module, Listener {
 	
 	public void notifyPlayers(List<Player> players, String msg) {
 		for (Player p : players)
-			ChatAPI.sendActionBar(p, "&0[&2Sleep&0] " + msg);
+			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatAPI.colorify(null, "&0[&2Sleep&0] " + msg)));
 	}
 }

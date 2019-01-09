@@ -89,14 +89,14 @@ public class Teleport implements Module, Listener
 		}
 		
 		Player p1 = Bukkit.getPlayer(player);
-		Player p2 = Bukkit.getPlayer(player);
+		Player p2 = Bukkit.getPlayer(player2);
 		
 		if (p1 == null)
 			playerDoesNotExistError(sender, player);
 		else if (p2 == null)
 			playerDoesNotExistError(sender, player2);
 		else if (p1.getName().equals(p2.getName()))
-			cannotTpToYourself(sender);
+			getLogger().message(sender, true, "You can't teleport a player to themselves.");
 		else {
 			p1.teleport(p2, TeleportCause.COMMAND);
 			getLogger().message(sender, "&e" +p1.getDisplayName() + "&7 has been teleported to &e" +
