@@ -23,7 +23,7 @@ import net.nemez.chatapi.ChatAPI;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 5, minor = 0, revision = 2, compatible = 4)
+@Version(major = 5, minor = 0, revision = 3, compatible = 4)
 public class Survival implements Module, Listener {
 	
 	@EventHandler
@@ -54,7 +54,7 @@ public class Survival implements Module, Listener {
 		int totalPlayers = 0;
 
 		for (Player p : world.getPlayers()) 
-			if (p.isSleeping())
+			if (p.isSleeping() && p.getGameMode() == GameMode.SURVIVAL)
 				sleepingPlayers++;
 
 		for (Player p : world.getPlayers()) 
