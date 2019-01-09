@@ -50,8 +50,6 @@ public class Teleport implements Module, Listener
 		
 		if (p == null)
 			playerDoesNotExistError(sender, player);
-		else if (sender.getName().equals(p.getName()))
-			cannotTpToYourself(sender);
 		else {
 			p.teleport(new Location(p.getWorld(), x, y, z), TeleportCause.COMMAND);
 			getLogger().message(sender, "Teleported &e" + p.getDisplayName() +
