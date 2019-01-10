@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -142,7 +143,7 @@ public class Mentio implements Module, Listener
 					char lastChar = ' ';
 					for (char c : temp.toCharArray())
 					{
-						if (lastChar == '§')
+						if (lastChar == ChatColor.COLOR_CHAR)
 							lastColorCodes += "§" + c;
 						lastChar = c;
 					}
