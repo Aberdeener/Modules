@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -19,8 +20,6 @@ import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 import com.redstoner.modules.datamanager.DataManager;
 
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.nemez.chatapi.ChatAPI;
 
 @Commands(CommandHolderType.File)
@@ -30,6 +29,8 @@ public class Survival implements Module, Listener {
 	
 	@EventHandler
 	public void onPlayerTeleport(PlayerTeleportEvent e) {
+		if (e.getPlayer().getGameMode() != GameMode.SURVIVAL)
+			return;
 		World w1 = e.getFrom().getWorld();
 		World w2 = e.getTo().getWorld();
 		
@@ -40,16 +41,25 @@ public class Survival implements Module, Listener {
 	
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
-		checkSleep(e.getPlayer().getWorld());
+		if (e.getPlayer().getGameMode() == GameMode.SURVIVAL)
+			checkSleep(e.getPlayer().getWorld());
+	}
+	
+	@EventHandler
+	public void onGamemodeChange(PlayerGameModeChangeEvent e) {
+		if (e.getNewGameMode() == GameMode.SURVIVAL || e.getPlayer().getGameMode() == GameMode.SURVIVAL)
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Main.plugin, () -> checkSleep(e.getPlayer().getWorld()), 20);
 	}
 	
 	boolean suspendEvents = false;
+	
+	private int lastPer = 0;
 	
 	public void checkSleep(World world) {
 		if (suspendEvents || !canSleep(world.getTime(), world.isThundering()) || world.getPlayers().size() == 0)
 			return;
 		
-		if (!((String)DataManager.getConfigOrDefault(world.getName() + ".enabled", "true")).equals("true"))
+		if (!((String)DataManager.getConfigOrDefault(world.getName() + ".enabled", "false")).equals("true"))
 			return;
 		
 		int sleepingPlayers = 0;
@@ -69,23 +79,24 @@ public class Survival implements Module, Listener {
 		int perSleeping = 100 * sleepingPlayers / totalPlayers;
 		int perNeeded = (Integer) DataManager.getConfigOrDefault(world.getName() + ".perNeededToSleep", 51);
 		
-		
+		if (perSleeping == lastPer)
+			return;
 		if (perSleeping >= perNeeded) {
-			notifyPlayers(world.getPlayers(), "&e" + perSleeping + "%&0 were sleeping. The &6sun&0 is rising!");
+			notifyPlayers(world.getPlayers(), "&e" + perSleeping + "%&f were sleeping. The &6sun&f is rising!");
 			world.setTime(23450);
 			world.setStorm(false);
 			world.setThundering(false);
 			suspendEvents = true;
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Main.plugin, () -> resumeEvents(), 20);
 		}
-		else {
-			notifyPlayers(world.getPlayers(), "&e" + perSleeping + "%&0 are sleeping. &e" + perNeeded + "%&0 needed");
-		}
-		
+		else 
+			notifyPlayers(world.getPlayers(), "&e" + perSleeping + "%&f are sleeping. &e" + perNeeded + "%&f needed");		
+		lastPer = perSleeping;
 	}
 	
 	public boolean resumeEvents() {
 		suspendEvents = false;
+		lastPer = 0;
 		return true;
 	}
 	
@@ -95,6 +106,6 @@ public class Survival implements Module, Listener {
 	
 	public void notifyPlayers(List<Player> players, String msg) {
 		for (Player p : players)
-			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatAPI.colorify(null, "&0[&2Sleep&0] " + msg)));
+			ChatAPI.sendActionBar(p, "&0[&2Sleep&0] " + msg);
 	}
 }
