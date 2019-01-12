@@ -122,7 +122,7 @@ public class Msg {
 	}
 	
 	public void showFull(CommandSender viewer, Theme theme, boolean showDisplayName) {
-		OfflinePlayer p = Bukkit.getOfflinePlayer(UUID.fromString(sender)).getPlayer();
+		OfflinePlayer p = Bukkit.getOfflinePlayer(UUID.fromString(sender));
 		String name = "&9" + p.getName();
 		
 		Message msg = ChatAPI.createMessage(viewer)
