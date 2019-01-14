@@ -227,6 +227,7 @@ public class Chat implements Module, Listener {
 				if (filter.sendTo(player)) {
 					ChatAPI.createMessage(player, sender).appendText(getMentioMessage(sender, player, formatted, message)).send();
 				}
+			Bukkit.getConsoleSender().sendMessage(ChatAPI.colorify(sender, formatted.replace("%m", message)));
 			
 		}
 		else
