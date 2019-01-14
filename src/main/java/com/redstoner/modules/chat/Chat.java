@@ -224,7 +224,7 @@ public class Chat implements Module, Listener {
 	private String getMentioMessage(CommandSender sender, Player player, String format, String message) {
 		try {
 			Module mod = ModuleLoader.getModule("Mentio");
-			Method m = mod.getClass().getDeclaredMethod("motifyMessageWithMentio", CommandSender.class, Player.class, String.class);
+			Method m = mod.getClass().getDeclaredMethod("modifyMessageWithMentio", CommandSender.class, Player.class, String.class);
 			m.setAccessible(true);
 
 			String msg = (String) m.invoke(mod, sender, player, message);

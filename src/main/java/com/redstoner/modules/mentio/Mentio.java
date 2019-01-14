@@ -114,7 +114,7 @@ public class Mentio implements Module, Listener
 		return mentios;
 	}
 	
-	public String motifyMessageWithMentio(CommandSender permholder, Player player, String message)
+	public String modifyMessageWithMentio(CommandSender permholder, Player player, String message)
 	{
 		UUID uuid = player.getUniqueId();
 		JSONArray playerMentios = (JSONArray) mentios.get(uuid.toString());
