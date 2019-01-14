@@ -1,5 +1,6 @@
 package com.redstoner.modules.chat;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -29,7 +31,6 @@ import com.redstoner.modules.datamanager.DataManager;
 import com.redstoner.modules.ignore.Ignore;
 
 import net.nemez.chatapi.ChatAPI;
-import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
@@ -46,7 +47,6 @@ public class Chat implements Module, Listener {
 		defaults.put("shrug", " %n %c§7→§r %m ¯\\_(ツ)_/¯");
 		defaults.put("print", "%m");
 		defaults.put("%c", "§c*");
-		defaults.put("%c-hover", "§cChat Only");
 	}
 
 	@Override
@@ -203,27 +203,42 @@ public class Chat implements Module, Listener {
 		}
 		
 		String raw = (String) DataManager.getConfigOrDefault(format, defaults.get(format));
-		String formatted = raw.replace("%n", name).replace("%m", message);
+		String formatted = raw.replace("%n", name);
 		BroadcastFilter filter = wrap(ModuleLoader.exists("Ignore") ? Ignore.getIgnoredBy(sender) : null, event);
 		
-		if (isChatOnly) {
+		formatted = !isChatOnly? formatted.replaceAll("%c", "") : formatted.replace("%c", (String) DataManager.getConfigOrDefault("%c", defaults.get("%c")));
+		
+		if (ModuleLoader.exists("Mentio")) {
+			for (Player player : Bukkit.getOnlinePlayers())
+				if (filter.sendTo(player)) {
+					ChatAPI.createMessage(player, sender).appendText(getMentioMessage(sender, player, formatted, message)).send();
+				}
 			
-			String part1 = formatted.substring(0, formatted.indexOf("%c"));
-			String part2 = formatted.substring(formatted.indexOf("%c") + 2);
-			String indicatior = (String) DataManager.getConfigOrDefault("%c", defaults.get("%c"));
-			String indicatiorHover = (String) DataManager.getConfigOrDefault("%c-hover", defaults.get("%c-hover"));
-			
-			Message msg = ChatAPI.createMessage(null)
-					             .appendText(part1)
-					             .appendTextHover(indicatior, indicatiorHover)
-					             .appendText(part2);
-			Utils.broadcast("", msg, filter);
-			return true;
 		}
-			
-		Utils.broadcast("", ChatAPI.colorify(sender, formatted.replace("%c", "")), filter);
-				
+		else
+			Utils.broadcast("", ChatAPI.colorify(sender, formatted.replace("%m", message)), filter);
+		
 		return true;
+	}
+	
+	private String getMentioMessage(CommandSender sender, Player player, String format, String message) {
+		try {
+			Module mod = ModuleLoader.getModule("Mentio");
+			Method m = mod.getClass().getDeclaredMethod("motifyMessageWithMentio", CommandSender.class, Player.class, String.class);
+			m.setAccessible(true);
+
+			String msg = (String) m.invoke(mod, sender, player, message);
+			
+			if (msg != null) {
+				player.playSound(player.getLocation(), Sound.ENTITY_CHICKEN_EGG, 1, 1);
+				return format.replace("%m", msg);
+			}
+			else
+				return format.replace("%m", message);
+			
+		} catch (Exception e) {
+			return format.replace("%m", message);
+		}
 	}
 
 	public BroadcastFilter wrap(BroadcastFilter filter, AsyncPlayerChatEvent event) {
