@@ -62,8 +62,8 @@ public class Chat implements Module, Listener {
 		DataManager.setConfig("%w-default", defaults.get("§7"));
 	}
 
-	@Command(hook = "resetformating")
-	public void resetFormating(CommandSender sender) {
+	@Command(hook = "reset_formatting")
+	public void resetFormatting(CommandSender sender) {
 		firstLoad();
 		sender.sendMessage("Chat Formats have been reset to defaults.");
 	}

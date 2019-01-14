@@ -89,8 +89,10 @@ command chatonly {
     }
 }
 
-command resetchatformating {
-	run resetformating;
-	help Resets the formatting to defaults.;
-	type console;
+command resetchatformatting {
+	[empty] {
+		run reset_formatting;
+		help Resets the formatting to defaults.;
+		type console;
+	}
 }
