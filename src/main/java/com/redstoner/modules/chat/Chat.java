@@ -40,13 +40,14 @@ public class Chat implements Module, Listener {
 	private Set<UUID> chatonly = new HashSet<>();
 
 	public Chat() {
-		defaults.put("chat", " %n %c§7→§r %m");
+		defaults.put("chat", " %n %c%w→§r %m");
 		defaults.put("me", " §7- %n %c§7⇦ %m");
 		defaults.put("action", " §7- %n %c§7⇦ %m");
-		defaults.put("say", " §7[§9%n§7]%c§7:§r %m");
-		defaults.put("shrug", " %n %c§7→§r %m ¯\\_(ツ)_/¯");
+		defaults.put("say", " §7[§9%n§7]%c%w:§r %m");
+		defaults.put("shrug", " %n %c%w→§r %m ¯\\_(ツ)_/¯");
 		defaults.put("print", "%m");
 		defaults.put("%c", "§c*");
+		defaults.put("%w-default", "§7");
 	}
 
 	@Override
@@ -58,9 +59,15 @@ public class Chat implements Module, Listener {
 		DataManager.setConfig("shrug", defaults.get("shrug"));
 		DataManager.setConfig("print", defaults.get("print"));
 		DataManager.setConfig("%c", defaults.get("%c"));
-		DataManager.setConfig("%c-hover", defaults.get("%c-hover"));
+		DataManager.setConfig("%w-default", defaults.get("§7"));
 	}
 
+	@Command(hook = "resetformating")
+	public void resetFormating(CommandSender sender) {
+		firstLoad();
+		sender.sendMessage("Chat Formats have been reset to defaults.");
+	}
+	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		Player player = event.getPlayer();
@@ -207,6 +214,13 @@ public class Chat implements Module, Listener {
 		BroadcastFilter filter = wrap(ModuleLoader.exists("Ignore") ? Ignore.getIgnoredBy(sender) : null, event);
 		
 		formatted = !isChatOnly? formatted.replaceAll("%c", "") : formatted.replace("%c", (String) DataManager.getConfigOrDefault("%c", defaults.get("%c")));
+		
+		
+		if (sender instanceof Player)
+			formatted = formatted.replace("%w", (String) DataManager.getConfigOrDefault(((Player)sender).getWorld().getName() + ".%w",
+					                            (String) DataManager.getConfigOrDefault("%w-default", defaults.get("%w-default"))));
+		else
+			formatted = formatted.replace("%w", "");
 		
 		if (ModuleLoader.exists("Mentio")) {
 			for (Player player : Bukkit.getOnlinePlayers())

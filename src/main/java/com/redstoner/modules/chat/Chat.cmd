@@ -88,3 +88,9 @@ command chatonly {
         type player;
     }
 }
+
+command resetchatformating {
+	run resetformating;
+	help Resets the formatting to defaults.;
+	type console;
+}
