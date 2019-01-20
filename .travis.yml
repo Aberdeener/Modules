@@ -1,5 +1,8 @@
 language: java
 
+before_script:
+ - if find . -name "*.java" | xargs grep "System.out.print"; then echo "Found usage of direct print to console. Failing build."; exit 1; fi;
+
 jdk:
  - openjdk8
  - oraclejdk8
