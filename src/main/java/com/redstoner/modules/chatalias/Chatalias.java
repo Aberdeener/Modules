@@ -88,10 +88,6 @@ public class Chatalias implements Module, Listener {
 				keyword = keyword.replace("RND;", "");
 				String[] results = replacement.split(" \\|\\| ");
 
-				for (String str : results) {
-					System.out.println(str);
-				}
-
 				int rand = ThreadLocalRandom.current().nextInt(0, results.length);
 
 				replacement = results[rand];

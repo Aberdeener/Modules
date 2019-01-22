@@ -84,7 +84,15 @@ command chatonly {
     perm utilschat.chatonly;
     [empty] {
         run chatonly;
-        help Shows that you're only able to chat, nothing else.;
+        help Shows that you're onlu able to chat, nothing else.;
         type player;
     }
+}
+
+command resetchatformatting {
+	[empty] {
+		run reset_formatting;
+		help Resets the formatting to defaults.;
+		type console;
+	}
 }

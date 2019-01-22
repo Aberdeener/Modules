@@ -37,7 +37,7 @@ import net.nemez.chatapi.ChatAPI;
 
 @AutoRegisterListener
 @Commands(CommandHolderType.File)
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 4, compatible = 4)
 public class Mail implements Module, Listener
 {
 	
@@ -226,7 +226,7 @@ public class Mail implements Module, Listener
 		if (!op.hasPlayedBefore()) 
 			getLogger().message(sender, true, "&e" + player + "&7 has never joined the server.");
 		else
-			sendMessage(sender, op.getPlayer().getUniqueId().toString(), message, null);
+			sendMessage(sender, op.getUniqueId().toString(), message, null);
 	}
 	
 	@Command(hook = "reply")
@@ -247,13 +247,13 @@ public class Mail implements Module, Listener
 	
 	public void sendMessage(CommandSender sender, String r_uuid, String message, String chain) {
 		
-		Player r = Bukkit.getOfflinePlayer(UUID.fromString(r_uuid)).getPlayer();
+		OfflinePlayer r = Bukkit.getOfflinePlayer(UUID.fromString(r_uuid));
 		
-		if (ModuleLoader.exists("Ignore") ? !Ignore.getIgnoredBy(sender).sendTo(r) : false)
-		{
-			getLogger().message(sender, true, Utils.getName(r) + " has ignored you. Your message was not sent.");
-			return;
-		}
+		//if (ModuleLoader.exists("Ignore") ? !Ignore.getIgnoredBy(sender).sendTo(r) : false)
+		//{
+		//	getLogger().message(sender, true, Utils.getName(r) + " has ignored you. Your message was not sent.");
+		//	return;
+		//}
 		
 		String s_uuid = ((Player)sender).getUniqueId().toString();
 		
@@ -283,7 +283,7 @@ public class Mail implements Module, Listener
 		
 		if (r.isOnline()) {
 			int num = playerToMsg.get(r_uuid).size();
-			ChatAPI.createMessage(r)
+			ChatAPI.createMessage((Player)r)
 			.appendText(getLogger().getPrefix() + "&7You got &e" + num + "&7 message" + (num == 1? "" : "s") + "! Do ")
 			.appendSendChatHover("&e/mail", "/mail", "Click to read your messages")
 			.appendText("&7 to read them.")
@@ -400,7 +400,7 @@ public class Mail implements Module, Listener
 		String uuid = ((Player)sender).getUniqueId().toString();
 		Map<Integer,Msg> list = archives.get(uuid);
 		
-		if (id < 0 || id >= list.size()) {
+		if (id < 0 || list == null || !list.containsKey(id)) {
 			getLogger().message(sender, true, "You have no archived messages with that ID.");
 			return;
 		}

@@ -1,6 +1,7 @@
 package com.redstoner.modules.teleport;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
@@ -25,7 +26,7 @@ import net.nemez.chatapi.ChatAPI;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 2, compatible = 4)
 public class Teleport implements Module, Listener
 {
 	public static final String PERMISSION_TELEPORT = "utils.teleport.tp";
@@ -49,8 +50,6 @@ public class Teleport implements Module, Listener
 		
 		if (p == null)
 			playerDoesNotExistError(sender, player);
-		else if (sender.getName().equals(p.getName()))
-			cannotTpToYourself(sender);
 		else {
 			p.teleport(new Location(p.getWorld(), x, y, z), TeleportCause.COMMAND);
 			getLogger().message(sender, "Teleported &e" + p.getDisplayName() +
@@ -88,14 +87,14 @@ public class Teleport implements Module, Listener
 		}
 		
 		Player p1 = Bukkit.getPlayer(player);
-		Player p2 = Bukkit.getPlayer(player);
+		Player p2 = Bukkit.getPlayer(player2);
 		
 		if (p1 == null)
 			playerDoesNotExistError(sender, player);
 		else if (p2 == null)
 			playerDoesNotExistError(sender, player2);
 		else if (p1.getName().equals(p2.getName()))
-			cannotTpToYourself(sender);
+			getLogger().message(sender, true, "You can't teleport a player to themselves.");
 		else {
 			p1.teleport(p2, TeleportCause.COMMAND);
 			getLogger().message(sender, "&e" +p1.getDisplayName() + "&7 has been teleported to &e" +
@@ -461,27 +460,35 @@ public class Teleport implements Module, Listener
 		last_request.remove(p);
 		last_request_got.remove(p);
 		
-		for (Player fl : pending_requests.keySet()) {
+		Iterator<Player> pr_iterator = pending_requests.keySet().iterator();
+		while (pr_iterator.hasNext()) {
+			Player fl = pr_iterator.next();
 			Map<Player, TPAType> m = pending_requests.get(fl);
 			m.remove(p);
 			if (m.isEmpty())
-				pending_requests.remove(fl);
+				pr_iterator.remove();
 			else
 				pending_requests.put(fl, m);
 		}
-		for (Player fl : last_request.keySet()) {
+		
+		Iterator<Player> lr_iterator = last_request.keySet().iterator();
+		while (lr_iterator.hasNext()) {
+			Player fl = lr_iterator.next();
 			Stack<Player> s = last_request.get(fl);
 			s.remove(p);
 			if (s.isEmpty())
-				last_request.remove(fl);
+				lr_iterator.remove();
 			else
 				last_request.put(fl, s);
 		}
-		for (Player fl : last_request_got.keySet()) {
+		
+		Iterator<Player> lrg_iterator = last_request_got.keySet().iterator();
+		while (lrg_iterator.hasNext()) {
+			Player fl = lrg_iterator.next();
 			Stack<Player> s = last_request_got.get(fl);
 			s.remove(p);
 			if (s.isEmpty())
-				last_request_got.remove(fl);
+				lrg_iterator.remove();
 			else
 				last_request_got.put(fl, s);
 		}

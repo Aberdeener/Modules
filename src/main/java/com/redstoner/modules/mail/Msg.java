@@ -3,6 +3,7 @@ package com.redstoner.modules.mail;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
@@ -56,9 +57,9 @@ public class Msg {
 	}
 	
 	public String getChain() {
-		Player p = Bukkit.getOfflinePlayer(UUID.fromString(sender)).getPlayer();
+		OfflinePlayer p = Bukkit.getOfflinePlayer(UUID.fromString(sender));
 		
-		String line = getPrefix(p) + p.getName() + "&7:&f " + message;
+		String line = "&9" + p.getName() + "&7:&f " + message;
 		
 		if (chain == null)
 			return line;
@@ -67,17 +68,14 @@ public class Msg {
 	}
 	
 	public void showMinimal(CommandSender viewer, Theme theme, boolean showDisplayName) {
-		Player p = Bukkit.getOfflinePlayer(UUID.fromString(sender)).getPlayer();
-		String name = getPrefix(p) + p.getName();
+		OfflinePlayer p = Bukkit.getOfflinePlayer(UUID.fromString(sender));
+		String name = "&9" + p.getName();
 		
 		Message msg = ChatAPI.createMessage(viewer)
 		.appendText(theme.getBracketColor() + "[")
 		.appendTextHover(theme.getInfoColor() + "I", "&9Time Sent:\n&7" + timeSent + "\nID: " + id)
 		.appendText(theme.getBracketColor() + "] ");
-		if (showDisplayName) 
-			msg.appendTextHover(p.getDisplayName(), name);
-		else
-			msg.appendText(name);
+		msg.appendText(name);
 		msg.appendText(theme.getColonColor() + ": ");
 		if (chain == null)
 			msg.appendText(message).send();
@@ -86,8 +84,8 @@ public class Msg {
 	}
 	
 	public void showSimple(CommandSender viewer, Theme theme, boolean showDisplayName) {
-		Player p = Bukkit.getOfflinePlayer(UUID.fromString(sender)).getPlayer();
-		String name = getPrefix(p) + p.getName();
+		OfflinePlayer p = Bukkit.getOfflinePlayer(UUID.fromString(sender));
+		String name = "&9" + p.getName();
 		
 		Message msg = ChatAPI.createMessage(viewer)
 		.appendText(theme.getBracketColor() + "[")
@@ -95,10 +93,7 @@ public class Msg {
 		.appendText(theme.getBracketColor() + "][")
 		.appendTextHover(theme.getInfoColor() + "I", "&9Time Sent:\n&7" + timeSent + "\nID: " + id)
 		.appendText(theme.getBracketColor() + "] ");
-		if (showDisplayName) 
-			msg.appendTextHover(p.getDisplayName(), name);
-		else
-			msg.appendText(name);
+		msg.appendText(name);
 		msg.appendText(theme.getColonColor() + ": ");
 		if (chain == null)
 			msg.appendText(message).send();
@@ -107,8 +102,8 @@ public class Msg {
 	}
 	
 	public void showNormal(CommandSender viewer, Theme theme, boolean showDisplayName) {
-		Player p = Bukkit.getOfflinePlayer(UUID.fromString(sender)).getPlayer();
-		String name = getPrefix(p) + p.getName();
+		OfflinePlayer p = Bukkit.getOfflinePlayer(UUID.fromString(sender));
+		String name = "&9" + p.getName();
 		
 		Message msg = ChatAPI.createMessage(viewer)
 		.appendText(theme.getBracketColor() + "[")
@@ -118,10 +113,7 @@ public class Msg {
 		.appendText(theme.getBracketColor() + "][")
 		.appendSuggestHover(theme.getReplyColor() + "Reply", "/mail reply " + id + " ", "&7Reply")
 		.appendText(theme.getBracketColor() + "] ");
-		if (showDisplayName) 
-			msg.appendTextHover(p.getDisplayName(), name);
-		else
-			msg.appendText(name);
+		msg.appendText(name);
 		msg.appendText(theme.getColonColor() + ": ");
 		if (chain == null)
 			msg.appendText(message).send();
@@ -130,8 +122,8 @@ public class Msg {
 	}
 	
 	public void showFull(CommandSender viewer, Theme theme, boolean showDisplayName) {
-		Player p = Bukkit.getOfflinePlayer(UUID.fromString(sender)).getPlayer();
-		String name = getPrefix(p) + p.getName();
+		OfflinePlayer p = Bukkit.getOfflinePlayer(UUID.fromString(sender));
+		String name = "&9" + p.getName();
 		
 		Message msg = ChatAPI.createMessage(viewer)
 		.appendText(theme.getBracketColor() + "[")
@@ -143,10 +135,7 @@ public class Msg {
 		.appendText(theme.getBracketColor() + "][")
 		.appendSendChatHover(theme.getArchiveColor() + "Archive", "/mail archive " + id + " ", "&6Archive")
 		.appendText(theme.getBracketColor() + "] ");
-		if (showDisplayName) 
-			msg.appendTextHover(p.getDisplayName(), name);
-		else
-			msg.appendText(name);
+		msg.appendText(name);
 		msg.appendText(theme.getColonColor() + ": ");
 		if (chain == null)
 			msg.appendText(message).send();
@@ -155,8 +144,8 @@ public class Msg {
 	}
 	
 	public void showArchived(CommandSender viewer, Theme theme, boolean showDisplayName) {
-		Player p = Bukkit.getOfflinePlayer(UUID.fromString(sender)).getPlayer();
-		String name = getPrefix(p) + p.getName();
+		OfflinePlayer p = Bukkit.getOfflinePlayer(UUID.fromString(sender));
+		String name = "&9" + p.getName();
 		
 		Message msg = ChatAPI.createMessage(viewer)
 		.appendText(theme.getBracketColor() + "[")
@@ -164,16 +153,14 @@ public class Msg {
 		.appendText(theme.getBracketColor() + "][")
 		.appendTextHover(theme.getInfoColor() + "I", "&9Time Sent:\n&7" + timeSent + "\nID: " + id)
 		.appendText(theme.getBracketColor() + "] ");
-		if (showDisplayName) 
-			msg.appendTextHover(p.getDisplayName(), name);
-		else
-			msg.appendText(name);
+		msg.appendText(name);
 		msg.appendText(theme.getColonColor() + ": ");
 		if (chain == null)
 			msg.appendText(message).send();
 		else
 			msg.appendTextHover(message, chain).send();
 	}
+		
 	
 	private String getPrefix(Player player)
 	{

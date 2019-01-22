@@ -3,15 +3,10 @@ package com.redstoner.modules.mentio;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
-import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -19,26 +14,26 @@ import com.nemez.cmdmgr.Command;
 import com.redstoner.annotations.AutoRegisterListener;
 import com.redstoner.annotations.Commands;
 import com.redstoner.annotations.Version;
-import com.redstoner.coremods.moduleLoader.ModuleLoader;
 import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.JsonManager;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
-import com.redstoner.modules.ignore.Ignore;
 
-import net.nemez.chatapi.click.Message;
+import net.nemez.chatapi.ChatAPI;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 1, revision = 0, compatible = 4)
 public class Mentio implements Module, Listener
 {
 	private File mentioLocation = new File(Main.plugin.getDataFolder(), "mentio.json");
 	private JSONObject mentios;
+	public static Mentio instance;
 	
 	@Override
 	public boolean onEnable()
 	{
+		instance = this;
 		loadMentios();
 		return true;
 	}
@@ -119,43 +114,37 @@ public class Mentio implements Module, Listener
 		return mentios;
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerChat(AsyncPlayerChatEvent event)
+	public String modifyMessageWithMentio(CommandSender permholder, Player player, String message)
 	{
-		if (event.isCancelled())
-			return;
-		for (Player player : event.getRecipients())
+		UUID uuid = player.getUniqueId();
+		JSONArray playerMentios = (JSONArray) mentios.get(uuid.toString());
+		playerMentios = defaultMentio(playerMentios, player);
+
+		for (Object raw : playerMentios)
 		{
-			if (ModuleLoader.exists("Ignore") ? !Ignore.getIgnoredBy(event.getPlayer()).sendTo(player) : false)
-				return;
-			UUID uuid = player.getUniqueId();
-			JSONArray playerMentios = (JSONArray) mentios.get(uuid.toString());
-			playerMentios = defaultMentio(playerMentios, player);
-			for (Object raw : playerMentios)
-			{
-				String mentio = (String) raw;
-				if (event.getMessage().toLowerCase().contains(mentio.toLowerCase()))
-				{
-					event.getRecipients().remove(player);
-					String temp = event.getMessage().replaceAll("(?i)" + Pattern.quote(mentio) + ".*", "");
-					String lastColorCodes = "§r";
-					char lastChar = ' ';
-					for (char c : temp.toCharArray())
-					{
-						if (lastChar == '§')
-							lastColorCodes += "§" + c;
-						lastChar = c;
-					}
-					Message m = new Message(player, event.getPlayer());
-					m.appendText(event.getFormat().replace("%1$s", event.getPlayer().getDisplayName()).replace("%2$s",
-							event.getMessage().replaceFirst("(?i)(" + Pattern.quote(mentio) + ")([^ ]*)",
-									"§a§o$1$2" + lastColorCodes)));
-					m.send();
-					player.playSound(player.getLocation(), Sound.ENTITY_CHICKEN_EGG, 1, 1);
-					return;
+			String mentio = (String) raw;
+			
+			String messageLC = message.toLowerCase();
+			String mentioLC = mentio.toLowerCase();
+			if (messageLC.contains(mentioLC))
+			{				
+				char color = 'r';
+				int index = messageLC.indexOf(mentioLC);
+				for (int i = index; i > 0; i--) {
+					char next = messageLC.charAt(i-1);
+					char cur = messageLC.charAt(i);
+					if((next == '§' || next == '&') && ("" + cur).matches("[a-f0-9r]")) {
+						color = cur;
+						break;
+					}	
 				}
+				return ChatAPI.colorify(permholder, message.substring(0, index)
+						+ "§a§o" + message.substring(index, index + mentio.length()) + "§r" + (permholder.hasPermission(ChatAPI.PERMISSION_CHAT_COLOR)? "&" + color : ""))
+						+ message.substring(index + mentio.length());				
 			}
 		}
+		return null;
+		
 	}
 	
 	private void loadMentios()

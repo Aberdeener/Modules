@@ -13,6 +13,9 @@ import net.nemez.chatapi.click.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -21,6 +24,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.potion.PotionEffect;
@@ -30,7 +34,7 @@ import java.util.UUID;
 
 @Commands (CommandHolderType.File)
 @AutoRegisterListener
-@Version (major = 5, minor = 0, revision = 0, compatible = 4)
+@Version (major = 5, minor = 2, revision = 0, compatible = 4)
 public class Misc implements Module, Listener {
 	private static final String[] SUDO_BLACKLIST = new String[] {
 			"(.*:)?e?sudo",
@@ -72,6 +76,13 @@ public class Misc implements Module, Listener {
 
 			player.teleport(player.getWorld().getSpawnLocation());
 		}
+		
+		event.setJoinMessage(null);
+	}
+	
+	@EventHandler
+	public void onQuit(PlayerQuitEvent event) {
+		event.setQuitMessage(null);
 	}
 
 	// Disables spectator teleportation
@@ -86,20 +97,60 @@ public class Misc implements Module, Listener {
 		}
 	}
 
+	private static final Material[] LIQUID_FLOW_EXCEPTIONS = {
+			Material.AIR,
+			Material.CAVE_AIR,
+			Material.VOID_AIR,
+			Material.WATER,
+			Material.LAVA
+	};
+	
+	private static final Material[] PROTECTED_REDSTONE_BLOCKS = {
+			Material.REDSTONE_WIRE,	Material.REDSTONE_TORCH, Material.REDSTONE_WALL_TORCH,
+			Material.COMPARATOR, Material.REPEATER,	Material.RAIL, Material.ACTIVATOR_RAIL,
+			Material.DETECTOR_RAIL, Material.TRIPWIRE, Material.TRIPWIRE_HOOK,
+			Material.ACACIA_BUTTON,Material.BIRCH_BUTTON, Material.DARK_OAK_BUTTON,
+			Material.JUNGLE_BUTTON, Material.OAK_BUTTON, Material.SPRUCE_BUTTON,
+			Material.STONE_BUTTON, Material.LEVER, Material.ACACIA_PRESSURE_PLATE,
+			Material.BIRCH_PRESSURE_PLATE, Material.DARK_OAK_PRESSURE_PLATE,
+			Material.HEAVY_WEIGHTED_PRESSURE_PLATE, Material.JUNGLE_PRESSURE_PLATE,
+			Material.LIGHT_WEIGHTED_PRESSURE_PLATE, Material.OAK_PRESSURE_PLATE,
+			Material.SPRUCE_PRESSURE_PLATE, Material.STONE_PRESSURE_PLATE
+	};
+
 	// Disables water and lava breaking stuff
 	@EventHandler
 	public void onLiquidFlow(BlockFromToEvent event) {
-		Material m = event.getToBlock().getType();
+		Block    toBlock = event.getToBlock();
+		Material m       = toBlock.getType();
+		String world 	 = toBlock.getWorld().getName();
+		String protectionLevel = (String) DataManager.getConfigOrDefault(world, "rs-only");
+		
+		for (Material exception : LIQUID_FLOW_EXCEPTIONS) 
+			if (m == exception) return;
 
-		switch (m) {
-			case AIR:
-			case WATER:
-			case LAVA:
-				return;
-			default: {
-				event.setCancelled(true);
-			}
+		if (protectionLevel.equals("rs-only")) {
+			for (Material rs : PROTECTED_REDSTONE_BLOCKS)
+				if (m == rs) {
+					event.setCancelled(true);
+					return;
+				}
+			return;
 		}
+		else if (!protectionLevel.equals("all")){
+			DataManager.setConfig(world, "rs-only");
+			getLogger().warn("Invalid config option for Water in the world, &e" + world + "&7. Setting to default.");
+			onLiquidFlow(event);
+		}
+		
+
+		BlockData data = toBlock.getBlockData();
+
+		if (!(data instanceof Waterlogged)) {
+			event.setCancelled(true);
+		}
+		
+		
 	}
 
 	@Command (hook = "tempadddef")
