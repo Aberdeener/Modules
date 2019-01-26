@@ -3,7 +3,7 @@ command bpm {
     alias toggle;
     alias mod;
 
-    perm blockplacemods.use;
+    perm utils.blockplacemods;
     type player;
 
 	[empty] {

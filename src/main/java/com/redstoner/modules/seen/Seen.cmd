@@ -23,7 +23,7 @@ command firstseen {
     }
 }
 command playtime {
-    perm utils.playtime;
+    perm utils.seen.playtime;
     [empty] {
         type player;
         run playtimeDef;

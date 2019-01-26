@@ -81,7 +81,7 @@ command unmute {
 
 command chatonly {
     alias co;
-    perm utilschat.chatonly;
+    perm utils.chat.chatonly;
     [empty] {
         run chatonly;
         help Shows that you're onlu able to chat, nothing else.;
