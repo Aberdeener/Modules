@@ -25,7 +25,7 @@ import com.redstoner.modules.Module;
 import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 1, compatible = 4)
 public class Discord implements Module {
 	private MysqlTable table;
 
