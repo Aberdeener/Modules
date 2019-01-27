@@ -111,7 +111,6 @@ public class Discord implements Module {
 				return;
 			}
 
-			table.delete(new MysqlConstraint("uuid", ConstraintOperator.EQUAL, pUUID));
 			table.insert(token, pUUID, "0");
 
 		}
