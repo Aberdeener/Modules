@@ -20,11 +20,13 @@ import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 import com.redstoner.modules.datamanager.DataManager;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.nemez.chatapi.ChatAPI;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 5, minor = 0, revision = 5, compatible = 4)
+@Version(major = 5, minor = 0, revision = 7, compatible = 4)
 public class Survival implements Module, Listener {
 	
 	@EventHandler
@@ -42,13 +44,13 @@ public class Survival implements Module, Listener {
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
 		if (e.getPlayer().getGameMode() == GameMode.SURVIVAL)
-			checkSleep(e.getPlayer().getWorld());
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Main.plugin, () -> checkSleep(e.getPlayer().getWorld()), 2);
 	}
 	
 	@EventHandler
 	public void onGamemodeChange(PlayerGameModeChangeEvent e) {
 		if (e.getNewGameMode() == GameMode.SURVIVAL || e.getPlayer().getGameMode() == GameMode.SURVIVAL)
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Main.plugin, () -> checkSleep(e.getPlayer().getWorld()), 20);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Main.plugin, () -> checkSleep(e.getPlayer().getWorld()), 2);
 	}
 	
 	boolean suspendEvents = false;
