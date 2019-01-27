@@ -66,9 +66,8 @@ public class Discord implements Module {
 
 			MysqlField token = new MysqlField("token", new VarChar(8), false);
 			MysqlField uuid = new MysqlField("uuid", new VarChar(36), false);
-			MysqlField used = new MysqlField("used", new TinyInt(1), false);
 
-			database.createTableIfNotExists((String) config.get("table"), token, uuid, used);
+			database.createTableIfNotExists((String) config.get("table"), token, uuid);
 
 			table = database.getTable(config.get("table"));
 		} catch (NullPointerException e) {
@@ -107,7 +106,7 @@ public class Discord implements Module {
 		}
 
 		table.delete(new MysqlConstraint("uuid", ConstraintOperator.EQUAL, pUUID));
-		table.insert(pUUID, token);
+		table.insert(token, pUUID);
 
 		new Message(sender, null).appendText("\n&cRedstoner&7 has a &2Discord&7 Now! \nClick ")
 				.appendLinkHover("&e" + inviteLink, inviteLink, "&aClick to Join").appendText("&7 to join. \n\nTo sync you rank, copy ")
