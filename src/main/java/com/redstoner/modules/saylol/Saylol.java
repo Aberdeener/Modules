@@ -25,7 +25,7 @@ import net.nemez.chatapi.click.ClickCallback;
 import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 1, compatible = 4)
 public class Saylol implements Module
 {
 	private long lastLol = 0;
@@ -295,6 +295,6 @@ public class Saylol implements Module
 	public void clickAction(Player player, int index)
 	{
 		if (player.hasPermission("utils.lol.id"))
-			Bukkit.dispatchCommand(player, "lol id " + index);
+			Bukkit.getScheduler().callSyncMethod(ModuleLoader.getPlugin(), () -> Bukkit.dispatchCommand(player, "lol id " + index));
 	}
 }

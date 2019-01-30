@@ -84,7 +84,7 @@ command tpall {
 
 command tpaccept {
     alias tpyes;
-    perm utils.teleport.request;
+    perm utils.teleport.tpa;
     type player;
     
     [empty] {
@@ -99,7 +99,7 @@ command tpaccept {
 
 command tpcancel {
     alias tpastop;
-    perm utils.teleport.request;
+    perm utils.teleport.tpa;
     type player;
     
     [empty] {
@@ -114,7 +114,7 @@ command tpcancel {
 
 command tpdeny {
     alias tpno;
-    perm utils.teleport.request;
+    perm utils.teleport.tpa;
     type player;
     
     [empty] {
@@ -131,7 +131,7 @@ command tplist {
     alias etplist;
     alias tpl;
     alias etpl;
-    perm utils.teleport.request;
+    perm utils.teleport.tpa;
     type player;
     
     [empty] {

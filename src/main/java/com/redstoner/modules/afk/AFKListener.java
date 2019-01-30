@@ -1,6 +1,8 @@
 package com.redstoner.modules.afk;
 
 import com.redstoner.misc.Utils;
+
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
@@ -33,12 +35,17 @@ public class AFKListener implements Listener {
 
 	@EventHandler
 	public void onMove(PlayerMoveEvent event) {
+		Player player = event.getPlayer();
+		
+		if (!AFKUtil.isAfk(player) || AFKUtil.isVanished(player) || AFKUtil.isIgnoringMovement(player))
+			return;
+		
 		double distance = event.getFrom().distance(event.getTo());
 
 		boolean moved  = distance > 0;
 		boolean looked = (event.getFrom().getPitch() != event.getTo().getPitch()) || (event.getFrom().getYaw() != event.getTo().getYaw());
 
-		if ((move && moved) || (look && looked)) AFKUtil.checkedUnAfk(event.getPlayer());
+		if ((move && moved) || (look && looked)) AFKUtil.unAfk(event.getPlayer());
 	}
 
 	@EventHandler

@@ -15,7 +15,7 @@ import org.bukkit.event.HandlerList;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 1, revision = 0, compatible = 4)
 public class AFK implements Module {
 	private AFKListener listener;
 
@@ -63,11 +63,52 @@ public class AFK implements Module {
 		return afk(sender, silent, "");
 	}
 
+  	@Command(hook = "afkignore")
+  	public boolean afk(CommandSender sender, boolean silent, boolean ignoreMovement) {
+  		return afk(sender, silent, ignoreMovement, "");
+  	}
+	
 	@Command(hook = "afkreason")
 	public boolean afk(CommandSender sender, boolean silent, String reason) {
-		if (AFKUtil.isAfk(sender)) {
+		if (silent == false && reason.equals("help"))
+			return false;
+	
+			return afkmain(sender, silent, reason, false);
+	}
+
+	@Command(hook = "afkfull")
+	public boolean afk(CommandSender sender, boolean silent, boolean ignoreMovement, String reason) {
+		boolean oldIgnoringMovement = AFKUtil.isIgnoringMovement(sender);
+		DataManager.setState(sender, "afk_ignoreMovement", ignoreMovement);
+		
+		if (AFKUtil.isAfk(sender) && oldIgnoringMovement != ignoreMovement) {
+			if (ignoreMovement) 
+				getLogger().message(sender, "Your movements will now be ignored.");
+			else
+				getLogger().message(sender, "Your movements will no longer be ignored.");
+			return afkmain(sender, silent, reason, true);
+		}
+		else if (AFKUtil.isAfk(sender)) {
+			if (ignoreMovement) 
+				getLogger().message(sender, "Your movements will still be ignored.");
+			else
+				getLogger().message(sender, "Your movements will still not be ignored.");
+			return afkmain(sender, silent, reason, true);
+		}
+		return afkmain(sender, silent, reason, false);
+	}
+	
+	public boolean afkmain(CommandSender sender, boolean silent, String reason, boolean keepAFK) {
+		boolean isAFK = AFKUtil.isAfk(sender);
+		
+		if ( isAFK && reason.equals("") && !keepAFK)
 			AFKUtil.unAfk(sender, silent);
-		} else {
+		
+		else if (isAFK && !reason.equals("")) {
+			DataManager.setData(sender, "afk_reason", reason);
+			getLogger().message(sender, "Your reason has been updated.");
+		}
+		else if (!keepAFK) {
 			DataManager.setData(sender, "afk_time", System.currentTimeMillis());
 			DataManager.setData(sender, "afk_reason", reason);
 			DataManager.setState(sender, "afk_silent", silent);
@@ -78,7 +119,7 @@ public class AFK implements Module {
 
 		return true;
 	}
-
+	
 	private boolean getListenSetting(String name, String def) {
 		return DataManager.getConfigOrDefault(name, def).equals("listen");
 	}

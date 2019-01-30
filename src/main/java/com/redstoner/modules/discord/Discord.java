@@ -25,7 +25,7 @@ import com.redstoner.modules.Module;
 import net.nemez.chatapi.click.Message;
 
 @Commands(CommandHolderType.File)
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 0, revision = 2, compatible = 4)
 public class Discord implements Module {
 	private MysqlTable table;
 
@@ -87,28 +87,33 @@ public class Discord implements Module {
 		String token = null;
 		int tries = 0;
 
-		while (token == null) {
-			token = randomToken(8);
-			Object[] results = table.get("token", new MysqlConstraint("token", ConstraintOperator.EQUAL, token));
+		Object[] existingToken = table.get("token", new MysqlConstraint("uuid", ConstraintOperator.EQUAL, pUUID));
+		
+		if (existingToken.length > 0)
+			token = (String) existingToken[0];
+		else {
+			while (token == null) {
+				token = randomToken(8);
+				Object[] results = table.get("token", new MysqlConstraint("token", ConstraintOperator.EQUAL, token));
 
-			if (results.length > 0) {
-				token = null;
-				tries++;
+				if (results.length > 0) {
+					token = null;
+					tries++;
+				}
+
+				if (tries > 10) break;
 			}
 
-			if (tries > 10) break;
+			if (token == null) {
+				new Message(sender, null).appendText(
+						"\n&4Could not find an unused token in 10 tries (a 1 in over 20 trillion chance)! Please take a screenshot and run the command again!")
+						.send();
+				return;
+			}
+
+			table.insert(token, pUUID, "0");
+
 		}
-
-		if (token == null) {
-			new Message(sender, null).appendText(
-					"\n&4Could not find an unused token in 10 tries (a 1 in over 20 trillion chance)! Please take a screenshot and run the command again!")
-					.send();
-			return;
-		}
-
-		table.delete(new MysqlConstraint("uuid", ConstraintOperator.EQUAL, pUUID));
-		table.insert(pUUID, token);
-
 		new Message(sender, null).appendText("\n&cRedstoner&7 has a &2Discord&7 Now! \nClick ")
 				.appendLinkHover("&e" + inviteLink, inviteLink, "&aClick to Join").appendText("&7 to join. \n\nTo sync you rank, copy ")
 				.appendSuggestHover("&e" + token, token, "&aClick to Copy").appendText("&7 into &3#rank-sync&7.\n").send();
