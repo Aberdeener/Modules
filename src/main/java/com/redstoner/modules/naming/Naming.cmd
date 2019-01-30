@@ -19,6 +19,6 @@ command lore {
     [optional:-a] [string:lore...] {
 		run lore -a lore;
 		type player;
-		help Adds lore to item in hand.;
+		help Adds lore to item in hand. Use &e-a&b to append to the lore.;
 	}
 }

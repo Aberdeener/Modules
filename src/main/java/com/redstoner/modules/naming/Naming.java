@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -20,7 +21,7 @@ import com.redstoner.modules.Module;
 import net.md_5.bungee.api.ChatColor;
 
 @Commands(CommandHolderType.File)
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 1, revision = 0, compatible = 4)
 public class Naming implements Module
 {
 	@Command(hook = "anvil")
@@ -34,8 +35,20 @@ public class Naming implements Module
 	@Command(hook = "name")
 	public void name(CommandSender sender, String name)
 	{
+		Player player = (Player) sender;
+		
+		if (player.getGameMode() == GameMode.SURVIVAL) {
+			int level = player.getLevel();
+			if (level < 1) {
+				getLogger().message(sender, true, "You don't have enough levels to rename the item.");
+				return;
+			}
+			else
+				player.setLevel(level-1);
+		}
+			
 		name = ChatColor.translateAlternateColorCodes('&', name);
-		ItemStack item = ((Player) sender).getInventory().getItemInMainHand();
+		ItemStack item = player.getInventory().getItemInMainHand();
 		ItemMeta meta = item.getItemMeta();
 		if (meta == null)
 		{
@@ -44,14 +57,26 @@ public class Naming implements Module
 		}
 		meta.setDisplayName(name);
 		item.setItemMeta(meta);
-		getLogger().message(sender, "Name set to " + name);
-		((Player) sender).updateInventory();
+		getLogger().message(sender, "Name set to &f&o" + name + "&7.");
+		player.updateInventory();
 	}
 	
 	@Command(hook = "lore")
 	public void lore(CommandSender sender, boolean append, String lore)
 	{
-		ItemStack item = ((Player) sender).getInventory().getItemInMainHand();
+		Player player = (Player) sender;
+		
+		if (player.getGameMode() == GameMode.SURVIVAL) {
+			int level = player.getLevel();
+			if (level < 1) {
+				getLogger().message(sender, true, "You don't have enough levels to rename the item.");
+				return;
+			}
+			else
+				player.setLevel(level-1);
+		}
+		
+		ItemStack item = player.getInventory().getItemInMainHand();
 		ItemMeta meta = item.getItemMeta();
 		if (meta == null)
 		{
@@ -69,7 +94,10 @@ public class Naming implements Module
 		currentLore.add(lore);
 		meta.setLore(currentLore);
 		item.setItemMeta(meta);
-		getLogger().message(sender, "Lore set to " + lore);
-		((Player) sender).updateInventory();
+		if (append)
+			getLogger().message(sender, "Appended the following line to the lore: &5&o" + lore + "&7.");
+		else			
+			getLogger().message(sender, "Lore set to &5&o" + lore + "&7.");
+		player.updateInventory();
 	}
 }
