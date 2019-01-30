@@ -295,6 +295,6 @@ public class Saylol implements Module
 	public void clickAction(Player player, int index)
 	{
 		if (player.hasPermission("utils.lol.id"))
-			Bukkit.dispatchCommand(player, "lol id " + index);
+			Bukkit.getScheduler().callSyncMethod(ModuleLoader.getPlugin(), () -> Bukkit.dispatchCommand(player, "lol id " + index));
 	}
 }
