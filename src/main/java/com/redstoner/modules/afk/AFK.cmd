@@ -13,6 +13,14 @@ command afk {
         run afksilent -s;
     }
 
+	[optional:-s] [bool:ignoreMovement] {
+	    run afkignore -s ignoreMovement;
+	}
+	
+	[optional:-s] [bool:ignoreMovement] [string:reason...] {
+        run afkfull -s ignoreMovement reason;
+    }
+    
     [optional:-s] [string:reason...] {
         run afkreason -s reason;
     }
