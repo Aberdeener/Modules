@@ -1,6 +1,6 @@
 --- 
 before_script: 
-  - "build=true;for file in $(find . -name \"*.java\");do module_scan=$(grep -E \"public +(final +)?class +\\w+ +(extends +.* +)?implements +(\\w+, *)?Module\" \"$file\");if [ -z \"$module_scan\" ];then continue;fi;diff=$(git diff master \"$file\");if [ ! -z \"$diff\" ];then scanned=$(echo \"$x\" | grep \"@Version\");if [ -z \"$scanned\" ];then echo -e \"Found modified module with unchanged version number $file\";build=false;fi;fi;done;if ! $build;then echo -e \"Found one or more unchanged version numbers. Failing build.\";exit 1;fi"
+#  - "build=true;for file in $(find . -name \"*.java\");do module_scan=$(grep -E \"public +(final +)?class +\\w+ +(extends +.* +)?implements +(\\w+, *)?Module\" \"$file\");if [ -z \"$module_scan\" ];then continue;fi;diff=$(git diff master \"$file\");if [ ! -z \"$diff\" ];then scanned=$(echo \"$x\" | grep \"@Version\");if [ -z \"$scanned\" ];then echo -e \"Found modified module with unchanged version number $file\";build=false;fi;fi;done;if ! $build;then echo -e \"Found one or more unchanged version numbers. Failing build.\";exit 1;fi"
   - "if find . -name \"*.java\" | xargs grep \"System.out.print\"; then echo \"Found one or more direct prints to console. Failing build.\"; exit 1; fi;"
 jdk: 
   - openjdk8
