@@ -72,20 +72,13 @@ public class AFK implements Module {
 	public boolean afk(CommandSender sender, boolean silent, String reason) {
 		if (silent == false && reason.equals("help"))
 			return false;
-		
-//		String reasonLower = reason.toLowerCase();
-//		if (reasonLower.startsWith("true "))
-//			return afk(sender, silent, true, reason.substring(5));
-//		else if (reasonLower.startsWith("false "))
-//			return afk(sender, silent, false, reason);
-//		else
+	
 			return afkmain(sender, silent, reason, false);
 	}
 
 	@Command(hook = "afkfull")
 	public boolean afk(CommandSender sender, boolean silent, boolean ignoreMovement, String reason) {
 		boolean oldIgnoringMovement = AFKUtil.isIgnoringMovement(sender);
-		System.out.println("Am I stupid");
 		DataManager.setState(sender, "afk_ignoreMovement", ignoreMovement);
 		
 		if (AFKUtil.isAfk(sender) && oldIgnoringMovement != ignoreMovement) {
