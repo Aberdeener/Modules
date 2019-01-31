@@ -9,6 +9,7 @@ import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
 import com.redstoner.modules.blockplacemods.mods.ModLogDirectional;
+import com.redstoner.modules.blockplacemods.mods.ModPlayerDirectional;
 import com.redstoner.modules.blockplacemods.mods.ModCauldron;
 import com.redstoner.modules.blockplacemods.mods.ModSlab;
 import com.redstoner.modules.datamanager.DataManager;
@@ -27,7 +28,7 @@ import java.util.Map;
 
 @Commands (CommandHolderType.File)
 @AutoRegisterListener
-@Version (major = 4, minor = 1, revision = 1, compatible = 4)
+@Version (major = 5, minor = 2, revision = 0, compatible = 4)
 public class BlockPlaceMods implements Module, Listener {
 	private static final Map<String, BlockPlaceMod> mods        = new HashMap<>();
 	private static final List<BlockPlaceMod>        enabledMods = new ArrayList<>();
@@ -37,6 +38,8 @@ public class BlockPlaceMods implements Module, Listener {
 			new ModSlab(),
 			new ModLogDirectional("Observer", Material.OBSERVER, "observers", false),
 			new ModLogDirectional("Piston", Material.PISTON, "pistons", false),
+			new ModPlayerDirectional("Repeater", Material.REPEATER, "repeaters", true, true, false),
+			new ModPlayerDirectional("Comparator", Material.COMPARATOR, "comparators", true, true, false),
 			};
 
 	@Override
