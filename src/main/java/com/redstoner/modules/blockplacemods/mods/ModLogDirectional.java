@@ -40,7 +40,7 @@ public class ModLogDirectional extends BlockPlaceMod {
 				ModType.STATELESS,
 				null,
 				enabledByDefault,
-				"BetterDirectional" + material.name().toLowerCase()
+				"LogDirectional" + material.name().toLowerCase()
 		);
 
 		this.material = material;
