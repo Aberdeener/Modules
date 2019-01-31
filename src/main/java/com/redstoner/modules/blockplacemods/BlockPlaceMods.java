@@ -8,7 +8,7 @@ import com.redstoner.coremods.moduleLoader.ModuleLoader;
 import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Main;
 import com.redstoner.modules.Module;
-import com.redstoner.modules.blockplacemods.mods.ModBetterDirectional;
+import com.redstoner.modules.blockplacemods.mods.ModLogDirectional;
 import com.redstoner.modules.blockplacemods.mods.ModCauldron;
 import com.redstoner.modules.blockplacemods.mods.ModSlab;
 import com.redstoner.modules.datamanager.DataManager;
@@ -35,8 +35,8 @@ public class BlockPlaceMods implements Module, Listener {
 	private final BlockPlaceMod[] modsToRegister = {
 			new ModCauldron(),
 			new ModSlab(),
-			new ModBetterDirectional("Observer", Material.OBSERVER, "observers", false),
-			new ModBetterDirectional("Piston", Material.PISTON, "pistons", false),
+			new ModLogDirectional("Observer", Material.OBSERVER, "observers", false),
+			new ModLogDirectional("Piston", Material.PISTON, "pistons", false),
 			};
 
 	@Override
