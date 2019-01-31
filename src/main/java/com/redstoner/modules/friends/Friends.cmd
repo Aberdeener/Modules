@@ -1,8 +1,11 @@
 command friends {
+	alias friend;
+	perm utils.friends;
+	type player;
+	
     add [string:name] {
         run add name;
-        help Adds a friend to your friendlist.;
-        perm utils.friends;
+        help Adds a friend to your friend list.;
     }
     add [string:name] [string:group] {
         run add_grouped name group;
@@ -11,8 +14,7 @@ command friends {
     }
     remove [string:name] {
         run del name;
-        help Removes a friend from your friendlist.;
-        perm utils.friends;
+        help Removes a friend from your friend list.;
     }
     remove [string:name] [string:group] {
         run del_grouped name group;
@@ -22,7 +24,6 @@ command friends {
     list {
         run list;
         help Shows a list of all your friends.;
-        perm utils.friends;
     } 
     list [string:group] {
         run list_group group;
@@ -34,5 +35,14 @@ command friends {
         help Shows all your friend groups that have at least one person in them.;
         perm utils.friends.groups;
     }
-    type player;
+    group {
+    	[string:groupName] {
+    		run list_group groupName;
+        	help Shows a list of all friends in that group.;
+        	perm utils.friends.groups;
+    	}
+    	run list_groups;
+        help Shows all your friend groups that have at least one person in them.;
+        perm utils.friends.groups;
+    }
 }
