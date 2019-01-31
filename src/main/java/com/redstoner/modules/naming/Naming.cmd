@@ -1,11 +1,3 @@
-command anvil {
-    perm utils.naming;
-	[empty] {
-		run anvil;
-		type player;
-		help Opens anvil GUI.;
-	}
-}
 command name {
     perm utils.naming;
 	[string:name...] {
