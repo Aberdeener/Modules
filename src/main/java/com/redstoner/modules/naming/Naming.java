@@ -3,12 +3,9 @@ package com.redstoner.modules.naming;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -21,17 +18,9 @@ import com.redstoner.modules.Module;
 import net.md_5.bungee.api.ChatColor;
 
 @Commands(CommandHolderType.File)
-@Version(major = 5, minor = 1, revision = 0, compatible = 4)
+@Version(major = 5, minor = 2, revision = 0, compatible = 4)
 public class Naming implements Module
-{
-	@Command(hook = "anvil")
-	public void anvil(CommandSender sender)
-	{
-		Player player = (Player) sender;
-		Inventory inv = Bukkit.getServer().createInventory(player, InventoryType.ANVIL);
-		player.openInventory(inv);
-	}
-	
+{	
 	@Command(hook = "name")
 	public void name(CommandSender sender, String name)
 	{

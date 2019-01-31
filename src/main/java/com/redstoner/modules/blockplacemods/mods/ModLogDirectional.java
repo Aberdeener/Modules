@@ -12,7 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-public class ModBetterDirectional extends BlockPlaceMod {
+public class ModLogDirectional extends BlockPlaceMod {
 	private static final BlockFace[][][] dirMap = {
 			{
 					{ null, null, null },
@@ -33,14 +33,14 @@ public class ModBetterDirectional extends BlockPlaceMod {
 
 	private final Material material;
 
-	public ModBetterDirectional(String name, Material material, String materialPlural, boolean enabledByDefault) {
+	public ModLogDirectional(String name, Material material, String materialPlural, boolean enabledByDefault) {
 		super(
 				name,
 				"With this mod enabled " + materialPlural + " are placed with the bottom on the block clicked.",
 				ModType.STATELESS,
 				null,
 				enabledByDefault,
-				"BetterDirectional" + material.name().toLowerCase()
+				"LogDirectional" + material.name().toLowerCase()
 		);
 
 		this.material = material;
