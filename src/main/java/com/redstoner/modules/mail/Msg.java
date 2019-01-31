@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+//import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 
 import net.nemez.chatapi.ChatAPI;
@@ -162,17 +162,17 @@ public class Msg {
 	}
 		
 	
-	private String getPrefix(Player player)
-	{
-		String[] teams = new String[] {"admin", "mod", "trainingmod", "helper", "trusted", "builder", "member", "visitor"};
-		String[] prefixes = new String[] {"&4", "&c", "&c", "&9", "&3", "&a", "&f", "&7"};
-		
-		for (int i = 0; i < teams.length; i++)
-			if (player.hasPermission("group." + teams[i]))
-				return prefixes[i];
-		return "&7";
-		
-	}
+//	private String getPrefix(Player player)
+//	{
+//		String[] teams = new String[] {"admin", "mod", "trainingmod", "helper", "trusted", "builder", "member", "visitor"};
+//		String[] prefixes = new String[] {"&4", "&c", "&c", "&9", "&3", "&a", "&f", "&7"};
+//		
+//		for (int i = 0; i < teams.length; i++)
+//			if (player.hasPermission("group." + teams[i]))
+//				return prefixes[i];
+//		return "&7";
+//		
+//	}
 	
 	@SuppressWarnings("unchecked")
 	public JSONObject toJSONObject() {
