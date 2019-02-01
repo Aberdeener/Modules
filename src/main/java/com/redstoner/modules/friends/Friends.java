@@ -32,7 +32,7 @@ import net.nemez.chatapi.click.Message;
 
 @AutoRegisterListener
 @Commands(CommandHolderType.File)
-@Version(major = 5, minor = 1, revision = 0, compatible = 4)
+@Version(major = 5, minor = 1, revision = 1, compatible = 4)
 public class Friends implements CoreModule, Listener {
 	
 	private static int GROUP_PREFIX_LENGETH = 6;
@@ -55,6 +55,8 @@ public class Friends implements CoreModule, Listener {
 		JSONArray notifications = (JSONArray) DataManager.getOrDefault(player, "scheduled_notifications", new JSONArray());
 		for (Object obj : notifications)
 			getLogger().message(player, (String) obj);
+		DataManager.setData(player, "scheduled_notifications", new JSONArray());
+		DataManager.save(player);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
