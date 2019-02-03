@@ -22,6 +22,7 @@ import com.nemez.cmdmgr.Command;
 import com.redstoner.annotations.AutoRegisterListener;
 import com.redstoner.annotations.Commands;
 import com.redstoner.annotations.Version;
+import com.redstoner.logging.PrivateLogManager;
 import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.Main;
 import com.redstoner.misc.mysql.JSONManager;
@@ -36,7 +37,7 @@ import com.redstoner.modules.Module;
 
 @Commands(CommandHolderType.File)
 @AutoRegisterListener
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
+@Version(major = 5, minor = 1, revision = 0, compatible = 5)
 public class LoginSecurity implements Module, Listener
 {
 	protected static Map<UUID, Location> loggingIn;
@@ -67,6 +68,12 @@ public class LoginSecurity implements Module, Listener
 		}
 		loggingIn = new HashMap<>();
 		Bukkit.getServer().getPluginManager().registerEvents(new CancelledEventsHandler(this), Main.plugin);
+		
+		PrivateLogManager.register(this, "login", "$s issued LoginSecurity's login command");
+		PrivateLogManager.register(this, "register", "$s issued LoginSecurity's register command");
+		PrivateLogManager.register(this, "cgpass", "$s issued LoginSecurity's cgpass command");
+		PrivateLogManager.register(this, "rmpass", "$s issued LoginSecurity's rmpass command");
+		
 		return true;
 	}
 	
