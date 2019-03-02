@@ -86,7 +86,7 @@ public class List implements Module
 		if (rank.contains("builder") || all)
 			shownAnything |= show(sender, "&aBuilders", getPlayers(sender, "group.builder", "group.trusted"), all);
 		if (rank.contains("trusted") || all)
-			shownAnything |= show(sender, "&3Trusteds", getPlayers(sender, "group.trusted", "group.trainingmod"), all);
+			shownAnything |= show(sender, "&3Trusted", getPlayers(sender, "group.trusted", "group.trainingmod"), all);
 		if (rank.contains("trainingmod") || rank.contains("mit") || all)
 			shownAnything |= show(sender, "&cTrainingmod &e•", getPlayers(sender, "group.trainingmod", "group.mod"),
 					all);
