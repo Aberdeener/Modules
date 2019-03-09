@@ -30,24 +30,24 @@ import net.nemez.chatapi.ChatAPI;
 public class Teleport implements Module, Listener
 {
 	public static final String PERMISSION_TELEPORT = "utils.teleport.tp";
-	public static final String PERMISSION_TELEPORT_OTHER = "utils.teleport.tp.other";	
-	
+	public static final String PERMISSION_TELEPORT_OTHER = "utils.teleport.tp.other";
+
 	private Map<Player, Map<Player, TPAType>> pending_requests = new HashMap<>();
 	private Map<Player, Stack<Player>> last_request = new HashMap<>();
 	private Map<Player, Stack<Player>> last_request_got = new HashMap<>();
-	
+
 	@Command(hook = "tploc")
 	public void tploc(CommandSender sender, int x, int y, int z) {
 		Player p = (Player) sender;
-		
+
 		p.teleport(new Location(p.getWorld(), x, y, z), TeleportCause.COMMAND);
 		getLogger().message(sender, "Teleported to &e(" + x + "," + y + "," + z + ")&7.");
 	}
-	
+
 	@Command(hook = "tploc2")
 	public void tploc2(CommandSender sender, String player, int x, int y, int z) {
 		Player p = Bukkit.getPlayer(player);
-		
+
 		if (p == null)
 			playerDoesNotExistError(sender, player);
 		else {
@@ -59,14 +59,14 @@ public class Teleport implements Module, Listener
 					            	                     : sender.getName()) + "&7.");
 		}
 	}
-	
+
 	@Command(hook = "tp")
 	public void teleport(CommandSender sender, String player) {
 		if (!sender.hasPermission(PERMISSION_TELEPORT)) {
 			tpa(sender, player);
 			return;
 		}
-		
+
 		Player p = Bukkit.getPlayer(player);
 		if (p == null)
 			playerDoesNotExistError(sender, player);
@@ -77,18 +77,24 @@ public class Teleport implements Module, Listener
 			getLogger().message(sender, "Teleported to &e" + p.getDisplayName() + "&7.");
 		}
 	}
-	
+
 	@Command(hook = "tp2")
 	public void teleport(CommandSender sender, String player, String player2) {
-		if (!sender.hasPermission(PERMISSION_TELEPORT)
-		  && sender.getName().equalsIgnoreCase(player2)) {
-			tpahere(sender, player);
+		if (!sender.hasPermission(PERMISSION_TELEPORT)) {
+			if (sender.getName().equalsIgnoreCase(player)) {
+				tpa(sender, player);
+			} else if (sender.getName().equalsIgnoreCase(player2)) {
+				tpahere(sender, player);
+			} else {
+				getLogger().message(sender, true, "You do not have the permission to teleport other players.");
+			}
+
 			return;
 		}
-		
+
 		Player p1 = Bukkit.getPlayer(player);
 		Player p2 = Bukkit.getPlayer(player2);
-		
+
 		if (p1 == null)
 			playerDoesNotExistError(sender, player);
 		else if (p2 == null)
@@ -104,7 +110,7 @@ public class Teleport implements Module, Listener
 					                ((Player)sender).getDisplayName(): sender.getName()));
 		}
 	}
-	
+
 	@Command(hook = "tphere")
 	public void tphere(CommandSender sender, String player) {
 		Player p = Bukkit.getPlayer(player);
@@ -118,40 +124,40 @@ public class Teleport implements Module, Listener
 			getLogger().message(p, "&e" + ((Player)sender).getDisplayName() + "&7 has teleported you to them.");
 		}
 	}
-	
+
 	@Command(hook = "tpa")
 	public void tpa(CommandSender sender, String player) {
 		Player p = Bukkit.getPlayer(player);
 		if (p == null)
-			playerDoesNotExistError(sender, player);		
-		
+			playerDoesNotExistError(sender, player);
+
 		else if (sender.getName().equals(p.getName()))
 			cannotTpToYourself(sender);
-		
+
 		else if ( (Boolean) DataManager.getOrDefault(p, "allow-tpa", true) == false )
 			getLogger().message(sender, true, "&e" + p.getDisplayName() + "&7 doesn't accept TPA requests.");
-		
+
 		else {
 			Player s = (Player) sender;
 			insertIntoMaps(s, p, TPAType.TPA);
 			getLogger().message(sender, "TPA request sent to &e" + p.getDisplayName() + "&7.");
 			notifyAskie(p, s, TPAType.TPA);
 		}
-		
+
 	}
-	
+
 	@Command(hook = "tpahere")
 	public void tpahere(CommandSender sender, String player) {
 		Player p = Bukkit.getPlayer(player);
 		if (p == null)
-			playerDoesNotExistError(sender, player);		
-		
+			playerDoesNotExistError(sender, player);
+
 		else if (sender.getName().equals(p.getName()))
 			cannotTpToYourself(sender);
-		
+
 		else if ( (Boolean) DataManager.getOrDefault(p, "allow-tpahere", true) == false )
 			getLogger().message(sender, true, "&e" + p.getDisplayName() + "&7 doesn't accept TPA Here requests.");
-		
+
 		else {
 			Player s = (Player) sender;
 			insertIntoMaps(s, p, TPAType.TPAHERE);
@@ -159,7 +165,7 @@ public class Teleport implements Module, Listener
 			notifyAskie(p, s, TPAType.TPAHERE);
 		}
 	}
-	
+
 	@Command(hook = "tpall")
 	public void tpall(CommandSender sender)	{
 		Player to = (Player) sender;
@@ -171,7 +177,7 @@ public class Teleport implements Module, Listener
 		}
 		getLogger().message(sender, "Everyone has sucessfully teleported to you.");
 	}
-	
+
 	@Command(hook = "tpall2")
 	public void tpall2(CommandSender sender, String player)	{
 		Player to = Bukkit.getPlayer(player);
@@ -179,7 +185,7 @@ public class Teleport implements Module, Listener
 			playerDoesNotExistError(sender, player);
 			return;
 		}
-		
+
 		String s = (sender instanceof Player? ((Player)sender).getDisplayName() :sender.getName());
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			p.teleport(to, TeleportCause.COMMAND);
@@ -187,35 +193,35 @@ public class Teleport implements Module, Listener
 		}
 		getLogger().message(sender, "Everyone was sucessfully teleported to &e" + to.getDisplayName() + "&7.");
 	}
-	
+
 	@Command(hook = "tpaccept")
 	public void tpaccept(CommandSender sender) {
 		Player to = (Player) sender;
 		Player from = getLastRequestGot(to);
-		
+
 		if (from == null)
 			getLogger().message(sender, true, "You have no incoming TPA requests.");
 		else
-			teleport(to, from, pending_requests.get(to).get(from));		
+			teleport(to, from, pending_requests.get(to).get(from));
 	}
-	
+
 	@Command(hook = "tpaccept2")
 	public void tpaccept2(CommandSender sender, String player) {
 		Player to = (Player) sender;
 		Player from = Bukkit.getPlayer(player);
-		
+
 		if (from == null) {
 			playerDoesNotExistError(sender, player);
 			return;
 		}
-		
+
 		if (from.getName().equals(sender.getName())) {
 			cannotTpToYourself(sender);
 			return;
 		}
-		
+
 		Map<Player, TPAType> m = pending_requests.get(to);
-		
+
 		if (m == null)
 			getLogger().message(sender, true, "You have no incoming TPA requests.");
 		else if (!m.containsKey(from))
@@ -223,117 +229,117 @@ public class Teleport implements Module, Listener
 		else
 			teleport(to, from, m.get(from));
 	}
-	
-	
+
+
 	private void teleport(Player to, Player from, TPAType type) {
 		switch (pending_requests.get(to).get(from)) {
 			case TPA: from.teleport(to, TeleportCause.COMMAND); break;
 			case TPAHERE: to.teleport(from, TeleportCause.COMMAND); break;
 		}
 		clearRequest(to, from);
-	
+
 		getLogger().message(from, "&e" + to.getDisplayName() + "&7 has &aaccepted&7 your TPA request.");
 		getLogger().message(to, "You've &aaccepted&7 &e" + from.getDisplayName() + "&7's TPA request.");
 	}
-	
+
 	@Command(hook = "tpdeny")
 	public void tpdeny(CommandSender sender) {
 		Player to = (Player) sender;
 		Player from = getLastRequestGot(to);
-		
+
 		if (from == null) {
 			getLogger().message(sender, true, "You have no incoming TPA requests.");
 			return;
 		}
-		
+
 		clearRequest(to, from);
-		
+
 		getLogger().message(from, "&e" + to.getDisplayName() + "&7 has &cdenied&7 your TPA request.");
 		getLogger().message(to, "You've &cdenied&7 &e" + from.getDisplayName() + "&7's TPA request.");
 	}
-	
+
 	@Command(hook = "tpdeny2")
 	public void tpdeny2(CommandSender sender, String player) {
 		Player to = (Player) sender;
 		Player from = Bukkit.getPlayer(player);
-		
+
 		if (from == null) {
 			playerDoesNotExistError(sender, player);
 			return;
 		}
-		
+
 		if (from.getName().equals(sender.getName())) {
 			cannotTpToYourself(sender);
 			return;
 		}
-		
+
 		Map<Player, TPAType> m = pending_requests.get(to);
-		
+
 		if (m == null)
 			getLogger().message(sender, true, "You have no incoming TPA requests.");
-		
+
 		else if (!m.containsKey(from))
 			getLogger().message(sender, true, "&e" + from.getDisplayName() + "&7 doesn't have an active TPA request with you.");
-		
+
 		else {
 			clearRequest(to, from);
 			getLogger().message(from, "&e" + to.getDisplayName() + "&7 has &cdenied&7 your TPA request.");
 			getLogger().message(to, "You've &cdenied&7 &e" + from.getDisplayName() + "&7's TPA request.");
 		}
 	}
-	
+
 	@Command(hook = "tpacancel")
 	public void tpacancel(CommandSender sender)	{
 		Player from = (Player) sender;
 		Player to = getLastRequest(from);
-		
+
 		if (to == null)
 			getLogger().message(sender, true, "You don't have outgoing TPA requests.");
 		else
 			cancel(to, from);
 	}
-	
+
 	@Command(hook = "tpacancel2")
 	public void tpacancel2(CommandSender sender, String player)	{
 		Player from = (Player) sender;
 		Player to = Bukkit.getPlayer(player);
-		
+
 		if (to == null)
 			playerDoesNotExistError(sender, player);
 		else
 			cancel(to, from);
 	}
-	
+
 	private void cancel(Player to, Player from) {
 		Stack<Player> s = last_request.get(from);
-		
+
 		if (s == null)
 			getLogger().message(from, true, "You have no outgoing TPA requests.");
-		
+
 		else if (!s.contains(to))
 			getLogger().message(from, true, "You didn't send a TPA request to &e"
 		                                      + to.getDisplayName() + "&7.");
-		
+
 		else {
 			clearRequest(to, from);
 			getLogger().message(to, "&e" + from.getDisplayName() + "&7 has &ccanceled&7 their request.");
 			getLogger().message(from, "You &ccanceled&7 your request to &e" + to.getDisplayName() + "&7.");
 		}
 	}
-	
+
 	@Command(hook = "tplist")
 	public void tplist(CommandSender sender) {
 		Player to = (Player) sender;
-		
+
 		Map<Player,TPAType> m = pending_requests.get(to);
-		
+
 		if (m == null) {
 			getLogger().message(sender, true, "You don't have any incoming TPA requests.");
 			return;
 		}
 		ChatAPI.send(sender, getLogger().getHeader());
 		ChatAPI.send(sender, "");
-		
+
 		for (Player from : m.keySet()) {
 			ChatAPI.createMessage(sender)
 			.appendText("&e" + from.getDisplayName() + "&7: ")
@@ -343,10 +349,10 @@ public class Teleport implements Module, Listener
 			.send();
 		}
 	}
-	
+
 	@Command(hook = "tptoggle")
 	public void tptoggle(CommandSender sender, String status) {
-		
+
 		switch (status.toLowerCase()) {
 			case "all":
 				DataManager.setData(sender, "allow-tpa", true);
@@ -371,28 +377,28 @@ public class Teleport implements Module, Listener
 		}
 		getLogger().message(sender, "Status set to &e" + status + "&7.");
 	}
-	
+
 	private void playerDoesNotExistError(CommandSender sender, String player) {
 		getLogger().message(sender, true, "The player, &e" + player + "&7, is not online.");
 	}
 	private void cannotTpToYourself(CommandSender sender) {
 		getLogger().message(sender, true, "You can't teleport to yourself.");
 	}
-	
+
 	private void insertIntoMaps(Player from, Player to, TPAType type) {
 		Map<Player, TPAType> m = pending_requests.getOrDefault(to, new HashMap<>());
 		m.put(from, type);
 		pending_requests.put(to, m);
-		
+
 		Stack<Player> s1 = last_request.getOrDefault(from, new Stack<>());
 		s1.push(to);
 		last_request.put(from, s1);
-		
+
 		Stack<Player> s2 = last_request_got.getOrDefault(to, new Stack<>());
 		s2.push(from);
 		last_request_got.put(to, s2);
 	}
-	
+
 	private void notifyAskie(Player to, Player from, TPAType type) {
 		ChatAPI.createMessage(to)
 		.appendText(getLogger().getPrefix() + "&e" + from.getDisplayName()
@@ -404,7 +410,7 @@ public class Teleport implements Module, Listener
 		.appendSendChatHover("&cDeny", "/tpdeny " + from.getName(), "&eClick to &cDeny")
 		.send();
 	}
-	
+
 	private Player getLastRequest(Player from) {
 		Stack<Player> stack = last_request.get(from);
 		if (stack == null)
@@ -416,7 +422,7 @@ public class Teleport implements Module, Listener
 			last_request.put(from, stack);
 		return toReturn;
 	}
-	
+
 	private Player getLastRequestGot(Player to) {
 		Stack<Player> stack = last_request_got.get(to);
 		if (stack == null)
@@ -428,16 +434,16 @@ public class Teleport implements Module, Listener
 			last_request_got.put(to, stack);
 		return toReturn;
 	}
-	
+
 	private void clearRequest(Player to, Player from) {
 		Stack<Player> s1 = last_request.get(from);
 		Stack<Player> s2 = last_request_got.get(to);
 		Map<Player, TPAType> m = pending_requests.get(to);
-		
+
 		s1.remove(to);
 		s2.remove(from);
 		m.remove(from);
-		
+
 		if (s1.isEmpty())
 			last_request.remove(from);
 		else
@@ -449,17 +455,17 @@ public class Teleport implements Module, Listener
 		if (m.isEmpty())
 			pending_requests.remove(from);
 		else
-			pending_requests.put(from, m);				
+			pending_requests.put(from, m);
 	}
-	
+
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player p = event.getPlayer();
-		
+
 		pending_requests.remove(p);
 		last_request.remove(p);
 		last_request_got.remove(p);
-		
+
 		Iterator<Player> pr_iterator = pending_requests.keySet().iterator();
 		while (pr_iterator.hasNext()) {
 			Player fl = pr_iterator.next();
@@ -470,7 +476,7 @@ public class Teleport implements Module, Listener
 			else
 				pending_requests.put(fl, m);
 		}
-		
+
 		Iterator<Player> lr_iterator = last_request.keySet().iterator();
 		while (lr_iterator.hasNext()) {
 			Player fl = lr_iterator.next();
@@ -481,7 +487,7 @@ public class Teleport implements Module, Listener
 			else
 				last_request.put(fl, s);
 		}
-		
+
 		Iterator<Player> lrg_iterator = last_request_got.keySet().iterator();
 		while (lrg_iterator.hasNext()) {
 			Player fl = lrg_iterator.next();
