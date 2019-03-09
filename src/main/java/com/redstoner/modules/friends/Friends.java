@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.json.simple.JSONArray;
@@ -27,41 +28,48 @@ import com.redstoner.modules.CoreModule;
 import com.redstoner.modules.Module;
 import com.redstoner.modules.datamanager.DataManager;
 
+import net.nemez.chatapi.click.Message;
+
 @AutoRegisterListener
 @Commands(CommandHolderType.File)
-@Version(major = 5, minor = 0, revision = 0, compatible = 4)
-public class Friends implements CoreModule {
+@Version(major = 5, minor = 1, revision = 1, compatible = 4)
+public class Friends implements CoreModule, Listener {
+	
+	private static int GROUP_PREFIX_LENGETH = 6;
+	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(PlayerJoinEvent e) {
-		JSONArray friended_by = (JSONArray) DataManager.getOrDefault(e.getPlayer(), "friended_by", new JSONArray());
+		Player player = e.getPlayer();
+		JSONArray friended_by = (JSONArray) DataManager.getOrDefault(player, "friended_by", new JSONArray());
 
 		for (Object obj : friended_by) {
 			UUID uuid = UUID.fromString((String) obj);
 			Player p = Bukkit.getPlayer(uuid);
 
-			if (p != null && p.canSee(e.getPlayer())) {
-				getLogger().message(p, "Your friend &e" + e.getPlayer().getDisplayName() + "&7 just joined!");
+			if (p != null && p.canSee(player)) {
+				getLogger().message(p, "Your friend &e" + player.getDisplayName() + "&7 just joined!");
 				p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 1, 1);
 			}
 		}
 
-		JSONArray notifications = (JSONArray) DataManager.getOrDefault(e.getPlayer(), "scheduled_notifications", new JSONArray());
-
-		for (Object obj : notifications) {
-			getLogger().message(e.getPlayer(), (String) obj);
-		}
+		JSONArray notifications = (JSONArray) DataManager.getOrDefault(player, "scheduled_notifications", new JSONArray());
+		for (Object obj : notifications)
+			getLogger().message(player, (String) obj);
+		DataManager.setData(player, "scheduled_notifications", new JSONArray());
+		DataManager.save(player);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerLeave(PlayerQuitEvent e) {
-		JSONArray friended_by = (JSONArray) DataManager.getOrDefault(e.getPlayer(), "friended_by", new JSONArray());
+		Player player = e.getPlayer();
+		JSONArray friended_by = (JSONArray) DataManager.getOrDefault(player, "friended_by", new JSONArray());
 
 		for (Object obj : friended_by) {
 			UUID uuid = UUID.fromString((String) obj);
 			Player p = Bukkit.getPlayer(uuid);
 
-			if (p != null && p.canSee(e.getPlayer())) {
-				getLogger().message(p, "Your friend &e" + e.getPlayer().getDisplayName() + "&7 just left!");
+			if (p != null && p.canSee(player)) {
+				getLogger().message(p, "Your friend &e" + player.getDisplayName() + "&7 just left!");
 				p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 1, 1);
 			}
 		}
@@ -76,10 +84,10 @@ public class Friends implements CoreModule {
 		}
 
 		OfflinePlayer p = Bukkit.getPlayer(target);
-
-		if (p == null) p = Bukkit.getOfflinePlayer(target);
-		if (p == null) {
-			getLogger().message(sender, true, "That player couldn't be found!");
+		
+		if (p == null) p = Bukkit.getOfflinePlayer(target);		
+		if (p == null || !p.hasPlayedBefore()) {
+			getLogger().message(sender, true, "That player has never joined the server!");
 			return true;
 		}
 
@@ -93,24 +101,25 @@ public class Friends implements CoreModule {
 		friends.add(p.getUniqueId().toString());
 		DataManager.setData(sender, "friends", friends);
 		DataManager.save(sender);
-
+		
 		JSONArray friended_by = ((JSONArray) DataManager.getOrDefault(p.getUniqueId().toString(), "friended_by", new JSONArray()));
 		friended_by.add(getID(sender));
-		DataManager.setData(p.getUniqueId().toString(), "friended_by", friended_by);
 		
+		DataManager.setData(p.getUniqueId().toString(), "friended_by", friended_by);
 		DataManager.save(p.getUniqueId().toString());
-
+		
 		getLogger().message(sender, "You are now friends with &e" + p.getName() + "&7!");
 
-		if (p instanceof Player) {
+		if (p instanceof Player)
 			getLogger().message((Player) p, "&e" + Utils.getName(sender) + "&7 added you as a friend!");
-		} else {
+		else {
 			JSONArray notifications = (JSONArray) DataManager.getOrDefault(p.getUniqueId().toString(), "scheduled_notifications", new JSONArray());
 
 			notifications.add("&e" + Utils.getName(sender) + "&7 added you as a friend!");
 			notifications.remove("&e" + Utils.getName(sender) + "&7 removed you as a friend!");
 
 			DataManager.setData(p.getUniqueId().toString(), "scheduled_notifications", notifications);
+			DataManager.save(p.getUniqueId().toString());
 		}
 
 		return true;
@@ -127,33 +136,34 @@ public class Friends implements CoreModule {
 		OfflinePlayer p = Bukkit.getPlayer(target);
 
 		if (p == null) p = Bukkit.getOfflinePlayer(target);
-		if (p == null) {
-			getLogger().message(sender, true, "That player couldn't be found!");
+		if (p == null || !p.hasPlayedBefore()) {
+			getLogger().message(sender, true, "That player has neevr joined the server!");
 			return true;
 		}
 
-		JSONArray friends = ((JSONArray) DataManager.getOrDefault(sender, "groups." + group, new JSONArray()));
+		JSONArray friends = ((JSONArray) DataManager.getOrDefault(sender, "group." + group, new JSONArray()));
 
 		if (friends.contains(p.getUniqueId().toString())) {
-			getLogger().message(sender, true, "This person already is part of that friendsgroup!");
+			getLogger().message(sender, true, "This person already is part of that friendgroup!");
 			return true;
 		}
 
 		friends.add(p.getUniqueId().toString());
-		DataManager.setData(sender, "groups." + group, friends);
+		DataManager.setData(sender, "group." + group, friends);
 		DataManager.save(sender);
 
 		getLogger().message(sender, "&e" + p.getName() + "&7 is now part of the group &e" + group + "&7!");
 
-		if (p instanceof Player) {
-			getLogger().message((Player) p, "&e" + Utils.getName(sender) + " &7added you to their friendsgroup &e" + group + "&7!");
-		} else {
+		if (p instanceof Player)
+			getLogger().message((Player) p, "&e" + Utils.getName(sender) + " &7added you to their friendgroup &e" + group + "&7!");
+		else {
 			JSONArray notifications = (JSONArray) DataManager.getOrDefault(p.getUniqueId().toString(), "scheduled_notifications", new JSONArray());
 
-			notifications.add("&e" + Utils.getName(sender) + " &7added you to their friendsgroup &e" + group + "&7!");
-			notifications.remove("&e" + Utils.getName(sender) + " &7removed you from their friendsgroup &e" + group + "&7!");
+			notifications.add("&e" + Utils.getName(sender) + " &7added you to their friendgroup &e" + group + "&7!");
+			notifications.remove("&e" + Utils.getName(sender) + " &7removed you from their friendgroup &e" + group + "&7!");
 
 			DataManager.setData(p.getUniqueId().toString(), "scheduled_notifications", notifications);
+			DataManager.save(p.getUniqueId().toString());
 		}
 
 		return true;
@@ -163,14 +173,14 @@ public class Friends implements CoreModule {
 	@Command(hook = "del")
 	public boolean del(CommandSender sender, String target) {
 		if (target.equalsIgnoreCase("CONSOLE")) {
-			getLogger().message(sender, true, "You can't add console to your friends!");
+			getLogger().message(sender, true, "You can't have console as your friends!");
 			return true;
 		}
 
 		OfflinePlayer p = Bukkit.getPlayer(target);
 
 		if (p == null) p = Bukkit.getOfflinePlayer(target);
-		if (p == null) {
+		if (p == null || !p.hasPlayedBefore()) {
 			getLogger().message(sender, true, "That player couldn't be found!");
 			return true;
 		}
@@ -185,24 +195,25 @@ public class Friends implements CoreModule {
 		friends.remove(p.getUniqueId().toString());
 		DataManager.setData(sender, "friends", friends);
 		DataManager.save(sender);
-
+		
 		JSONArray friended_by = ((JSONArray) DataManager.getOrDefault(p.getUniqueId().toString(), "friended_by", new JSONArray()));
-		DataManager.setData(p.getUniqueId().toString(), "friended_by", friended_by);
 		friended_by.remove(getID(sender));
-
+		
+		DataManager.setData(p.getUniqueId().toString(), "friended_by", friended_by);
 		DataManager.save(p.getUniqueId().toString());
 
 		getLogger().message(sender, "You are no longer friends with &e" + p.getName() + "&7!");
 
-		if (p instanceof Player) {
+		if (p instanceof Player)
 			getLogger().message((Player) p, "&e" + Utils.getName(sender) + "&7 removed you as a friend!");
-		} else {
+		else {
 			JSONArray notifications = (JSONArray) DataManager.getOrDefault(p.getUniqueId().toString(), "scheduled_notifications", new JSONArray());
 
 			notifications.add("&e" + Utils.getName(sender) + "&7 removed you as a friend!");
 			notifications.remove("&e" + Utils.getName(sender) + "&7 added you as a friend!");
 
 			DataManager.setData(p.getUniqueId().toString(), "scheduled_notifications", notifications);
+			DataManager.save(p.getUniqueId().toString());
 		}
 
 		return true;
@@ -219,33 +230,34 @@ public class Friends implements CoreModule {
 		OfflinePlayer p = Bukkit.getPlayer(target);
 
 		if (p == null) p = Bukkit.getOfflinePlayer(target);
-		if (p == null) {
+		if (p == null || !p.hasPlayedBefore()) {
 			getLogger().message(sender, true, "That player couldn't be found!");
 			return true;
 		}
 
-		JSONArray friends = ((JSONArray) DataManager.getOrDefault(sender, "groups." + group, new JSONArray()));
+		JSONArray friends = ((JSONArray) DataManager.getOrDefault(sender, "group." + group, new JSONArray()));
 
 		if (!friends.contains(p.getUniqueId().toString())) {
-			getLogger().message(sender, true, "This person isn't a part of that friendsgroup!");
+			getLogger().message(sender, true, "This person isn't a part of that friendgroup!");
 			return true;
 		}
 
 		friends.add(p.getUniqueId().toString());
-		DataManager.setData(sender, "groups." + group, friends);
+		DataManager.setData(sender, "group." + group, friends);
 		DataManager.save(sender);
-
+		
 		getLogger().message(sender, "&e" + p.getName() + "&7 is no longer a part of the group &e" + group + "&7!");
 
-		if (p instanceof Player) {
-			getLogger().message((Player) p, "&e" + Utils.getName(sender) + " &7removed you from their friendsgroup &e" + group + "&7!");
-		} else {
+		if (p instanceof Player)
+			getLogger().message((Player) p, "&e" + Utils.getName(sender) + " &7removed you from their friendgroup &e" + group + "&7!");
+		else {
 			JSONArray notifications = (JSONArray) DataManager.getOrDefault(p.getUniqueId().toString(), "scheduled_notifications", new JSONArray());
 
-			notifications.add("&e" + Utils.getName(sender) + " &7removed you from their friendsgroup &e" + group + "&7!");
-			notifications.remove("&e" + Utils.getName(sender) + " &7added you to their friendsgroup &e" + group + "&7!");
+			notifications.add("&e" + Utils.getName(sender) + " &7removed you from their friendgroup &e" + group + "&7!");
+			notifications.remove("&e" + Utils.getName(sender) + " &7added you to their friendgroup &e" + group + "&7!");
 
 			DataManager.setData(p.getUniqueId().toString(), "scheduled_notifications", notifications);
+			DataManager.save(p.getUniqueId().toString());
 		}
 
 		return true;
@@ -256,21 +268,27 @@ public class Friends implements CoreModule {
 		JSONArray friends = (JSONArray) DataManager.getOrDefault(sender, "friends", new JSONArray());
 
 		if (friends.size() == 0) {
-			getLogger().message(sender, true, "You didn't add anyone to your friends list yet.");
-		} else {
-			StringBuilder sb = new StringBuilder();
-
-			for (Object o : friends.toArray()) {
-				UUID id = UUID.fromString((String) o);
-				Player p = Bukkit.getPlayer(id);
-
-				if (p != null) sb.append(p.getDisplayName() + "&7, ");
-				else sb.append("&9" + Bukkit.getOfflinePlayer(id).getName() + "&7, ");
-			}
-
-			String out = sb.toString().replaceAll(", $", "");
-			getLogger().message(sender, "You have a total of &e" + friends.size() + "&7 friends:", out);
+			getLogger().message(sender, true, "You haven't added anyone to your friends list yet.");
+			return true;
 		}
+		
+		Message msg = new Message(sender, null)
+					  .appendText(getLogger().getHeader() + "&7You have a total of &e" + friends.size() + "&7 friends:\n");
+		
+		for (int i = 0; i < friends.size(); i++) {
+			UUID id = UUID.fromString((String) friends.get(i));
+			Player p = Bukkit.getPlayer(id);
+			if (p != null)
+				msg.appendSuggestHover("&a" + p.getName(), "/msg " + p.getName() + " ", "&aONLINE\n&9"
+			                         + p.getDisplayName() + "\n&7" + id.toString() + "\n\n&oClick to send a message.");
+			else {
+				String op = Bukkit.getOfflinePlayer(id).getName();
+				msg.appendSuggestHover("&c" + op, "/mail send " + op + " ", "&cOFFLINE\n&7" + id.toString() + "\n\n&oClick to send a message.");
+			}
+			if (i != friends.size() - 1)
+				msg.appendText("&7, ");
+		}
+		msg.send();
 
 		return true;
 	}
@@ -281,43 +299,88 @@ public class Friends implements CoreModule {
 
 		if (friends.size() == 0) {
 			getLogger().message(sender, true, "You didn't add anyone to this group yet.");
-		} else {
-			StringBuilder sb = new StringBuilder();
-
-			for (Object o : friends.toArray()) {
-				UUID id = UUID.fromString((String) o);
-				Player p = Bukkit.getPlayer(id);
-
-				if (p != null) sb.append(p.getDisplayName() + "&7, ");
-				else sb.append("&9" + Bukkit.getOfflinePlayer(id).getName() + "&7, ");
-			}
-
-			String out = sb.toString().replaceAll(", $", "");
-			getLogger().message(sender, "You have a total of &e" + friends.size() + "&7 friends added to this group:", out);
+			return true;
 		}
+		
+		Message msg = new Message(sender, null)
+					  .appendText(getLogger().getHeader() + "&7You have a total of &e" + friends.size() + "&7 friends added to this group[&e" + group + "&7]:");
+		
+		for (int i = 0; i < friends.size(); i++) {
+			UUID id = UUID.fromString((String) friends.get(i));
+			Player p = Bukkit.getPlayer(id);
+			if (p != null)
+				msg.appendSuggestHover("&a" + p.getName(), "/msg " + p.getName() + " ", "&aONLINE\n&9"
+			                         + p.getDisplayName() + "\n&7" + id.toString() + "\n\n&oClick to send a message.");
+			else {
+				String op = Bukkit.getOfflinePlayer(id).getName();
+				msg.appendSuggestHover("&c" + op, "/mail send " + op + " ", "&cOFFLINE\n&7" + id.toString() + "\n\n&oClick to send a message.");
+			}
+			if (i != friends.size() - 1)
+				msg.appendText("&7, ");
+		}
+		msg.send();
 
-		return true;
+		return true;		
 	}
 
+	private String getFriendsInGroup(CommandSender sender, String group) {
+		JSONArray friends = (JSONArray) DataManager.getOrDefault(sender, group == null? "friends" : "group." + group, new JSONArray());
+		
+		if (friends.size() == 0)
+			return "This group is Empty";
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i = 0; i < friends.size(); i++) {
+			UUID id = UUID.fromString((String) friends.get(i));
+			Player p = Bukkit.getPlayer(id);
+			if (p != null)
+				sb.append("&a" + p.getName());
+			else
+				sb.append("&c" + Bukkit.getOfflinePlayer(id).getName());
+			
+			if (i != friends.size() - 1)
+				sb.append("&7, ");
+		}
+		
+		return sb.toString();
+	}
+	
+	private int getSizeOfGroup(CommandSender sender, String group) {
+		return ((JSONArray) DataManager.getOrDefault(sender, group == null? "friends" : "group." + group, new JSONArray())).size();
+	}
+	
 	@Command(hook = "list_groups")
 	public boolean list_groups(CommandSender sender) {
 		JSONObject raw = (JSONObject) DataManager.getOrDefault(sender, null, new JSONObject());
 		Set<?> keys = raw.keySet();
 
 		if (keys.size() == 0 || (keys.contains("friends") && keys.size() == 1)) {
-			getLogger().message(sender, true, "You don't have any custom groups made yet.");
+			getLogger().message(sender, true, "You don't haven't created any friendgroups yet.");
 			return true;
-		} else {
-			StringBuilder sb = new StringBuilder();
-
-			for (Object o : keys) {
-				sb.append("&e" + ((String) o).substring(6) + "&7, ");
-			}
-
-			String out = sb.toString().replaceAll(", $", "");
-			getLogger().message(sender, "", out);
 		}
-
+		
+		Message msg = new Message(sender, null)
+				    .appendText(getLogger().getHeader() + "&7You have a total of &e" + keys.size() + "&7 friendgroups:\n");
+		
+		if (keys.contains("friends")) {
+			msg.appendSendChatHover("&6friends", "/friends list",
+					"&7Size: " + getSizeOfGroup(sender, null) + "\n\n" + getFriendsInGroup(sender, null))
+			   .appendText("&7, ");
+			keys.remove("friends");
+		}
+		
+		Object[] keysArray= keys.toArray();
+		for (int i = 0; i < keysArray.length; i++) {
+			String group = ((String) keysArray[i]).substring(GROUP_PREFIX_LENGETH);
+			msg.appendSendChatHover("&e" + group, "/friends list " + group,
+					"&7Size: " + getSizeOfGroup(sender, group) + "\n\n" + getFriendsInGroup(sender, group));
+			
+			if (i != keysArray.length - 1)
+				msg.appendText("&7, ");
+		}
+		
+		msg.send();
 		return true;
 	}
 

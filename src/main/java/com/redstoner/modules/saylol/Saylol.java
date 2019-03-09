@@ -1,14 +1,22 @@
 package com.redstoner.modules.saylol;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.json.simple.JSONArray;
 
 import com.nemez.cmdmgr.Command;
+import com.redstoner.annotations.AutoRegisterListener;
 import com.redstoner.annotations.Commands;
 import com.redstoner.annotations.Version;
 import com.redstoner.coremods.moduleLoader.ModuleLoader;
@@ -24,14 +32,17 @@ import net.nemez.chatapi.ChatAPI;
 import net.nemez.chatapi.click.ClickCallback;
 import net.nemez.chatapi.click.Message;
 
+@AutoRegisterListener
 @Commands(CommandHolderType.File)
-@Version(major = 5, minor = 0, revision = 1, compatible = 4)
+@Version(major = 5, minor = 1, revision = 0, compatible = 4)
 public class Saylol implements Module
 {
 	private long lastLol = 0;
 	private File lolLocation = new File(Main.plugin.getDataFolder(), "lol.json");
 	private JSONArray lols, handlers;
 	private final String LOL_PREFIX = "§8[§blol§8] ";
+	private Map<CommandSender, List<Integer>> searchCache = new HashMap<>();
+	private final int PAGE_SIZE = 10;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -84,6 +95,7 @@ public class Saylol implements Module
 				}
 			});
 			saveLols();
+			searchCache.clear();
 		}
 		return true;
 	}
@@ -104,6 +116,7 @@ public class Saylol implements Module
 		getLogger().message(sender, "Successfully deleted the lol: " + lols.remove(id));
 		handlers.remove(id);
 		saveLols();
+		searchCache.clear();
 		return true;
 	}
 	
@@ -124,6 +137,7 @@ public class Saylol implements Module
 		getLogger().message(sender, "Successfully changed the lol: &e" + lols.get(id) + " &7to: &e" + text);
 		lols.set(id, text);
 		saveLols();
+		searchCache.clear();
 		return true;
 	}
 	
@@ -195,18 +209,20 @@ public class Saylol implements Module
 	@Command(hook = "listlols")
 	public boolean listLols(CommandSender sender, int page)
 	{
+		searchCache.put(sender, Arrays.asList(-1));
+		
 		if (lols.size() == 0)
 		{
 			getLogger().message(sender, true, "There are no lols yet!");
 			return true;
 		}
 		page = page - 1;
-		int start = page * 10;
-		int end = start + 10;
-		int pages = (int) Math.ceil(lols.size() / 10d);
+		int start = page * PAGE_SIZE;
+		int end = start + PAGE_SIZE;
+		int pages = getMaxPage(lols.size());
 		if (start < 0)
 		{
-			getLogger().message(sender, true, "Page number too small, must be at least 0!");
+			getLogger().message(sender, true, "Page number too small, must be at least 1!");
 			return true;
 		}
 		if (start > lols.size())
@@ -216,7 +232,7 @@ public class Saylol implements Module
 		}
 		Message m = new Message(sender, null);
 		m.appendText(getLogger().getHeader().replace("\n", ""));
-		m.appendText("&ePage " + (page + 1) + "/" + pages + ":");
+		m.appendText(" &ePage " + (page + 1) + "/" + pages + ":");
 		for (int i = start; i < end && i < lols.size(); i++)
 			m.appendCallback("\n&a" + i + "&8: &e" + lols.get(i), getCallback(i));
 		m.send();
@@ -231,50 +247,115 @@ public class Saylol implements Module
 	
 	@Command(hook = "searchlol")
 	public boolean search(CommandSender sender, boolean sensitive, String text)
-	{
-		Message m = new Message(sender, null);
-		m.appendText(getLogger().getHeader().replace("\n", ""));
-		boolean found = false;
+	{		
+		searchCache.remove(sender);
+		
+		List<Integer> results = new ArrayList<>();
+		
 		if (!sensitive)
 			text = text.toLowerCase();
 		for (int i = 0; i < lols.size(); i++)
 		{
 			String lol = (String) lols.get(i);
 			if ((sensitive ? lol : lol.toLowerCase()).contains(text))
-			{
-				m.appendCallback("\n&a" + i + "&8: &e" + lol, getCallback(i));
-				found = true;
-			}
+				results.add(i);
 		}
-		if (!found)
+		if (results.isEmpty()) {
 			getLogger().message(sender, "&cCouldn't find any matching lols.");
-		else
-			m.send();
+			return true;
+		}
+		
+		searchCache.put(sender, results);
+		
+		Message m = new Message(sender, null);
+		m.appendText(getLogger().getHeader().replace("\n", ""));
+		
+		int size = results.size();
+		if (size > PAGE_SIZE)
+			m.appendText(" &ePage 1/" + getMaxPage(size) + ":");
+		
+		for (int i = 0; i < size && i < PAGE_SIZE; i++)
+			m.appendCallback("\n&a" + i + "&8: &e" + lols.get(results.get(i)), getCallback(i));
+		
+		m.appendText("\n&7Use /lol page <number> to look at other pages.");
+		m.send();
 		return true;
 	}
 	
 	@Command(hook = "matchlol")
 	public boolean match(CommandSender sender, boolean sensitive, String regex)
 	{
-		Message m = new Message(sender, null);
-		m.appendText(getLogger().getHeader().replace("\n", ""));
-		boolean found = false;
+		
+		searchCache.remove(sender);
+		
+		List<Integer> results = new ArrayList<>();
+		
 		if (!sensitive)
 			regex = regex.toLowerCase();
 		for (int i = 0; i < lols.size(); i++)
 		{
 			String lol = (String) lols.get(i);
 			if ((sensitive ? lol : lol.toLowerCase()).matches(regex))
-			{
-				m.appendCallback("\n&a" + i + "&8: &e" + lol, getCallback(i));
-				found = true;
-			}
+				results.add(i);
 		}
-		if (!found)
+		if (results.isEmpty()) {
 			getLogger().message(sender, "&cCouldn't find any matching lols.");
-		else
-			m.send();
+			return true;
+		}
+		
+		searchCache.put(sender, results);
+		
+		Message m = new Message(sender, null);
+		m.appendText(getLogger().getHeader().replace("\n", ""));
+		
+		int size = results.size();
+		if (size > PAGE_SIZE)
+			m.appendText(" &ePage 1/" + getMaxPage(size) + ":");
+		
+		for (int i = 0; i < size && i < PAGE_SIZE; i++)
+			m.appendCallback("\n&a" + i + "&8: &e" + lols.get(i), getCallback(i));
+		
+		m.appendText("\n&7Use /lol page <number> to look at other pages.");
+		m.send();
+		
 		return true;
+	}
+	
+	@Command(hook = "page")
+	public boolean page(CommandSender sender, int page) {
+		List<Integer> results = searchCache.get(sender);
+		
+		if (results == null || results.size() == 0) {
+			getLogger().message(sender, true, "There's nothing to page through. Either you haven't"
+					                        + " done a relivent command, or the lols have changed since you have.");
+			return true;
+		}
+		
+		int pages = getMaxPage(results.size());
+		
+		if (results.get(0) == -1)
+			listLols(sender, page);
+		else if (page < 1 || page > pages)
+			getLogger().message(sender, true, "Page number not on range. Must be between &e1&7 and &e" + pages + "&7.");
+		else {
+			Message m = new Message(sender, null);
+			m.appendText(getLogger().getHeader().replace("\n", " &ePage " + page + "/" + pages + ":"));
+			
+			for (int i = page*PAGE_SIZE-PAGE_SIZE; i < page*PAGE_SIZE; i++)
+				m.appendCallback("\n&a" + i + "&8: &e" + lols.get(i), getCallback(i));
+			
+			m.send();
+		}
+		return true;
+	}
+	
+	@EventHandler
+	public void onLeave(PlayerQuitEvent e) {
+		searchCache.remove(e.getPlayer());
+	}
+	
+	public int getMaxPage(int size) {
+		return (int) Math.ceil(size / (double) PAGE_SIZE);
 	}
 	
 	public void saveLols()

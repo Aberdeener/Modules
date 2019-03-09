@@ -41,6 +41,11 @@ command lol {
         run matchlol -i regex;
         perm utils.lol.match;
     }
+    page [int:num] {
+    	help Shows you page <num>. Used in /lol search, /lol match, and /lol list.;
+    	run page num;
+    	perm utils.lol.page;
+    }
     [empty] {
         help Lols.;
         run saylol;

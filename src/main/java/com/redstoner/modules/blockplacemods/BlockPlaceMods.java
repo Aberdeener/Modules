@@ -28,7 +28,7 @@ import java.util.Map;
 
 @Commands (CommandHolderType.File)
 @AutoRegisterListener
-@Version (major = 5, minor = 2, revision = 0, compatible = 4)
+@Version (major = 5, minor = 2, revision = 1, compatible = 4)
 public class BlockPlaceMods implements Module, Listener {
 	private static final Map<String, BlockPlaceMod> mods        = new HashMap<>();
 	private static final List<BlockPlaceMod>        enabledMods = new ArrayList<>();
@@ -54,6 +54,7 @@ public class BlockPlaceMods implements Module, Listener {
 			if (mod.onEnable()) {
 				enabledMods.add(mod);
 				Bukkit.getPluginManager().registerEvents(mod, Main.plugin);
+				getLogger().info("Loaded mod, &e" + mod.name + "&7.");
 			} else {
 				getLogger().warn("Failed to enable the mod, &e" + mod.name + "&7!");
 			}

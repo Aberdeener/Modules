@@ -24,14 +24,11 @@ import com.nemez.cmdmgr.Command;
 import com.redstoner.annotations.AutoRegisterListener;
 import com.redstoner.annotations.Commands;
 import com.redstoner.annotations.Version;
-import com.redstoner.coremods.moduleLoader.ModuleLoader;
 import com.redstoner.misc.CommandHolderType;
 import com.redstoner.misc.JsonManager;
 import com.redstoner.misc.Main;
-import com.redstoner.misc.Utils;
 import com.redstoner.modules.Module;
 import com.redstoner.modules.datamanager.DataManager;
-import com.redstoner.modules.ignore.Ignore;
 
 import net.nemez.chatapi.ChatAPI;
 
