@@ -110,7 +110,7 @@ public class Discord implements Module {
 		table.insert(pUUID, token);
 
 		new Message(sender, null).appendText("\n&cRedstoner&7 has a &2Discord&7 Now! \nClick ")
-				.appendLinkHover("&e" + inviteLink, inviteLink, "&aClick to Join").appendText("&7 to join. \n\nTo sync you rank, copy ")
+				.appendLinkHover("&e" + inviteLink, inviteLink, "&aClick to Join").appendText("&7 to join. \n\nTo sync your rank, copy ")
 				.appendSuggestHover("&e" + token, token, "&aClick to Copy").appendText("&7 into &3#rank-sync&7.\n").send();
 	}
 
